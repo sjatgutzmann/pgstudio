@@ -1,6 +1,24 @@
 PostgreSQL Studio History
 -------------------------
 
+Version 1.2
+-----------
+
+Released: 23rd February 2014
+
+Features
+* Added Open and Save buttons to SQL Worksheet
+* Moved the close button on SQL Worksheet to the upper right corner
+* Improved the look and feel of pop ups windows
+* Auto select the first object in a schema
+* Added a limit drop down to SQL Worksheet
+
+Bugs
+* Removed extra new line charcters when displaying a function
+* Added a click handler to reselect an already selected row
+* Added a scroll panel for the Data tab for wide tables
+ 
+
 Version 1.1
 -----------
 
