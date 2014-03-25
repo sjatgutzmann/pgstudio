@@ -70,6 +70,7 @@ public class ScriptPanel extends Composite implements DetailsPanel {
 			
 			isConfigured = true;
 			this.type = item.getItemType();
+
 		}
 		
 		PgStudio.studioService.getItemObjectList(PgStudio.getToken(), item.getId(), type, ITEM_OBJECT_TYPE.SOURCE, new AsyncCallback<String>() {
@@ -81,6 +82,8 @@ public class ScriptPanel extends Composite implements DetailsPanel {
 
             public void onSuccess(String result) {
             	cm.setContent(result);
+                // force a redraw
+                codePanel.setVisible(true);
             }
           });		
 
