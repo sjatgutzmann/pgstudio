@@ -113,7 +113,7 @@ public class MenuStackPanel {
 	    panel.add(tables, TextFormat.getHeaderString("Tables", Images.tables()), true);
 	    panel.add(views, TextFormat.getHeaderString("Views", Images.views()), true);
 	    
-	    if (main.getDatabaseVersion() >= 920) {
+	    if (main.getDatabaseVersion() >= 90200) {
 	    	panel.add(ftables, TextFormat.getHeaderString("Foreign Tables", Images.foreignTables()), true);
 	    }
 	    
