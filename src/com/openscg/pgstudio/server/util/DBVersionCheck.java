@@ -105,36 +105,25 @@ public class DBVersionCheck {
 	
 	public int getVersion() {
 		int version = 0;
-
-		String query = "SELECT version()";
+		String verStr = "";
+		String query = "SELECT current_setting('server_version_num')";
+		
 		try {
 			PreparedStatement stmt = conn.prepareStatement(query);
 			ResultSet rs = stmt.executeQuery();
 
 			if (rs.next()) {
-				String fullVerStr = rs.getString(1);
-				
-				String[] parts = fullVerStr.split(" ");
-				String verStr = parts[1];
-				
-				verStr = verStr.replaceAll("\\.", "");
-				
-				if (Character.isDigit(verStr.charAt(0))
-						&& Character.isDigit(verStr.charAt(1))
-						&& !Character.isDigit(verStr.charAt(2))) {
-					// We are connecting to a pre-release version of some sort.
-					// Just assume is the .0 release
-					verStr = verStr.substring(0, 2) + "0";
+				verStr = rs.getString(1);								
 				}
 
 				try {
-				version = Integer.parseInt(verStr);
+					version = Integer.parseInt(verStr);
 				} catch (Exception e) {
 					// This is an unknown version string format so just return 0
 					version = 0;
 				}
 			}
-		} catch (SQLException ex) {
+		 catch (SQLException ex) {
 			ex.printStackTrace();
 		}
 		return version;
