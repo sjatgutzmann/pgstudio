@@ -129,7 +129,7 @@ public class ViewsPanel extends Composite implements MenuPanel {
 		bar.add(drop);
 		bar.add(create);
 		
-		if (main.getDatabaseVersion() >= 930) {
+		if (main.getDatabaseVersion() >= 90300) {
 			refreshView = getRefreshViewButton();
 			bar.add(refreshView);
 		}
@@ -282,7 +282,7 @@ public class ViewsPanel extends Composite implements MenuPanel {
 		dataGrid.setSelectionModel(selectionModel);
 		selectionModel.addSelectionChangeHandler((Handler) main.getSelectionChangeHandler());
 		
-		if (main.getDatabaseVersion() >= 930) {
+		if (main.getDatabaseVersion() >= 90300) {
 			selectionModel.addSelectionChangeHandler(new Handler() {
 				@Override
 				public void onSelectionChange(SelectionChangeEvent event) {
