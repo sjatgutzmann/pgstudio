@@ -102,7 +102,7 @@ public class PgStudio implements EntryPoint {
 	public static DialogBox sqlDialog;
 	
 	public static enum DATABASE_OBJECT_TYPE implements IsSerializable {
-		DATA_TYPE, FOREIGN_SERVER, SCHEMA, LANGUAGE, ROLE
+		DATA_TYPE, FOREIGN_SERVER, SCHEMA, LANGUAGE, ROLE, DATABASE
 	}
 	
 	public static enum ITEM_TYPE implements IsSerializable {
@@ -461,6 +461,7 @@ public class PgStudio implements EntryPoint {
 
 	private Widget getSchemaWidget() {
 		HorizontalPanel panel = new HorizontalPanel();
+		panel.setSpacing(5);
 		
 		Label lbl = new Label();
 		lbl.setText("Schema");

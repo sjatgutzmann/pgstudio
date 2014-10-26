@@ -162,6 +162,9 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 		case ROLE:
 			db = new Database(connMgr.getConnection(connectionToken,clientIP, userAgent));
 			return db.getRoleList();
+		case DATABASE:
+			db = new Database(connMgr.getConnection(connectionToken,clientIP, userAgent));
+			return db.getDatabaseList();
 		default:
 			return "";
 		}
