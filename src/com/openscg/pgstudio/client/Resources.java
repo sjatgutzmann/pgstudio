@@ -147,6 +147,9 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/mat-view.gif")
 	ImageResource materializedView();
+	
+	@Source("images/monitor.gif")
+	ImageResource monitor();
 
 	@Source("images/null-constraint.gif")
 	ImageResource nullable();

@@ -146,6 +146,9 @@ public interface PgStudioServiceAsync {
 	void grant(String connectionToken, int item, ITEM_TYPE type, ArrayList<String> privileges, String grantee, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 
+	void getActivity(String connectionToken, AsyncCallback<String> callback)
+	        throws IllegalArgumentException;
+
 	void doLogout(String connectionToken, String source, AsyncCallback<Void> asyncCallback) throws IllegalArgumentException;
 
 	void invalidateSession(AsyncCallback<Void> callback);

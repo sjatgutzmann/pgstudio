@@ -61,7 +61,9 @@ import com.openscg.pgstudio.client.messages.ListJsObject;
 import com.openscg.pgstudio.client.models.DatabaseObjectInfo;
 import com.openscg.pgstudio.client.models.ModelInfo;
 import com.openscg.pgstudio.client.panels.DetailsTabPanel;
+import com.openscg.pgstudio.client.panels.MonitorPanel;
 import com.openscg.pgstudio.client.panels.SQLWorksheet;
+import com.openscg.pgstudio.client.panels.MonitorPanel;
 import com.openscg.pgstudio.client.panels.navigation.MenuStackPanel;
 import com.openscg.pgstudio.client.panels.popups.AddSchemaPopUp;
 import com.openscg.pgstudio.client.panels.popups.DropSchemaPopUp;
@@ -100,6 +102,7 @@ public class PgStudio implements EntryPoint {
 	DialogBox dialogBox = null;
 
 	public static DialogBox sqlDialog;
+	public static DialogBox monitorDialog;
 	
 	public static enum DATABASE_OBJECT_TYPE implements IsSerializable {
 		DATA_TYPE, FOREIGN_SERVER, SCHEMA, LANGUAGE, ROLE, DATABASE
@@ -266,6 +269,7 @@ public class PgStudio implements EntryPoint {
 		
 		PushButton disconnect = getDisconnectButton();
 		PushButton sql = getSQLWorksheetButton();
+		PushButton monitor = getMonitorPanelButton();
 		PushButton drop = getDropButton();
 		PushButton rename = getRenameButton();
 		PushButton create = getCreateButton();
@@ -276,6 +280,7 @@ public class PgStudio implements EntryPoint {
 		spacer2.setWidth("30px");
 		
 		bar.add(sql);
+		bar.add(monitor);
 		bar.add(spacer);
 		bar.add(rename);
 		bar.add(drop);
@@ -330,6 +335,29 @@ public class PgStudio implements EntryPoint {
 		
 		return button;
 	}
+	
+	private PushButton getMonitorPanelButton() {
+		PushButton button = new PushButton(new Image(PgStudio.Images.monitor()));
+		button.setTitle("Monitor");
+
+		button.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				monitorDialog = new ExtendedDialogBox();
+				monitorDialog.setTitle("Monitor");
+
+				MonitorPanel monitor = new MonitorPanel();
+
+				monitorDialog.setWidget(monitor.asWidget());
+				monitorDialog.setGlassEnabled(true);
+				monitorDialog.setPopupPosition(30, 30);
+				monitorDialog.setText("Monitor");
+				monitorDialog.show();
+			}
+		});
+
+		return button;
+	}	
 
 	private PushButton getDropButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.drop()));

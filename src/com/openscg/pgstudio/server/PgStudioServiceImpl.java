@@ -44,6 +44,7 @@ import com.openscg.pgstudio.server.models.Functions;
 import com.openscg.pgstudio.server.models.Indexes;
 import com.openscg.pgstudio.server.models.ItemData;
 import com.openscg.pgstudio.server.models.ItemMetaData;
+import com.openscg.pgstudio.server.models.Monitor;
 import com.openscg.pgstudio.server.models.Privileges;
 import com.openscg.pgstudio.server.models.QueryMetaData;
 import com.openscg.pgstudio.server.models.Rules;
@@ -953,6 +954,21 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 				clientIP, userAgent));
 
 		return views.refreshMaterializedView(schema, q.addQuote(viewName));
+	}
+
+	@Override
+	public String getActivity(String connectionToken) throws DatabaseConnectionException {
+
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Monitor monitor = new Monitor(connMgr.getConnection(connectionToken,
+				clientIP, userAgent));
+
+		return monitor.getActivity();
 	}
 
 }

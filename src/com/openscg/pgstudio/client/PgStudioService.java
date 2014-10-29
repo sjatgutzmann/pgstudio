@@ -113,6 +113,8 @@ public interface PgStudioService extends RemoteService {
 	
 	String grant(String connectionToken, int item, ITEM_TYPE type, ArrayList<String> privileges, String grantee) throws DatabaseConnectionException, PostgreSQLException;
 
+	String getActivity(String connectionToken) throws IllegalArgumentException, DatabaseConnectionException;
+
 	void doLogout(String connectionToken, String source) throws IllegalArgumentException, DatabaseConnectionException;
 
 	void invalidateSession();
