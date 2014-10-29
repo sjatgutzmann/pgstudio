@@ -1,3 +1,6 @@
+/*
+ * PostgreSQL Studio
+ */
 package com.openscg.pgstudio.client.models;
 
 import com.google.gwt.view.client.ProvidesKey;

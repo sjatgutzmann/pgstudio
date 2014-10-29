@@ -1,3 +1,6 @@
+/*
+ * PostgreSQL Studio
+ */
 package com.openscg.pgstudio.server.models;
 
 import java.sql.Connection;

@@ -1,3 +1,6 @@
+/*
+ * PostgreSQL Studio
+ */
 package com.openscg.pgstudio.client.providers;
 
 import java.util.ArrayList;

@@ -1,3 +1,6 @@
+/*
+ * PostgreSQL Studio
+ */
 package com.openscg.pgstudio.client.messages;
 
 import com.google.gwt.core.client.JavaScriptObject;

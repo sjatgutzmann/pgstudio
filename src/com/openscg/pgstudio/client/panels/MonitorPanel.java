@@ -1,3 +1,6 @@
+/*
+ * PostgreSQL Studio
+ */
 package com.openscg.pgstudio.client.panels;
 
 import com.google.gwt.cell.client.Cell;
