@@ -4,7 +4,7 @@
     <property name="gwt.module.name" value="com.openscg.pgstudio.PgStudio"/>
     <property name="server.resources.name" value="server_resources"/>
     <property name="file.name" value="pgstudio"/>
-    <property name="file.version" value="1.2"/>
+    <property name="file.version" value="2.0"/>
     <property name="jar.name" value="${file.name}.jar"/>
     <property name="war.name" value="${file.name}.war"/>
     <property name="src.dir" location="src"/>
@@ -14,7 +14,7 @@
     <property name="lib.dir" location="lib"/>
     <property name="gwt.client.dir" location="com/openscg/pgstudio/client"/>
      
-    <property name="ivy.install.version" value="2.3.0" />
+    <property name="ivy.install.version" value="2.4.0" />
     <condition property="ivy.home" value="${env.IVY_HOME}">
       <isset property="env.IVY_HOME" />
     </condition>

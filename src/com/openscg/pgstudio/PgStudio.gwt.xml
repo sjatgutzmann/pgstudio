@@ -12,7 +12,6 @@
   <extend-property name="user.agent" values="ie8" />
   <extend-property name="user.agent" values="gecko1_8" />
   <extend-property name="user.agent" values="safari" />
-  <extend-property name="user.agent" values="opera" />
   <extend-property name="user.agent" values="ie9" fallback-value="ie8" />
   <property-provider name="user.agent" generator="com.google.gwt.useragent.rebind.UserAgentPropertyGenerator"/>
   
@@ -35,13 +34,9 @@
   <source path='client'/>
   <source path='shared'/>
 
-  <generate-with class="com.google.gwt.useragent.rebind.UserAgentGenerator">
-    <when-type-assignable class="com.google.gwt.useragent.client.UserAgentAsserter.UserAgentProperty" />
-  </generate-with>
-
   <!-- Deferred binding to optimize JRE classes based on user agent. -->
-  <inherits name="com.google.gwt.emul.EmulationWithUserAgent"/>
+  <inherits name="com.google.gwt.emul.Emulation"/>
   <inherits name="com.google.gwt.core.CoreWithUserAgent"/>
-  
-  
+
+  <set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>
 </module>

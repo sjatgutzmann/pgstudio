@@ -149,7 +149,7 @@
 
     </div>
     </div>
-    <span id="version">PostgreSQL Studio v1.2</span>
+    <span id="version">PostgreSQL Studio v2.0</span>
 
 	<% } %>
 	
