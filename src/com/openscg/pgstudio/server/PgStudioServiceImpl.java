@@ -101,9 +101,13 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 		
 		Connection conn = connMgr.getConnection(connectionToken,clientIP, userAgent);
 
+		String host = "";
 		String db = "";
 		String user = "";
 		try {
+			String url = conn.getMetaData().getURL();
+			url = url.replace("jdbc:postgresql://", "");
+			host = url.split(":")[0];
 			db = conn.getCatalog();
 			user = conn.getMetaData().getUserName();
 		} catch (SQLException e) {
@@ -111,7 +115,7 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 			e.printStackTrace();
 		}
 		
-		String ret = db + " as " + user;
+		String ret = host+ "/" + db + " as " + user;
 		return ret;
 	}
 
