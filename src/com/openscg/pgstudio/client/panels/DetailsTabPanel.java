@@ -23,15 +23,17 @@ public class DetailsTabPanel {
 
 	private final DecoratedTabPanel panel = new DecoratedTabPanel();
 
-	private ColumnPanel columnPanel = new ColumnPanel();
-	private IndexPanel indexPanel = new IndexPanel();
-	private ConstraintPanel constPanel = new ConstraintPanel();
-	private TriggerPanel triggerPanel = new TriggerPanel();
-	private RulePanel rulePanel = new RulePanel();
-	private ItemDataPanel dataPanel = new ItemDataPanel();
-	private StatsPanel statsPanel = new StatsPanel();
-	private ScriptPanel scriptPanel = new ScriptPanel();
-	private SecurityPanel secPanel = new SecurityPanel();
+	private final PgStudio main;
+
+	private ColumnPanel columnPanel;
+	private IndexPanel indexPanel;
+	private ConstraintPanel constPanel;
+	private TriggerPanel triggerPanel;
+	private RulePanel rulePanel;
+	private ItemDataPanel dataPanel;
+	private StatsPanel statsPanel;
+	private ScriptPanel scriptPanel;
+	private SecurityPanel secPanel;
 	
 	private Widget columnTabWidget = new HTML(TextFormat.getHeaderString("Columns", PgStudio.Images.column()));
 	private Widget indexTabWidget = new HTML(TextFormat.getHeaderString("Indexes", PgStudio.Images.index()));
@@ -49,7 +51,20 @@ public class DetailsTabPanel {
 	private Widget ruleWidget;
 	private Widget securityWidget;
 
-	
+	public DetailsTabPanel(final PgStudio main) {
+		this.main = main;
+		
+		columnPanel = new ColumnPanel();
+		indexPanel = new IndexPanel(this.main);
+		constPanel = new ConstraintPanel();
+		triggerPanel = new TriggerPanel();
+		rulePanel = new RulePanel();
+		dataPanel = new ItemDataPanel();
+		statsPanel = new StatsPanel();
+		scriptPanel = new ScriptPanel();
+		secPanel = new SecurityPanel();
+	}
+
 	public void setSelectedItem(ModelInfo selected) {		
 		this.selectedItem = selected;
 		

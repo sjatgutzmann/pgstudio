@@ -31,7 +31,6 @@ import com.openscg.pgstudio.client.PgStudioServiceAsync;
 import com.openscg.pgstudio.client.handlers.UtilityCommandAsyncCallback;
 import com.openscg.pgstudio.client.messages.ColumnJsObject;
 import com.openscg.pgstudio.client.models.ColumnInfo;
-import com.openscg.pgstudio.client.models.DatabaseObjectInfo;
 import com.openscg.pgstudio.client.models.ModelInfo;
 import com.openscg.pgstudio.client.providers.IndexListDataProvider;
 import com.openscg.pgstudio.client.providers.ItemListProvider;
@@ -56,6 +55,12 @@ public class AddIndexPopUp implements StudioItemPopUp {
 	private ListBox indexType;
 
 	FieldPicker columnPicker;
+
+	private final PgStudio main;
+
+	public AddIndexPopUp(final PgStudio main) {
+		this.main = main;
+	}
 	
 	@Override
 	public DialogBox getDialogBox() throws PopUpException {
@@ -207,6 +212,9 @@ public class AddIndexPopUp implements StudioItemPopUp {
 		box.addItem("SP-GiST", "SPGIST");
 		box.addItem("GIN", "GIN");
 		
+	    if (main.getDatabaseVersion() >= 90500) {
+	    	box.addItem("BRIN", "BRIN");
+	    }		
 		return box;
 	}
 	

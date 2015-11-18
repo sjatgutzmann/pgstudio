@@ -61,6 +61,8 @@ public class IndexPanel extends Composite implements DetailsPanel {
 	public static int ROWS_PER_PAGE = 5;
 	public static int MAX_INDEXES = 1600;
 	
+	private final PgStudio main;
+
 	public void setItem(ModelInfo item) {
 		this.item = item;
 		indexDef.setText("");
@@ -68,7 +70,8 @@ public class IndexPanel extends Composite implements DetailsPanel {
 		dataProvider.setItem(item.getSchema(), item.getId(), item.getItemType());
 	}
 	
-	public IndexPanel() {
+	public IndexPanel(final PgStudio main) {
+		this.main = main;
 		
 		VerticalPanel panel = new VerticalPanel();
 
@@ -140,7 +143,7 @@ public class IndexPanel extends Composite implements DetailsPanel {
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				AddIndexPopUp pop = new AddIndexPopUp();
+				AddIndexPopUp pop = new AddIndexPopUp(main);
 				pop.setSelectionModel(selectionModel);
 				pop.setDataProvider(dataProvider);
 				pop.setItem(item);

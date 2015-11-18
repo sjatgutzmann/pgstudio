@@ -43,7 +43,6 @@ import com.openscg.pgstudio.client.models.ModelInfo;
 import com.openscg.pgstudio.client.panels.DetailsTabPanel;
 import com.openscg.pgstudio.client.panels.MonitorPanel;
 import com.openscg.pgstudio.client.panels.SQLWorksheet;
-import com.openscg.pgstudio.client.panels.MonitorPanel;
 import com.openscg.pgstudio.client.panels.navigation.MenuStackPanel;
 import com.openscg.pgstudio.client.panels.popups.AddSchemaPopUp;
 import com.openscg.pgstudio.client.panels.popups.DropSchemaPopUp;
@@ -97,7 +96,7 @@ public class PgStudio implements EntryPoint {
 	}
 
 	public static enum INDEX_TYPE implements IsSerializable {
-		BTREE, HASH, GIST, SPGIST, GIN 
+		BTREE, HASH, GIST, SPGIST, GIN, BRIN 
 	}
 
 	public static enum CONSTRAINT_TYPE implements IsSerializable {
@@ -109,7 +108,7 @@ public class PgStudio implements EntryPoint {
 	}
 
 	public static final MenuStackPanel msp = new MenuStackPanel(new PgStudio());
-	public static final DetailsTabPanel dtp = new DetailsTabPanel();
+	public static final DetailsTabPanel dtp = new DetailsTabPanel(new PgStudio());
 	private Label detailsInfo = new Label();
 	
 	private static DatabaseObjectInfo selectedSchema = null;
