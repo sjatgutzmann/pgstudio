@@ -12,6 +12,8 @@ import com.openscg.pgstudio.client.PgStudio.INDEX_TYPE;
 import com.openscg.pgstudio.client.PgStudio.ITEM_OBJECT_TYPE;
 import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudio.TYPE_FORM;
+import com.openscg.pgstudio.shared.DatabaseConnectionException;
+import com.openscg.pgstudio.shared.PostgreSQLException;
 
 /**
  * The async counterpart of <code>PgStudioService</code>.
@@ -129,6 +131,12 @@ public interface PgStudioServiceAsync {
 	void getActivity(String connectionToken, AsyncCallback<String> callback)
 	        throws IllegalArgumentException;
 
+	void configureRowSecurity(String connectionToken, int item, boolean hasRowSecurity, boolean forceRowSecurity, AsyncCallback<String> callback)
+	        throws IllegalArgumentException;
+
+	void createPolicy(String connectionToken, int item, String policyName, String cmd, String role, String using, String withCheck, AsyncCallback<String> callback)
+	        throws IllegalArgumentException;
+	
 	void doLogout(String connectionToken, String source, AsyncCallback<Void> asyncCallback) throws IllegalArgumentException;
 
 	void invalidateSession(AsyncCallback<Void> callback);

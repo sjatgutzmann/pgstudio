@@ -18,11 +18,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.openscg.pgstudio.client.PgStudio;
 import com.openscg.pgstudio.client.PgStudio.ITEM_OBJECT_TYPE;
-import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudioService;
 import com.openscg.pgstudio.client.PgStudioServiceAsync;
 import com.openscg.pgstudio.client.handlers.UtilityCommandAsyncCallback;
-import com.openscg.pgstudio.client.models.DatabaseObjectInfo;
 import com.openscg.pgstudio.client.models.ModelInfo;
 import com.openscg.pgstudio.client.providers.ItemListProvider;
 
@@ -50,12 +48,15 @@ public class RenameItemObjectPopUp implements StudioItemPopUp {
 
 		if (item == null)
 			throw new PopUpException("Item is not set");
-		
-		dialogBox.setWidget(getPanel());
-		
-		dialogBox.setGlassEnabled(true);
-		dialogBox.center();
 
+		try {
+			dialogBox.setWidget(getPanel());	
+			dialogBox.setGlassEnabled(true);
+			dialogBox.center();
+		} catch (Exception e) {
+			throw new PopUpException(e.getMessage());
+		}
+		
 		return dialogBox;
 	}
 
@@ -78,29 +79,34 @@ public class RenameItemObjectPopUp implements StudioItemPopUp {
 		this.objType = objType;
 	}
 
-	private VerticalPanel getPanel(){
+	private VerticalPanel getPanel() throws PopUpException{
 		VerticalPanel panel = new VerticalPanel();
-		panel.setStyleName("StudioPopup");
 
-		VerticalPanel info = new VerticalPanel();
-		info.setSpacing(10);
-		
-		Label lbl = new Label();
-		lbl.setStyleName("StudioPopup-Msg-Strong");
-		lbl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);	 
-		
-		String title = "RENAME " + objType.name();
-		lbl.setText(title);
-		
-		objectName = new TextBox();
-		objectName.setWidth("155px");
-		objectName.setText(selectionModel.getSelectedObject().getName());
-		
-		info.add(lbl);
-		info.add(objectName);
-		
-		panel.add(info);
-		panel.add(getButtonPanel());
+		try {
+			panel.setStyleName("StudioPopup");
+	
+			VerticalPanel info = new VerticalPanel();
+			info.setSpacing(10);
+			
+			Label lbl = new Label();
+			lbl.setStyleName("StudioPopup-Msg-Strong");
+			lbl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);	 
+
+			String title = "RENAME " + objType.name();
+			lbl.setText(title);
+
+			objectName = new TextBox();
+			objectName.setWidth("155px");
+			objectName.setText(selectionModel.getSelectedObject().getName());
+			
+			info.add(lbl);
+			info.add(objectName);
+			
+			panel.add(info);
+			panel.add(getButtonPanel());
+		} catch (Exception e) {
+			throw new PopUpException(e.getMessage());
+		}
 		
 		return panel;
 	}

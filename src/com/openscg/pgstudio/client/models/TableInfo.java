@@ -25,6 +25,8 @@ public class TableInfo implements ModelInfo, Comparable<TableInfo> {
     private String comment;
     private TABLE_TYPE type;
 
+    private boolean hasRowSecurity;
+    private boolean forceRowSecurity;
     
     public TableInfo(int schema, int id, String name) {
     	this.schema = schema;
@@ -72,6 +74,22 @@ public class TableInfo implements ModelInfo, Comparable<TableInfo> {
 
 	public TABLE_TYPE getType() {
 		return type;
+	}
+
+	public boolean hasRowSecurity() {
+		return hasRowSecurity;
+	}
+
+	public void setHasRowSecurity(boolean hasRowSecurity) {
+		this.hasRowSecurity = hasRowSecurity;
+	}
+
+	public boolean forceRowSecurity() {
+		return forceRowSecurity;
+	}
+
+	public void setForceRowSecurity(boolean forceRowSecurity) {
+		this.forceRowSecurity = forceRowSecurity;
 	}
 
 	@Override

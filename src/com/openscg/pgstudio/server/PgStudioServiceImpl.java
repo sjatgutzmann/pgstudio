@@ -25,6 +25,7 @@ import com.openscg.pgstudio.server.models.Indexes;
 import com.openscg.pgstudio.server.models.ItemData;
 import com.openscg.pgstudio.server.models.ItemMetaData;
 import com.openscg.pgstudio.server.models.Monitor;
+import com.openscg.pgstudio.server.models.Policies;
 import com.openscg.pgstudio.server.models.Privileges;
 import com.openscg.pgstudio.server.models.QueryMetaData;
 import com.openscg.pgstudio.server.models.Rules;
@@ -267,6 +268,9 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 		case STATS:
 			Stats stats = new Stats(connMgr.getConnection(connectionToken,clientIP, userAgent));
 			return stats.getList(item);
+		case POLICY:
+			Policies policies = new Policies(connMgr.getConnection(connectionToken,clientIP, userAgent));
+			return policies.getList(item);
 		default:
 			return "";
 		}
@@ -396,89 +400,78 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public String dropItemObject(String connectionToken, int item,
-			ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType)
+	public String dropItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType)
 			throws DatabaseConnectionException, PostgreSQLException {
-		
+
 		ConnectionManager connMgr = new ConnectionManager();
-		HttpServletRequest request = this.getThreadLocalRequest();  
+		HttpServletRequest request = this.getThreadLocalRequest();
 
 		String clientIP = ConnectionInfo.remoteAddr(request);
 		String userAgent = request.getHeader("User-Agent");
 
 		try {
-		switch (objType) {
-		case COLUMN:
-			Columns columns = new Columns(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return columns.drop(item, q.addQuote(objectName));
+			switch (objType) {
+				case COLUMN:
+					Columns columns = new Columns(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return columns.drop(item, q.addQuote(objectName));
 
-		case CONSTRAINT:
-			Constraints constraints = new Constraints(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return constraints.drop(item, q.addQuote(objectName));
-		case INDEX:
-			Indexes indexes = new Indexes(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return indexes.drop(item, q.addQuote(objectName));
-		case RULE:
-			Rules rules = new Rules(connMgr.getConnection(connectionToken,
-					clientIP, userAgent));
-			return rules.drop(item, q.addQuote(objectName));
-		case TRIGGER:
-			Triggers triggers = new Triggers(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return triggers.drop(item, q.addQuote(objectName));
-
-		default:
-			return "";
-		}
+				case CONSTRAINT:
+					Constraints constraints = new Constraints(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return constraints.drop(item, q.addQuote(objectName));
+				case INDEX:
+					Indexes indexes = new Indexes(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return indexes.drop(item, q.addQuote(objectName));
+				case POLICY:
+					Policies policies = new Policies(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return policies.drop(item, q.addQuote(objectName));
+				case RULE:
+					Rules rules = new Rules(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return rules.drop(item, q.addQuote(objectName));
+				case TRIGGER:
+					Triggers triggers = new Triggers(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return triggers.drop(item, q.addQuote(objectName));
+				default:
+					return "";
+			}
 		} catch (SQLException e) {
 			throw new PostgreSQLException(e.getMessage());
 		}
 	}
 
 	@Override
-	public String renameItemObject(String connectionToken, int item,
-			ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType,
-			String newObjectName) throws DatabaseConnectionException, PostgreSQLException 
-	{
+	public String renameItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType,
+			String newObjectName) throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
-		HttpServletRequest request = this.getThreadLocalRequest();  
+		HttpServletRequest request = this.getThreadLocalRequest();
 
 		String clientIP = ConnectionInfo.remoteAddr(request);
 		String userAgent = request.getHeader("User-Agent");
 
 		try {
-		switch (objType) {
-		case COLUMN:
-			Columns columns = new Columns(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return columns.rename(item, q.addQuote(objectName),
-					q.addQuote(newObjectName));
-		case CONSTRAINT:
-			Constraints constraints = new Constraints(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return constraints.rename(item, q.addQuote(objectName),
-					q.addQuote(newObjectName));
-		case INDEX:
-			Indexes indexes = new Indexes(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return indexes.rename(item, q.addQuote(objectName),
-					q.addQuote(newObjectName));
-		case RULE:
-			// A RULE can not be renamed so just return a blank string if if get
-			// here for some reason
-			return "";
-		case TRIGGER:
-			Triggers triggers = new Triggers(connMgr.getConnection(
-					connectionToken, clientIP, userAgent));
-			return triggers.rename(item, q.addQuote(objectName),
-					q.addQuote(newObjectName));
-
-		default:
-			return "";
-		}
+			switch (objType) {
+				case COLUMN:
+					Columns columns = new Columns(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return columns.rename(item, q.addQuote(objectName), q.addQuote(newObjectName));
+				case CONSTRAINT:
+					Constraints constraints = new Constraints(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return constraints.rename(item, q.addQuote(objectName), q.addQuote(newObjectName));
+				case INDEX:
+					Indexes indexes = new Indexes(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return indexes.rename(item, q.addQuote(objectName), q.addQuote(newObjectName));
+				case POLICY:
+					Policies polices = new Policies(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return polices.rename(item, q.addQuote(objectName), q.addQuote(newObjectName));
+				case RULE:
+					// A RULE can not be renamed so just return a blank string
+					// if if get
+					// here for some reason
+					return "";
+				case TRIGGER:
+					Triggers triggers = new Triggers(connMgr.getConnection(connectionToken, clientIP, userAgent));
+					return triggers.rename(item, q.addQuote(objectName), q.addQuote(newObjectName));
+				default:
+					return "";
+			}
 		} catch (SQLException e) {
 			throw new PostgreSQLException(e.getMessage());
 		}
@@ -953,6 +946,46 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 				clientIP, userAgent));
 
 		return monitor.getActivity();
+	}
+
+	@Override
+	public String configureRowSecurity(String connectionToken, int item, boolean rowSecurity, boolean forceRowSecurity)
+			throws DatabaseConnectionException, PostgreSQLException {
+
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Policies policies = new Policies(connMgr.getConnection(connectionToken, clientIP, userAgent));
+
+		try {
+			return policies.configureRowSecurity(item, rowSecurity, forceRowSecurity);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public String createPolicy(String connectionToken, int item, String policyName, String cmd, String role, String using, String withCheck)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Policies policies;
+
+		policies = new Policies(connMgr.getConnection(connectionToken, clientIP, userAgent));
+
+		try {
+			return policies.create(item, q.addQuote(policyName), cmd, role, using, withCheck);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
 	}
 
 }

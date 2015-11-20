@@ -92,7 +92,7 @@ public class PgStudio implements EntryPoint {
 	}
 
 	public static enum ITEM_OBJECT_TYPE implements IsSerializable {
-		COLUMN, INDEX, CONSTRAINT, TRIGGER, RULE, GRANT, SOURCE, STATS
+		COLUMN, INDEX, CONSTRAINT, TRIGGER, RULE, GRANT, SOURCE, STATS, POLICY
 	}
 
 	public static enum INDEX_TYPE implements IsSerializable {

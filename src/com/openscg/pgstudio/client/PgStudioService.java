@@ -95,6 +95,10 @@ public interface PgStudioService extends RemoteService {
 
 	String getActivity(String connectionToken) throws IllegalArgumentException, DatabaseConnectionException;
 
+	String configureRowSecurity(String connectionToken, int item, boolean hasRowSecurity, boolean forceRowSecurity) throws DatabaseConnectionException, PostgreSQLException;
+
+	public String createPolicy(String connectionToken, int item, String policyName, String cmd, String role, String using, String withCheck) throws DatabaseConnectionException, PostgreSQLException;
+	
 	void doLogout(String connectionToken, String source) throws IllegalArgumentException, DatabaseConnectionException;
 
 	void invalidateSession();

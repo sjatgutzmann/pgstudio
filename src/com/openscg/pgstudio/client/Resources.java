@@ -119,6 +119,9 @@ public interface Resources extends ClientBundle {
 	@Source("images/left.png")
 	ImageResource left();
 
+	@Source("images/lock.png")
+	ImageResource lock();
+
 	@Source("images/logo.png")
 	ImageResource logo();
 
@@ -136,6 +139,9 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/partial.png")
 	ImageResource partial();
+
+	@Source("images/policy.gif")
+	ImageResource policy();
 
 	@Source("images/postgresql.gif")
 	ImageResource postgresql();

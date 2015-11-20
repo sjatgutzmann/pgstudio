@@ -55,10 +55,13 @@ public class DropItemObjectPopUp implements StudioItemPopUp {
 		if (object == null || objType == null)
 			throw new PopUpException("object name are not set");
 		
-		dialogBox.setWidget(getPanel());
-		
-		dialogBox.setGlassEnabled(true);
-		dialogBox.center();
+		try {
+			dialogBox.setWidget(getPanel());			
+			dialogBox.setGlassEnabled(true);
+			dialogBox.center();
+		} catch (Exception e) {
+			throw new PopUpException(e.getMessage());
+		}
 
 		return dialogBox;
 	}
@@ -86,44 +89,48 @@ public class DropItemObjectPopUp implements StudioItemPopUp {
 		this.objType = objType;
 	}
 
-	private VerticalPanel getPanel(){
+	private VerticalPanel getPanel() throws PopUpException{
 		VerticalPanel panel = new VerticalPanel();
-		panel.setStyleName("StudioPopup");
-
-		VerticalPanel info = new VerticalPanel();
-		info.setSpacing(10);
 		
-		Label lbl = new Label();
-		lbl.setStyleName("StudioPopup-Msg-Strong");
-		lbl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);	
-		
-		String title = "DROP " + objType.name() + " " + object;
-		lbl.setText(title);
-		
-		HorizontalPanel warningPanel = new HorizontalPanel();
-		Image icon = new Image(PgStudio.Images.warning());
-		icon.setWidth("110px");
-		
-		VerticalPanel detailPanel = new VerticalPanel();
-		
-		Label lblWarning = new Label();
-		lblWarning.setStyleName("StudioPopup-Msg");
-		lblWarning.setText(WARNING_MSG);
-
-		detailPanel.add(lblWarning);
-		
-		warningPanel.add(icon);
-		warningPanel.add(detailPanel);
-		
-		info.add(lbl);
-		info.add(warningPanel);
-		
-		panel.add(info);
-		
-		Widget buttonBar = getButtonPanel(); 
-		panel.add(buttonBar);
-		panel.setCellHorizontalAlignment(buttonBar, HasHorizontalAlignment.ALIGN_CENTER);
-		
+		try {
+			panel.setStyleName("StudioPopup");
+	
+			VerticalPanel info = new VerticalPanel();
+			info.setSpacing(10);
+			
+			Label lbl = new Label();
+			lbl.setStyleName("StudioPopup-Msg-Strong");
+			lbl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);	
+			
+			String title = "DROP " + objType.name() + " " + object;
+			lbl.setText(title);
+			
+			HorizontalPanel warningPanel = new HorizontalPanel();
+			Image icon = new Image(PgStudio.Images.warning());
+			icon.setWidth("110px");
+			
+			VerticalPanel detailPanel = new VerticalPanel();
+			
+			Label lblWarning = new Label();
+			lblWarning.setStyleName("StudioPopup-Msg");
+			lblWarning.setText(WARNING_MSG);
+	
+			detailPanel.add(lblWarning);
+			
+			warningPanel.add(icon);
+			warningPanel.add(detailPanel);
+			
+			info.add(lbl);
+			info.add(warningPanel);
+			
+			panel.add(info);
+			
+			Widget buttonBar = getButtonPanel(); 
+			panel.add(buttonBar);
+			panel.setCellHorizontalAlignment(buttonBar, HasHorizontalAlignment.ALIGN_CENTER);
+		} catch (Exception e) {
+			throw new PopUpException(e.getMessage());
+		}
 		return panel;
 	}
 	

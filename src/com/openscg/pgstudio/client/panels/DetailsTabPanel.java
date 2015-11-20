@@ -34,6 +34,7 @@ public class DetailsTabPanel {
 	private StatsPanel statsPanel;
 	private ScriptPanel scriptPanel;
 	private SecurityPanel secPanel;
+	private PolicyPanel polPanel;
 	
 	private Widget columnTabWidget = new HTML(TextFormat.getHeaderString("Columns", PgStudio.Images.column()));
 	private Widget indexTabWidget = new HTML(TextFormat.getHeaderString("Indexes", PgStudio.Images.index()));
@@ -44,12 +45,14 @@ public class DetailsTabPanel {
 	private Widget statsTabWidget = new HTML(TextFormat.getHeaderString("Stats", PgStudio.Images.stats()));
 	private Widget scriptTabWidget = new HTML(TextFormat.getHeaderString("Script", PgStudio.Images.script()));
 	private Widget securityTabWidget = new HTML(TextFormat.getHeaderString("Security", PgStudio.Images.security()));
+	private Widget policyTabWidget = new HTML(TextFormat.getHeaderString("Policies", PgStudio.Images.policy()));
 
 	private Widget indexWidget;
 	private Widget constWidget;
 	private Widget triggerWidget;
 	private Widget ruleWidget;
 	private Widget securityWidget;
+	private Widget policyWidget;
 
 	public DetailsTabPanel(final PgStudio main) {
 		this.main = main;
@@ -63,6 +66,7 @@ public class DetailsTabPanel {
 		statsPanel = new StatsPanel();
 		scriptPanel = new ScriptPanel();
 		secPanel = new SecurityPanel();
+		polPanel = new PolicyPanel();
 	}
 
 	public void setSelectedItem(ModelInfo selected) {		
@@ -104,6 +108,7 @@ public class DetailsTabPanel {
 		DetailsPanel p = (DetailsPanel) panel.getWidget(panel.getTabBar().getSelectedTab());
 		p.setItem(selectedItem);	
 		
+		
 		DOM.setStyleAttribute(RootPanel.get().getElement(), "cursor", "default");
 
 	}
@@ -115,6 +120,7 @@ public class DetailsTabPanel {
 		triggerWidget = triggerPanel.asWidget();
 		ruleWidget = rulePanel.asWidget();
 		securityWidget = secPanel.asWidget();
+		policyWidget = polPanel.asWidget();
 
 		panel.setHeight("100%");
 		panel.setWidth("100%");
@@ -129,6 +135,7 @@ public class DetailsTabPanel {
 		panel.add(statsPanel, statsTabWidget);
 		panel.add(scriptPanel, scriptTabWidget);
 		panel.add(securityWidget, securityTabWidget);
+		panel.add(polPanel, policyTabWidget);
 
 		panel.addSelectionHandler(new SelectionHandler<Integer>() {
 			@Override
@@ -147,7 +154,12 @@ public class DetailsTabPanel {
 	}
 	
 	private void setupTablePanels() {
+		int panels = 9;
 		
+		if (main.getDatabaseVersion() >= 90500) {
+			panel.insert(policyWidget, policyTabWidget, 0);
+			panels = 10;
+		}
 		panel.insert(securityWidget, securityTabWidget, 0);
 		panel.insert(scriptPanel, scriptTabWidget, 0);
 		panel.insert(statsPanel, statsTabWidget, 0);
@@ -158,7 +170,7 @@ public class DetailsTabPanel {
 		panel.insert(indexWidget, indexTabWidget, 0);
 		panel.insert(columnPanel, columnTabWidget, 0);
 
-		removeExtraPanels(9);
+		removeExtraPanels(panels);
 }
 
 	private void setupViewPanels() {		

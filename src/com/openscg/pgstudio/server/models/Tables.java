@@ -25,9 +25,11 @@ public class Tables {
 
 	private final Connection conn;
 	private final PG_FLAVORS pgFlavor;
+	private final int version;
 
 	private final static String TABLE_LIST_XC =
-		"SELECT c.relname as tablename, xc.pclocatortype as tabletype, d.description, c.oid  " +
+		"SELECT c.relname as tablename, xc.pclocatortype as tabletype, d.description, c.oid,  " +
+        "       false as relrowsecurity, false as relforcerowsecurity " +
 		"  FROM pgxc_class xc, pg_class c " +
 		"       LEFT OUTER JOIN pg_description d" +
 		"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
@@ -36,8 +38,19 @@ public class Tables {
 		"   AND c.relkind = 'r' " +
 		" ORDER BY tablename";
 
+	private final static String TABLE_LIST_95 =
+			"SELECT c.relname as tablename, \'R\' as tabletype, d.description, c.oid, " +
+	        "       relrowsecurity, relforcerowsecurity " +
+			"  FROM pg_class c" +
+			"       LEFT OUTER JOIN pg_description d" +
+			"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
+			" WHERE c.relnamespace = ? " +
+			"   AND c.relkind = 'r' " +
+			" ORDER BY tablename ";
+
 	private final static String TABLE_LIST =
-			"SELECT c.relname as tablename, \'R\' as tabletype, d.description, c.oid " +
+			"SELECT c.relname as tablename, \'R\' as tabletype, d.description, c.oid, " +
+	        "       false as relrowsecurity, false as relforcerowsecurity " +
 			"  FROM pg_class c" +
 			"       LEFT OUTER JOIN pg_description d" +
 			"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
@@ -48,7 +61,7 @@ public class Tables {
 	public Tables(Connection conn) {
 		this.conn = conn;
 		DBVersionCheck ver = new DBVersionCheck(conn);
-		int v = ver.getVersion();
+		this.version = ver.getVersion();
 		this.pgFlavor = ver.getPgFlavor();
 	}
 	
@@ -62,7 +75,11 @@ public class Tables {
 			}
 
 			if(this.pgFlavor == PG_FLAVORS.POSTGRESQL)	{
-				stmt = conn.prepareStatement(TABLE_LIST);
+				if (version >= 90500) {
+					stmt = conn.prepareStatement(TABLE_LIST_95);
+				} else {
+					stmt = conn.prepareStatement(TABLE_LIST);
+				}
 			}
 
 			stmt.setInt(1, schema);
@@ -74,6 +91,19 @@ public class Tables {
 				jsonMessage.put("name", rs.getString("tablename"));
 				jsonMessage.put("table_type", rs.getString("tabletype"));
 				jsonMessage.put("comment", rs.getString("description"));
+				
+				if (rs.getBoolean("relrowsecurity")) {
+					jsonMessage.put("row_security", "true");
+				} else {
+					jsonMessage.put("row_security", "false");
+				}
+
+				if (rs.getBoolean("relforcerowsecurity")) {
+					jsonMessage.put("force_row_security", "true");
+				} else {
+					jsonMessage.put("force_row_security", "false");
+				}
+
 				result.add(jsonMessage);
 			}
 

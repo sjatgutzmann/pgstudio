@@ -4,6 +4,7 @@
 package com.openscg.pgstudio.client.panels.navigation;
 
 import java.util.ArrayList;
+
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.ImageResourceCell;
@@ -33,6 +34,7 @@ import com.openscg.pgstudio.client.models.TableInfo;
 import com.openscg.pgstudio.client.models.TableInfo.TABLE_TYPE;
 import com.openscg.pgstudio.client.panels.popups.AddTablePopUp;
 import com.openscg.pgstudio.client.panels.popups.AnalyzePopUp;
+import com.openscg.pgstudio.client.panels.popups.ConfigureRowLevelSecurityPopUp;
 import com.openscg.pgstudio.client.panels.popups.DropItemPopUp;
 import com.openscg.pgstudio.client.panels.popups.PopUpException;
 import com.openscg.pgstudio.client.panels.popups.RenameItemPopUp;
@@ -99,7 +101,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 		PushButton create = getCreateButton();
 		PushButton analyze = getAnalyzeButton();
 		PushButton truncate = getTruncateButton();
-
+		PushButton rowSecurity = getRowSecurityButton();
 
 		bar.add(refresh);
 		bar.add(rename);
@@ -107,6 +109,10 @@ public class TablesPanel extends Composite implements MenuPanel {
 		bar.add(truncate);
 		bar.add(drop);
 		bar.add(create);
+		
+		if (main.getDatabaseVersion() >= 90500) {
+			bar.add(rowSecurity);
+		}
 
 		return bar.asWidget();
 	}
@@ -238,6 +244,27 @@ public class TablesPanel extends Composite implements MenuPanel {
 					} catch (PopUpException caught) {
 						Window.alert(caught.getMessage());
 					}
+				}
+			}
+		});
+		return button;
+	}
+
+	private PushButton getRowSecurityButton() {
+		PushButton button = new PushButton(new Image(PgStudio.Images.lock()));
+		
+		button.setTitle("Configure Row Level Security");
+		
+		button.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				try {
+					ConfigureRowLevelSecurityPopUp pop = new ConfigureRowLevelSecurityPopUp();
+					pop.setSelectionModel(selectionModel);
+					pop.setDataProvider(dataProvider);
+					pop.getDialogBox();
+				} catch (PopUpException caught) {
+					Window.alert(caught.getMessage());
 				}
 			}
 		});

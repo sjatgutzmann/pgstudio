@@ -102,6 +102,18 @@ import com.openscg.pgstudio.client.models.TableInfo.TABLE_TYPE;
 					table.setType(TABLE_TYPE.UNKNOWN);
 				}
 				
+				if (msg.getRowSecurity().equalsIgnoreCase("true")) {
+					table.setHasRowSecurity(true);
+				} else {
+					table.setHasRowSecurity(false);
+				}
+
+				if (msg.getForceRowSecurity().equalsIgnoreCase("true")) {
+					table.setForceRowSecurity(true);
+				} else {
+					table.setForceRowSecurity(false);
+				}
+
 				return table;
 			}
 
