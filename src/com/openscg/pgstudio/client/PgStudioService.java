@@ -69,6 +69,8 @@ public interface PgStudioService extends RemoteService {
 
 	String createTable(String connectionToken, int schema, String tableName, boolean unlogged, boolean temporary, String fill,	ArrayList<String> col_list, HashMap<Integer, String> commentLog, ArrayList<String> col_index) throws DatabaseConnectionException, PostgreSQLException;
 
+	String createTableLike(String connectionToken, int schema, String tableName, String source, boolean defaults, boolean constraints, boolean indexes)  throws DatabaseConnectionException, PostgreSQLException;
+
 	String createUniqueConstraint(String connectionToken, int item, String constraintName, boolean isPrimaryKey, ArrayList<String> columnList) throws DatabaseConnectionException, PostgreSQLException;
 
 	String createCheckConstraint(String connectionToken, int item, String constraintName, String definition) throws DatabaseConnectionException, PostgreSQLException;
