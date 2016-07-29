@@ -229,4 +229,8 @@ public class DetailsTabPanel {
 		DetailsPanel p = (DetailsPanel) panel.getWidget(selectedTab);
 		p.setItem(selectedItem);
 	}
+	
+	public void clearTabs() {
+		columnPanel.clearColumnData();
+	}
 }

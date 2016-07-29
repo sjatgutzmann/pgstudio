@@ -127,13 +127,15 @@ public class Tables {
 	}
 
 	public String analyze(int item, ITEM_TYPE type, boolean vacuum,
-			boolean vacuumFull) throws SQLException {
+			boolean vacuumFull, boolean reindex) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
 		StringBuffer command = new StringBuffer();
 
-		if (vacuum) {
+		if(reindex) {
+			command.append("REINDEX TABLE ");
+		} else if (vacuum) {
 			if (vacuumFull) {
 				command.append("VACUUM FULL ANALYZE VERBOSE ");
 			} else {
@@ -142,7 +144,6 @@ public class Tables {
 		} else {
 			command.append("ANALYZE VERBOSE ");
 		}
-
 		command.append(name);
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command.toString());

@@ -478,7 +478,7 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public String analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull) 
+	public String analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex) 
 			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -491,7 +491,7 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 		tables = new Tables(connMgr.getConnection(connectionToken,clientIP, userAgent));	
 		
 		try {
-			return tables.analyze(item, type, vacuum, vacuumFull);
+			return tables.analyze(item, type, vacuum, vacuumFull,reindex);
 		} catch (SQLException e) {
 			throw new PostgreSQLException(e.getMessage());
 		}

@@ -42,6 +42,8 @@ public class AnalyzePopUp implements StudioModelPopUp {
 	private boolean vacuumFull = false;
 
 	private boolean canVacuum = true;
+	
+	private boolean reindex = false;
 
 	public AnalyzePopUp(boolean analyzeTable) {
 		this.analyzeTable = analyzeTable;
@@ -113,9 +115,13 @@ public class AnalyzePopUp implements StudioModelPopUp {
 
 			RadioButton rb3 = new RadioButton("AnalyzeGroup", "Vacuum Full");
 			rb3.addClickHandler(getVacuumFullButtonClickHandler());
-
+			
+			RadioButton rb4 = new RadioButton("AnalyzeGroup", "Reindex");
+			rb4.addClickHandler(getReindexButtonClickHandler());
+			
 			info.add(rb2);
 			info.add(rb3);
+			info.add(rb4);
 		}
 
 		rb1.setValue(true);
@@ -161,7 +167,7 @@ public class AnalyzePopUp implements StudioModelPopUp {
 					studioService.analyze(PgStudio.getToken(), selectionModel
 							.getSelectedObject().getId(), selectionModel
 							.getSelectedObject().getItemType(), vacuum,
-							vacuumFull, ac);
+							vacuumFull, reindex, ac);
 				}
 			}
 		});
@@ -176,6 +182,15 @@ public class AnalyzePopUp implements StudioModelPopUp {
 		});
 
 		return bar.asWidget();
+	}
+	
+	private ClickHandler getReindexButtonClickHandler() {
+		return new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				reindex = true;
+			}
+		};
 	}
 
 	private ClickHandler getAnalyzeButtonClickHandler() {

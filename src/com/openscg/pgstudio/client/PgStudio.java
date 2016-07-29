@@ -64,29 +64,29 @@ public class PgStudio implements EntryPoint {
 	SessionManager activity;
 
 	public static Widget filler = new HTML("&nbsp;&nbsp;&nbsp;");
-	
+
 	public static final Resources Images =  GWT.create(Resources.class);
-	
+
 	public static final String LEFT_PANEL_HEIGHT = "237px";
 	public static final String RIGHT_HEIGHT = "500px";
 	public static final String RIGHT_PANEL_HEIGHT = "385px";
-	
+
 	public static final int MAX_PANEL_ITEMS = 10000;
-	
+
 	private TextBox textBox = new TextBox();
-	
+
 	final ListBox schemas = new ListBox();
 	private ArrayList<DatabaseObjectInfo> schemaList = null;
-	
+
 	DialogBox dialogBox = null;
 
 	public static DialogBox sqlDialog;
 	public static DialogBox monitorDialog;
-	
+
 	public static enum DATABASE_OBJECT_TYPE implements IsSerializable {
 		DATA_TYPE, FOREIGN_SERVER, SCHEMA, LANGUAGE, ROLE, DATABASE
 	}
-	
+
 	public static enum ITEM_TYPE implements IsSerializable {
 		TABLE, VIEW, FOREIGN_TABLE, FUNCTION, SEQUENCE, TYPE, MATERIALIZED_VIEW
 	}
@@ -110,142 +110,142 @@ public class PgStudio implements EntryPoint {
 	public static final MenuStackPanel msp = new MenuStackPanel(new PgStudio());
 	public static final DetailsTabPanel dtp = new DetailsTabPanel(new PgStudio());
 	private Label detailsInfo = new Label();
-	
+
 	private static DatabaseObjectInfo selectedSchema = null;
 	private static ModelInfo selectedItem = null;
-	
+
 	private SelectionChangeHandler selectionChangeHandler; 
 
 	public static void showWaitCursor() {
-	    DOM.setStyleAttribute(RootPanel.getBodyElement(), "cursor", "wait");
+		DOM.setStyleAttribute(RootPanel.getBodyElement(), "cursor", "wait");
 	}
-	 
+
 	public static void showDefaultCursor() {
-	    DOM.setStyleAttribute(RootPanel.getBodyElement(), "cursor", "default");
+		DOM.setStyleAttribute(RootPanel.getBodyElement(), "cursor", "default");
 	}
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		
+
 		activity = new SessionManager();
 		RootPanel rp = RootPanel.get("mainPanelContainer");
 		rp.setVisible(true);
 		rp.add(getMainPanel());
-		
+
 		NodeList<Element> divs = RootPanel.getBodyElement().getElementsByTagName("div");
-		
+
 		for (int i = 0; i < divs.getLength(); i++) {
 			if (divs.getItem(i).getId().equals("loadingWrapper")) {
 				divs.getItem(i).removeFromParent();
 				break;
 			}
 		}
-		
-        Window.addWindowClosingHandler(new Window.ClosingHandler() {
 
-            @Override
-            public void onWindowClosing(ClosingEvent event) {
-                event.setMessage(null);
-            }
-        });
+		Window.addWindowClosingHandler(new Window.ClosingHandler() {
 
-        Window.addCloseHandler(new CloseHandler<Window>() {
+			@Override
+			public void onWindowClosing(ClosingEvent event) {
+				event.setMessage(null);
+			}
+		});
 
-            @Override
-            public void onClose(CloseEvent<Window> event) {
-            	activity.logout("WINDOW_CLOSE");
-            }
-        });
+		Window.addCloseHandler(new CloseHandler<Window>() {
+
+			@Override
+			public void onClose(CloseEvent<Window> event) {
+				activity.logout("WINDOW_CLOSE");
+			}
+		});
 	}
 
-    public final native static String getToken() /*-{ return $wnd.dbToken}-*/;
-    private final native static String getDbVersion() /*-{ return $wnd.dbVersion}-*/;
+	public final native static String getToken() /*-{ return $wnd.dbToken}-*/;
+	private final native static String getDbVersion() /*-{ return $wnd.dbVersion}-*/;
 
 	private Widget getMainPanel() {
 		VerticalPanel fullPanel = new VerticalPanel();
-        fullPanel.setStyleName("full-panel-container");
-		
+		fullPanel.setStyleName("full-panel-container");
+
 		fullPanel.add(getHeaderWidget());
-		
-        HorizontalPanel mainPanel = new HorizontalPanel();
-        mainPanel.setStyleName("main-panel-container");
+
+		HorizontalPanel mainPanel = new HorizontalPanel();
+		mainPanel.setStyleName("main-panel-container");
 
 		VerticalPanel leftPanel = new VerticalPanel();
 		leftPanel.setWidth("100%");
 		leftPanel.add(getSchemaWidget());
-		
+
 		Image separator = new Image(Images.HorizontalSeparatorLine());
 		separator.setWidth("95%");
 		leftPanel.add(separator);
-		
+
 		leftPanel.add(msp.asWidget());
-		
+
 		VerticalPanel rightPanel = new VerticalPanel();
 		rightPanel.setWidth("100%");
 		HorizontalPanel rightInfoPanel = new HorizontalPanel();
-		
+
 		detailsInfo.setText("");
 		detailsInfo.setStyleName("studio-Label");
-		
+
 		rightInfoPanel.add(detailsInfo);	
 		rightPanel.add(rightInfoPanel);
-		
+
 		rightPanel.add(dtp.asWidget());
-		
+
 		mainPanel.add(leftPanel);
 		mainPanel.add(rightPanel);
-		
+
 		mainPanel.setCellWidth(leftPanel, "20%");
 		mainPanel.setCellWidth(rightPanel, "80%");
-		
+
 		fullPanel.add(mainPanel);
-		
+
 		return fullPanel.asWidget();
 	}
-	
+
 	private Widget getHeaderWidget() {
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setWidth("100%");
-		
+
 		Image logo = new Image(Images.logo());
 		panel.add(logo);
-		
+
 		VerticalPanel connDetails = new VerticalPanel();
 		connDetails.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		connDetails.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-		
+
 		final HTML connInfo = new HTML();
 		connInfo.setHTML("");
 		connInfo.setStyleName("studio-Label-Small");
 		connInfo.setHeight("45px");
 		connDetails.add(connInfo);
-		
+
 		connDetails.add(getHeaderButtonBar());
-		
+
 		panel.add(connDetails);
 		panel.setCellHorizontalAlignment(connDetails, HasHorizontalAlignment.ALIGN_RIGHT);
 
 		studioService.getConnectionInfoMessage(PgStudio.getToken(), new AsyncCallback<String>() {
-            public void onFailure(Throwable caught) {
-            	connInfo.setText("");
-                // Show the RPC error message to the user
-                Window.alert(caught.getMessage());
-            }
+			public void onFailure(Throwable caught) {
+				connInfo.setText("");
+				// Show the RPC error message to the user
+				Window.alert(caught.getMessage());
+			}
 
-            public void onSuccess(String result) {
-            	String msg = "Connected to " + result.replace(" as ", "<br/> as ");
-            	connInfo.setHTML("<div>" + msg + "</div>");
-            }
-          });
+			public void onSuccess(String result) {
+				String msg = "Connected to " + result.replace(" as ", "<br/> as ");
+				connInfo.setHTML("<div>" + msg + "</div>");
+			}
+		});
 
 		return panel.asWidget();
 	}
-	
+
 	private Widget getHeaderButtonBar() {
 		HorizontalPanel bar = new HorizontalPanel();
 		bar.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		
+
 		PushButton disconnect = getDisconnectButton();
 		PushButton sql = getSQLWorksheetButton();
 		PushButton monitor = getMonitorPanelButton();
@@ -257,7 +257,7 @@ public class PgStudio implements EntryPoint {
 		spacer.setWidth("30px");
 		Label spacer2 = new Label("");
 		spacer2.setWidth("30px");
-		
+
 		bar.add(sql);
 		bar.add(monitor);
 		bar.add(spacer);
@@ -266,14 +266,14 @@ public class PgStudio implements EntryPoint {
 		bar.add(create);
 		bar.add(spacer2);
 		bar.add(disconnect);
-		
+
 		return bar.asWidget();
 	}
-	
+
 	private PushButton getDisconnectButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.disconnect()));
 		button.setTitle("Disconnect");
-		
+
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -285,36 +285,36 @@ public class PgStudio implements EntryPoint {
 				}
 			}
 		});
-		
+
 		return button;
 	}
 
 	private PushButton getSQLWorksheetButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.sqlWorksheet()));
 		button.setTitle("SQL Worksheet");
-		
+
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				  sqlDialog = new ExtendedDialogBox();
-				  sqlDialog.setTitle("SQL Worksheet");
+				sqlDialog = new ExtendedDialogBox();
+				sqlDialog.setTitle("SQL Worksheet");
 
-		    	  SQLWorksheet sql = new SQLWorksheet();
+				SQLWorksheet sql = new SQLWorksheet();
 
-		    	  sqlDialog.setWidget(sql.asWidget());
-		    	  sqlDialog.setGlassEnabled(true);
-		    	  sqlDialog.setPopupPosition(30, 30);
-		    	  sqlDialog.setText("SQL Worksheet");
-		    	  sqlDialog.show();
+				sqlDialog.setWidget(sql.asWidget());
+				sqlDialog.setGlassEnabled(true);
+				sqlDialog.setPopupPosition(30, 30);
+				sqlDialog.setText("SQL Worksheet");
+				sqlDialog.show();
 
-			   	  sql.setupCodePanel();				
+				sql.setupCodePanel();				
 
 			}			
 		});
-		
+
 		return button;
 	}
-	
+
 	private PushButton getMonitorPanelButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.monitor()));
 		button.setTitle("Monitor");
@@ -362,7 +362,7 @@ public class PgStudio implements EntryPoint {
 	private PushButton getCreateButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.create()));
 		button.setTitle("Create Schema");
-		
+
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -405,51 +405,51 @@ public class PgStudio implements EntryPoint {
 			@Override
 			public void onClose(CloseEvent<PopupPanel> event) {
 				updateSchemaList();			}
-			
+
 		};
-		
+
 		return handler;
 	}
-	
+
 	private SimplePanel getTitlePanel(){
 		SimplePanel inputPanel = new SimplePanel();
 		inputPanel.add(textBox);
 		return inputPanel;
 	}
-	
+
 	private Widget getButtonPanel(){
 		HorizontalPanel bar = new HorizontalPanel();
-		
+
 		PushButton renameButton = new PushButton("Rename");
 		PushButton cancelButton = new PushButton("Cancel");
-		
+
 		bar.add(renameButton);
 		bar.add(cancelButton);
-		
+
 		renameButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				if (selectedSchema != null
 						&& !"".equals(selectedSchema)) {
-						if(textBox.getText() != null && !textBox.getText().equals("")) {
-							studioService.renameSchema(PgStudio.getToken(), selectedSchema.getName(), textBox.getText(), new AsyncCallback<String>() {
-								public void onSuccess(String result) {
-									if(result != null && result.contains("ERROR")){
-					            		Window.alert(result);
-					            	} else {
-										textBox.setText("");
-										updateSchemaList();
-										dialogBox.hide(true);
-					            	}
+					if(textBox.getText() != null && !textBox.getText().equals("")) {
+						studioService.renameSchema(PgStudio.getToken(), selectedSchema.getName(), textBox.getText(), new AsyncCallback<String>() {
+							public void onSuccess(String result) {
+								if(result != null && result.contains("ERROR")){
+									Window.alert(result);
+								} else {
+									textBox.setText("");
+									updateSchemaList();
+									dialogBox.hide(true);
 								}
-							
-								public void onFailure(Throwable caught) {
-					                Window.alert(caught.getMessage());
-								}
-							});
-						} else {
-							Window.alert("Enter schema name");
-						}
+							}
+
+							public void onFailure(Throwable caught) {
+								Window.alert(caught.getMessage());
+							}
+						});
+					} else {
+						Window.alert("Enter schema name");
+					}
 				}
 			}
 		});
@@ -462,23 +462,23 @@ public class PgStudio implements EntryPoint {
 				dialogBox.hide(true);
 			}
 		});
-		
+
 		return bar.asWidget();
 	}
 
 	private Widget getSchemaWidget() {
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setSpacing(5);
-		
+
 		Label lbl = new Label();
 		lbl.setText("Schema");
 		lbl.setStyleName("studio-Label");
-		
+
 		schemas.setVisibleItemCount(1);
 		schemas.setWidth("115px");
 		schemas.setStyleName("roundList");
 
-		
+
 		schemas.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
@@ -492,7 +492,7 @@ public class PgStudio implements EntryPoint {
 				msp.setSchema(info);
 			}
 		});
-		
+
 		panel.add(lbl);
 		panel.add(filler);
 		panel.add(schemas);
@@ -500,75 +500,75 @@ public class PgStudio implements EntryPoint {
 		schemaList = new ArrayList<DatabaseObjectInfo>();
 
 		studioService.getList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.SCHEMA, new AsyncCallback<String>() {
-            public void onFailure(Throwable caught) {
-            	schemas.clear();
-                // Show the RPC error message to the user
-                Window.alert(caught.getMessage());
-            }
+			public void onFailure(Throwable caught) {
+				schemas.clear();
+				// Show the RPC error message to the user
+				Window.alert(caught.getMessage());
+			}
 
-            public void onSuccess(String result) {
-            	schemas.clear();
+			public void onSuccess(String result) {
+				schemas.clear();
 
 				JsArray<ListJsObject> objects = DatabaseObjectInfo.json2Messages(result);
 
 				int publicSchemaIndex = 0;
 				for (int i = 0; i < objects.length(); i++) {
 					DatabaseObjectInfo info = DatabaseObjectInfo.msgToInfo(objects.get(i));
-					
+
 					if (info.getName().equalsIgnoreCase("public"))
 						publicSchemaIndex = i;
-					
+
 					schemas.addItem(info.getName(), Integer.toString(info.getId()));
 					schemaList.add(info);
 				}
-				
-                if (objects.length() > 0) {
-            	    schemas.setSelectedIndex(publicSchemaIndex);
-            	    selectedSchema = schemaList.get(publicSchemaIndex);
-            	    msp.setSchema(schemaList.get(publicSchemaIndex));
-                }
-            }
-          });
+
+				if (objects.length() > 0) {
+					schemas.setSelectedIndex(publicSchemaIndex);
+					selectedSchema = schemaList.get(publicSchemaIndex);
+					msp.setSchema(schemaList.get(publicSchemaIndex));
+				}
+			}
+		});
 
 		return panel.asWidget();
 	}
-	
+
 	private void updateSchemaList(){
 		studioService.getList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.SCHEMA, new AsyncCallback<String>() {
-            public void onFailure(Throwable caught) {
-            	schemas.clear();
-                // Show the RPC error message to the user
-                Window.alert(caught.getMessage());
-            }
+			public void onFailure(Throwable caught) {
+				schemas.clear();
+				// Show the RPC error message to the user
+				Window.alert(caught.getMessage());
+			}
 
-            public void onSuccess(String result) {
-            	schemas.clear();
-            	
+			public void onSuccess(String result) {
+				schemas.clear();
+
 				JsArray<ListJsObject> objects = DatabaseObjectInfo.json2Messages(result);
 
 				int selectedSchemaIndex = 0;
 				for (int i = 0; i < objects.length(); i++) {
 					DatabaseObjectInfo info = DatabaseObjectInfo.msgToInfo(objects.get(i));
-					
+
 					if (info.getName().equals(selectedSchema))
 						selectedSchemaIndex = i;
 
 					schemas.addItem(info.getName(), Integer.toString(info.getId()));
 					schemaList.add(info);
 				}
-				
-                if (objects.length() > 0) {
-            	    schemas.setSelectedIndex(selectedSchemaIndex);
-            	    selectedSchema = schemaList.get(selectedSchemaIndex);
-            	    msp.setSchema(schemaList.get(selectedSchemaIndex));
-                }              
-            }
-          });
+
+				if (objects.length() > 0) {
+					schemas.setSelectedIndex(selectedSchemaIndex);
+					selectedSchema = schemaList.get(selectedSchemaIndex);
+					msp.setSchema(schemaList.get(selectedSchemaIndex));
+				}              
+			}
+		});
 	}
 
 	public void setSelectedItem(ModelInfo selected) {
 		selectedItem = selected;
-		
+
 		String prefix = "";
 		switch (selected.getItemType()) {
 		case TABLE:
@@ -593,32 +593,38 @@ public class PgStudio implements EntryPoint {
 			prefix = "";
 			break;
 		}
-		
+
 		detailsInfo.setText(prefix + ": " + selectedSchema.getName() + "." + selected.getName());
-		
+
 		dtp.setSelectedItem(selected);
 	}
-	
+
 	public SelectionChangeHandler getSelectionChangeHandler() {
 		if (selectionChangeHandler == null) {
 			selectionChangeHandler = new SelectionChangeHandler(this);
 		}
-		
+
 		return selectionChangeHandler;
 	}
 
 	public static DatabaseObjectInfo getSelectedSchema() {
 		return selectedSchema;
 	}
-	
+
 	public ModelInfo getSelectedItem() {
 		return selectedItem;
 	}
-	
+
 	public int getDatabaseVersion() {
 		if (getDbVersion() != null)
 			return Integer.parseInt(getDbVersion());
-		
+
 		return 0;
 	}
+
+	public void clearTabs(){
+
+		dtp.clearTabs();
+	}
+
 }

@@ -60,7 +60,12 @@ public class MenuStackPanel {
 			@Override
 			public void run() {
 				this.schedule(1000);
-				
+				if(!tables.selectFirst()){
+					/*clear tabs*/
+					//Window.alert("Clear tab data...");
+					main.clearTabs();
+					this.cancel();
+				}
 				if (tables.selectFirst()) {
 					setSelected(ITEM_TYPE.TABLE);
 					this.cancel();

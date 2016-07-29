@@ -162,7 +162,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if(selectionModel.getSelectedObject() != null && !"".equals(selectionModel.getSelectedObject().getName())){
+				if(selectFirst() && selectionModel.getSelectedObject() != null && !"".equals(selectionModel.getSelectedObject().getName())){
 					DropItemPopUp pop = new DropItemPopUp();
 					pop.setSelectionModel(selectionModel);
 					pop.setDataProvider(dataProvider);
@@ -209,7 +209,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if (selectionModel.getSelectedObject() != null
+				if (selectFirst() && selectionModel.getSelectedObject() != null
 						&& !"".equals(selectionModel.getSelectedObject()
 								.getName())) {
 					RenameItemPopUp pop = new RenameItemPopUp(ITEM_TYPE.TABLE);
@@ -234,7 +234,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if (selectionModel.getSelectedObject() != null
+				if (selectFirst() && selectionModel.getSelectedObject() != null
 						&& !"".equals(selectionModel.getSelectedObject()
 								.getName())) {
 					AnalyzePopUp pop = new AnalyzePopUp(true);
@@ -259,7 +259,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 		button.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if(selectionModel.getSelectedObject() != null && !"".equals(selectionModel.getSelectedObject().getName())){
+				if(selectFirst() && selectionModel.getSelectedObject() != null && !"".equals(selectionModel.getSelectedObject().getName())){
 					TruncateTablePopUp pop = new TruncateTablePopUp();
 					pop.setSelectionModel(selectionModel);
 					pop.setDataProvider(dataProvider);
@@ -284,6 +284,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 			@Override
 			public void onClick(ClickEvent event) {
 				try {
+					
 					ConfigureRowLevelSecurityPopUp pop = new ConfigureRowLevelSecurityPopUp();
 					pop.setSelectionModel(selectionModel);
 					pop.setDataProvider(dataProvider);
@@ -354,7 +355,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 				dataGrid.getSelectionModel().setSelected(t, true);
 				main.setSelectedItem(t);
 				return true;
-			}
+			} 
 		}
 		
 		return false;

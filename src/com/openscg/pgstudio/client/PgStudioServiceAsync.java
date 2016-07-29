@@ -53,7 +53,7 @@ public interface PgStudioServiceAsync {
 	void dropItem(String connectionToken, int item, ITEM_TYPE type, boolean cascade, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, AsyncCallback<String> callback) 
+	void analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
 	void renameItem(String connectionToken, int item, ITEM_TYPE type, String newName, AsyncCallback<String> callback) 
