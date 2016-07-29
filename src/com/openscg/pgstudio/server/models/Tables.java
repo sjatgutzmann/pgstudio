@@ -28,35 +28,35 @@ public class Tables {
 	private final int version;
 
 	private final static String TABLE_LIST_XC =
-		"SELECT c.relname as tablename, xc.pclocatortype as tabletype, d.description, c.oid,  " +
-        "       false as relrowsecurity, false as relforcerowsecurity " +
-		"  FROM pgxc_class xc, pg_class c " +
-		"       LEFT OUTER JOIN pg_description d" +
-		"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
-		" WHERE c.relnamespace = ? " +
-		"   AND c.oid = xc.pcrelid " +
-		"   AND c.relkind = 'r' " +
-		" ORDER BY tablename";
+			"SELECT c.relname as tablename, xc.pclocatortype as tabletype, d.description, c.oid,  " +
+					"       false as relrowsecurity, false as relforcerowsecurity " +
+					"  FROM pgxc_class xc, pg_class c " +
+					"       LEFT OUTER JOIN pg_description d" +
+					"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
+					" WHERE c.relnamespace = ? " +
+					"   AND c.oid = xc.pcrelid " +
+					"   AND c.relkind = 'r' " +
+					" ORDER BY tablename";
 
 	private final static String TABLE_LIST_95 =
 			"SELECT c.relname as tablename, \'R\' as tabletype, d.description, c.oid, " +
-	        "       relrowsecurity, relforcerowsecurity " +
-			"  FROM pg_class c" +
-			"       LEFT OUTER JOIN pg_description d" +
-			"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
-			" WHERE c.relnamespace = ? " +
-			"   AND c.relkind = 'r' " +
-			" ORDER BY tablename ";
+					"       relrowsecurity, relforcerowsecurity " +
+					"  FROM pg_class c" +
+					"       LEFT OUTER JOIN pg_description d" +
+					"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
+					" WHERE c.relnamespace = ? " +
+					"   AND c.relkind = 'r' " +
+					" ORDER BY tablename ";
 
 	private final static String TABLE_LIST =
 			"SELECT c.relname as tablename, \'R\' as tabletype, d.description, c.oid, " +
-	        "       false as relrowsecurity, false as relforcerowsecurity " +
-			"  FROM pg_class c" +
-			"       LEFT OUTER JOIN pg_description d" +
-			"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
-			" WHERE c.relnamespace = ? " +
-			"   AND c.relkind = 'r' " +
-			" ORDER BY tablename ";
+					"       false as relrowsecurity, false as relforcerowsecurity " +
+					"  FROM pg_class c" +
+					"       LEFT OUTER JOIN pg_description d" +
+					"         ON (c.oid = d.objoid AND d.objsubid = 0) " +
+					" WHERE c.relnamespace = ? " +
+					"   AND c.relkind = 'r' " +
+					" ORDER BY tablename ";
 
 	public Tables(Connection conn) {
 		this.conn = conn;
@@ -64,7 +64,7 @@ public class Tables {
 		this.version = ver.getVersion();
 		this.pgFlavor = ver.getPgFlavor();
 	}
-	
+
 	public String getList(int schema) {
 		JSONArray result = new JSONArray();
 
@@ -91,7 +91,7 @@ public class Tables {
 				jsonMessage.put("name", rs.getString("tablename"));
 				jsonMessage.put("table_type", rs.getString("tabletype"));
 				jsonMessage.put("comment", rs.getString("description"));
-				
+
 				if (rs.getBoolean("relrowsecurity")) {
 					jsonMessage.put("row_security", "true");
 				} else {
@@ -112,20 +112,20 @@ public class Tables {
 		}
 		return result.toString();
 	}
-	
+
 	public String drop(int item, boolean cascade) throws SQLException{
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
 		StringBuffer command = new StringBuffer("DROP TABLE " + name);
-		
+
 		if (cascade)
 			command.append(" CASCADE");
 
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command.toString());
 	}
-	
+
 	public String analyze(int item, ITEM_TYPE type, boolean vacuum,
 			boolean vacuumFull) throws SQLException {
 		Database db = new Database(conn);
@@ -147,7 +147,7 @@ public class Tables {
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command.toString());
 	}
-	
+
 	public String rename(int item, ITEM_TYPE type, String newName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
@@ -157,13 +157,13 @@ public class Tables {
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command);
 	}
-	
+
 	public String truncate(int item, ITEM_TYPE type) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
 		String command = "TRUNCATE " + name;
-		
+
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command, "TRUNCATE TABLE");
 	}
@@ -175,7 +175,7 @@ public class Tables {
 
 		Schemas s = new Schemas(conn);
 		String schemaName = s.getName(schema);
-		
+
 		String result = "";
 
 		StringBuffer main;
@@ -233,11 +233,11 @@ public class Tables {
 			else {
 				QuotingLogic q = new QuotingLogic();
 				commentQuery
-						.append("COLUMN "
-								+ tableName
-								+ "."
-								+ q.addQuote(col_index.get((Integer) pairs
-										.getKey() - 1)) + " IS " + "'"
+				.append("COLUMN "
+						+ tableName
+						+ "."
+						+ q.addQuote(col_index.get((Integer) pairs
+								.getKey() - 1)) + " IS " + "'"
 								+ pairs.getValue().toString() + "'");
 
 				String r2 = qe.executeUtilityCommand(commentQuery.toString());
@@ -248,4 +248,40 @@ public class Tables {
 
 		return result;
 	}
+
+	public String createTableLike(String connectionToken, int schema, String tableName, String source, boolean defaults, boolean constraints, boolean indexes)  throws SQLException {
+
+		Schemas s = new Schemas(conn);
+		String schemaName = s.getName(schema);
+
+		String result;
+
+		StringBuffer main;
+		String query = "";
+		String tempQuery = "";
+
+		String[] schemaTableName = source.split("\\.");
+
+		main = new StringBuffer("CREATE TABLE " + schemaName + "." + tableName+" (like \""+ schemaTableName[0] + "\".\"" + schemaTableName[1] + "\"");
+
+		if(defaults){
+			tempQuery += " INCLUDING DEFAULTS";
+		}
+
+		if(constraints){
+			tempQuery += " INCLUDING CONSTRAINTS";
+		}
+
+		if(indexes){
+			tempQuery += " INCLUDING INDEXES";
+		}
+
+		query = main.toString().concat(tempQuery).concat(")");
+		System.out.println(query);
+		QueryExecutor qe = new QueryExecutor(conn);
+		result = qe.executeUtilityCommand(query);
+
+		return result;
+	}
+
 }

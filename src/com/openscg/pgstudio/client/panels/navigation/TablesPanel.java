@@ -39,6 +39,7 @@ import com.openscg.pgstudio.client.panels.popups.DropItemPopUp;
 import com.openscg.pgstudio.client.panels.popups.PopUpException;
 import com.openscg.pgstudio.client.panels.popups.RenameItemPopUp;
 import com.openscg.pgstudio.client.panels.popups.TruncateTablePopUp;
+import com.openscg.pgstudio.client.panels.popups.AddTableLikePopUp;
 import com.openscg.pgstudio.client.providers.TableListDataProvider;
 
 public class TablesPanel extends Composite implements MenuPanel {
@@ -102,6 +103,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 		PushButton analyze = getAnalyzeButton();
 		PushButton truncate = getTruncateButton();
 		PushButton rowSecurity = getRowSecurityButton();
+		PushButton createLike = getCreateLikeButton();
 
 		bar.add(refresh);
 		bar.add(rename);
@@ -109,6 +111,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 		bar.add(truncate);
 		bar.add(drop);
 		bar.add(create);
+		bar.add(createLike);
 		
 		if (main.getDatabaseVersion() >= 90500) {
 			bar.add(rowSecurity);
@@ -128,6 +131,28 @@ public class TablesPanel extends Composite implements MenuPanel {
 			}			
 		});
 
+		return button;
+	}
+	
+	private PushButton getCreateLikeButton() {
+		PushButton button = new PushButton(new Image(PgStudio.Images.add()));
+		button.setTitle("Create Table Like");
+		button.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				if(selectionModel.getSelectedObject() != null && !"".equals(selectionModel.getSelectedObject().getName())){
+					AddTableLikePopUp pop = new AddTableLikePopUp();
+					pop.setSelectionModel(selectionModel);
+					pop.setDataProvider(dataProvider);
+					pop.setSchema(schema);
+					try {
+						pop.getDialogBox();
+					} catch (PopUpException caught) {
+						Window.alert(caught.getMessage());
+					}
+				}
+			}			
+		});
 		return button;
 	}
 

@@ -92,6 +92,8 @@ public interface PgStudioServiceAsync {
 	void createTable(String connectionToken, int schema, String tableName, boolean unlogged, boolean temporary, String fill, ArrayList<String> col_list,  HashMap<Integer,String> commentLog, ArrayList<String> col_index, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 
+	void createTableLike(String connectionToken, int schema, String tableName, String source, boolean defaults, boolean constraints, boolean indexes, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
 	void createUniqueConstraint(String connectionToken, int item, String constraintName, boolean isPrimaryKey, ArrayList<String> columnList, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 	

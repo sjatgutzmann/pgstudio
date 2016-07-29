@@ -563,6 +563,25 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 			throw new PostgreSQLException(e.getMessage());
 		}
 	}
+	
+	@Override
+	public String createTableLike(String connectionToken, int schema, String tableName, String source, boolean defaults,
+			boolean constraints, boolean indexes) throws DatabaseConnectionException, PostgreSQLException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		
+		Tables tables = new Tables(connMgr.getConnection(connectionToken,clientIP, userAgent));	
+		
+		try {
+			return tables.createTableLike(connectionToken, schema, tableName, source, defaults, constraints, indexes);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
 
 	@Override
 	public String createView(String connectionToken, String schema,

@@ -40,6 +40,9 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/unique-key.gif")
 	ImageResource constraintUniqueKey();
+	
+	@Source("images/add.png")
+	ImageResource add();
 
 	@Source("images/create.gif")
 	ImageResource create();
