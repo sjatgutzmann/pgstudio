@@ -74,11 +74,12 @@ public class QueryExecutor {
 		try {
 			stmt = conn.prepareStatement(command);
 			int queryResult = stmt.executeUpdate();
-			
 			if (queryResult == 0) {
 				status = "SUCCESS";
 				if (defaultReturnMessage != null) {
 					info = defaultReturnMessage;
+				} else {
+					info = "Successfully completed.";
 				}
 			}
 			else
@@ -88,6 +89,7 @@ public class QueryExecutor {
 			while (warning != null) {
 				info = info + warning.getMessage() + "\n";
 				warning = warning.getNextWarning();
+				System.out.print("warning*********"+warning);
 			}
 
 		} catch (SQLException e) {
@@ -101,7 +103,6 @@ public class QueryExecutor {
 					// TODO: Log this error
 				}			
 		}
-
 		JSONArray result = new JSONArray();
 		JSONObject jsonMessage = new JSONObject();
 		jsonMessage.put("status", status);

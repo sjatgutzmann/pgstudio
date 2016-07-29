@@ -21,7 +21,7 @@ import com.openscg.pgstudio.client.messages.ColumnJsObject;
 import com.openscg.pgstudio.client.models.ColumnInfo;
 
 public class ColumnListDataProvider extends AsyncDataProvider<ColumnInfo>
-		implements ItemListProvider {
+implements ItemListProvider {
 	private List<ColumnInfo> columnList = new ArrayList<ColumnInfo>();
 
 	private int item = -1;
@@ -59,30 +59,30 @@ public class ColumnListDataProvider extends AsyncDataProvider<ColumnInfo>
 		if (item > 0) {
 			studioService.getItemObjectList(PgStudio.getToken(), item, type,
 					ITEM_OBJECT_TYPE.COLUMN, new AsyncCallback<String>() {
-						public void onFailure(Throwable caught) {
-							columnList.clear();
-							Window.alert(caught.getMessage());
+				public void onFailure(Throwable caught) {
+					columnList.clear();
+					Window.alert(caught.getMessage());
+				}
+
+				public void onSuccess(String result) {
+					columnList = new ArrayList<ColumnInfo>();
+
+					JsArray<ColumnJsObject> cols = json2Messages(result);
+
+					if (cols != null) {
+						columnList.clear();
+
+						for (int i = 0; i < cols.length(); i++) {
+							ColumnJsObject col = cols.get(i);
+							columnList.add(msgToColumnInfo(col));
 						}
+					}
 
-						public void onSuccess(String result) {
-							columnList = new ArrayList<ColumnInfo>();
+					updateRowCount(columnList.size(), true);
+					updateRowData(0, columnList);
 
-							JsArray<ColumnJsObject> cols = json2Messages(result);
-
-							if (cols != null) {
-								columnList.clear();
-
-								for (int i = 0; i < cols.length(); i++) {
-									ColumnJsObject col = cols.get(i);
-									columnList.add(msgToColumnInfo(col));
-								}
-							}
-
-							updateRowCount(columnList.size(), true);
-							updateRowData(0, columnList);
-
-						}
-					});
+				}
+			});
 		}
 	}
 
@@ -118,8 +118,15 @@ public class ColumnListDataProvider extends AsyncDataProvider<ColumnInfo>
 
 	private static final native JsArray<ColumnJsObject> json2Messages(
 			String json)
-	/*-{
+			/*-{
 		return eval(json);
 	}-*/;
+
+	public void clearColumnData() {
+		columnList = new ArrayList<ColumnInfo>();
+		columnList.clear();
+		updateRowCount(columnList.size(), true);
+		updateRowData(0, columnList);
+	}
 
 }

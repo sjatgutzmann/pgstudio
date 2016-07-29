@@ -43,7 +43,7 @@ public interface PgStudioService extends RemoteService {
 	
 	String dropItem(String connectionToken, int item, ITEM_TYPE type, boolean cascade) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull) throws DatabaseConnectionException, PostgreSQLException;
+	String analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex) throws DatabaseConnectionException, PostgreSQLException;
 	
 	String renameItem(String connectionToken, int item, ITEM_TYPE type, String newName) throws DatabaseConnectionException, PostgreSQLException;
 
