@@ -43,6 +43,7 @@ import com.openscg.pgstudio.server.util.QueryExecutor;
 import com.openscg.pgstudio.server.util.QuotingLogic;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -1005,6 +1006,29 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 		} catch (SQLException e) {
 			throw new PostgreSQLException(e.getMessage());
 		}
+	}
+	
+	@Override
+	public String alterFunction(String connectionToken, AlterFunctionRequest alterFunctionRequest)
+			throws Exception {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Functions funcs;
+
+		System.out.println("Received : " + alterFunctionRequest);
+		funcs = new Functions(connMgr.getConnection(connectionToken, clientIP,
+				userAgent));
+
+		try {
+			return funcs.alter(alterFunctionRequest);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+		
 	}
 	
 	@Override

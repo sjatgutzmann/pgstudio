@@ -15,6 +15,7 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudio.TYPE_FORM;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 
 /**
  * The client side stub for the RPC service.
@@ -104,6 +105,8 @@ public interface PgStudioService extends RemoteService {
 	void doLogout(String connectionToken, String source) throws IllegalArgumentException, DatabaseConnectionException;
 
 	void invalidateSession();
+	
+	String alterFunction(String connectionToken, AlterFunctionRequest alterFunctionRequest) throws Exception;
 	
 	String incrementValue(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException;
 	

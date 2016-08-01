@@ -14,6 +14,7 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudio.TYPE_FORM;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 
 /**
  * The async counterpart of <code>PgStudioService</code>.
@@ -142,6 +143,8 @@ public interface PgStudioServiceAsync {
 	void doLogout(String connectionToken, String source, AsyncCallback<Void> asyncCallback) throws IllegalArgumentException;
 
 	void invalidateSession(AsyncCallback<Void> callback);
+	
+	void alterFunction(String connectionToken, AlterFunctionRequest alterFunctionRequest, AsyncCallback<String> asyncCallback) throws Exception;
 	
 	void incrementValue(String connectionToken, int schema, String sequenceName, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
 	

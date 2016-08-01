@@ -245,11 +245,11 @@ public interface Resources extends ClientBundle {
 	@Source("images/warning.png")
 	ImageResource warning();
 	
-	@Source("images/increment.png")
-	ImageResource increment();
-	
 	@Source("images/edit.png")
 	ImageResource edit();
+	
+	@Source("images/increment.png")
+	ImageResource increment();
 	
 	@Source("images/update.png")
 	ImageResource update();
