@@ -8,11 +8,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.server.util.QueryExecutor;
+import com.openscg.pgstudio.shared.Constants;
+import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 
 public class Functions {
 	
@@ -166,5 +171,128 @@ public class Functions {
 
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(query);
+	}
+	
+	public String alter(AlterFunctionRequest request) throws Exception {
+		System.out.println("Invoking sql constructor");
+		List<String> sqlList = constructAlterSQL(request);
+		QueryExecutor qe = new QueryExecutor(conn);
+		System.out.println("SQL LIST SIZE : " + sqlList.size());
+		String response = null;
+		for (String sql : sqlList) {
+			System.out.println("Executing : " + sql);
+			response = qe.executeUtilityCommand(sql); // If any of the sql fails, then the
+											// function stops
+			System.out.println("Execution complete ");
+		}
+		System.out.println("Final response : " + response);
+		return response;
+	}
+	
+	public List<String> constructAlterSQL(AlterFunctionRequest request) {
+		System.out.println("Constructing SQLS");
+		List<String> sqlList = new ArrayList<String>();
+		String sql = null;
+		String functionName = request.getFunctionName();
+		String newFunctionName = request.getNewFunctionName();
+		String functionBody = request.getFunctionBody();
+		String newFunctionBody = request.getNewFunctionBody();
+
+		if (!functionName.equals(newFunctionName)) {
+			System.out.println("Function name changed");
+			System.out.println("Old : " + functionName);
+			System.out.println("New : " + newFunctionName);
+			sql = constructRenameScript(request);
+			// request.setFunctionName(newFunctionName); // Replacing the old
+			// value with the new value
+			sqlList.add(sql);
+		}
+
+		if (!functionBody.equals(newFunctionBody) || "C".equalsIgnoreCase(request.getLanguage())) {
+			System.out.println("Function body changed");
+			System.out.println("Old\n" + functionBody);
+			System.out.println("New\n" + newFunctionBody);
+			sql = constructFunctionScript(request);
+			sqlList.add(sql);
+		}
+		return sqlList;
+	}
+	
+	private String constructRenameScript(AlterFunctionRequest request) {
+		StringBuffer sql = new StringBuffer("ALTER FUNCTION ");
+		sql = sql.append(request.getSchema()).append(".\"").append(request.getFunctionName()).append("\"");
+
+		String[] paramList = request.getParamsList();
+		if (paramList != null && paramList.length > 0) {
+			sql.append("(");
+			for (int i = 0; i < paramList.length; i++) {
+				if (i != 0)
+					sql.append(" , ");
+				sql.append(paramList[i]);
+			}
+			sql.append(")");
+		}
+		
+		sql.append(" RENAME TO ")
+				.append("\"").append(request.getNewFunctionName()).append("\"");
+
+		return sql.toString();
+	}
+
+	private String constructFunctionScript(AlterFunctionRequest request) {
+		String body = null;
+		body = constructSQL(request.getSchema(),
+					 request.getNewFunctionName(), 
+					 Arrays.asList(request.getParamsList()), 
+					 request.getNewFunctionBody(), 
+					 request.getReturns(), 
+					 request.getLanguage(),
+					 request.getObjectFilePath());
+		return body;
+	}
+	
+	private String constructSQL(String schemaName, String functionName, List<String> paramList, String definition, String returns, String language, String objFilePath) {
+		StringBuffer prefix;
+		StringBuffer parameter;
+		StringBuffer suffix;
+		String query;
+		prefix = new StringBuffer(Constants.CREATE_OR_REPLACE_FUNCTION + schemaName + "." + functionName);
+
+		parameter = new StringBuffer("");
+		if (paramList.size() > 0) {
+			/*
+			 * The ArrayList paramList contains the details of each parameter as
+			 * it would appear in the final CREATE FUNCTION query
+			 */
+			for (int i = 0; i < paramList.size(); i++) {
+				if (i != 0)
+					parameter.append(" , ");
+				parameter.append(paramList.get(i));
+			}
+		}
+		parameter = new StringBuffer(" ( " + parameter + " ) ");
+
+		prefix.append(parameter);
+		prefix.append(Constants.RETURNS + returns);
+		
+		suffix = new StringBuffer("\n");
+		if(!"internal".equals(language) && !"C".equalsIgnoreCase(language)) {
+			prefix.append(" AS $$\n");
+			suffix.append(" $$");
+		}
+		else {
+			definition = "'"+definition+"'";
+			prefix.append(" AS \n");			
+		}
+
+		if("C".equalsIgnoreCase(language))
+			prefix.append("'"+objFilePath+"',");
+		
+		suffix.append(" LANGUAGE " + language);
+		
+		query = (prefix.toString() + definition + suffix.toString());
+		
+		System.out.println("function query :: "+query);
+		return query;
 	}
 }

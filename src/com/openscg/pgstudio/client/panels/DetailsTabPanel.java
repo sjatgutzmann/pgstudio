@@ -33,6 +33,7 @@ public class DetailsTabPanel {
 	private ItemDataPanel dataPanel;
 	private StatsPanel statsPanel;
 	private ScriptPanel scriptPanel;
+	private FunctionsScriptPanel functionsScriptPanel;
 	private SecurityPanel secPanel;
 	private PolicyPanel polPanel;
 	
@@ -65,6 +66,7 @@ public class DetailsTabPanel {
 		dataPanel = new ItemDataPanel();
 		statsPanel = new StatsPanel();
 		scriptPanel = new ScriptPanel();
+		functionsScriptPanel = new FunctionsScriptPanel();
 		secPanel = new SecurityPanel();
 		polPanel = new PolicyPanel();
 	}
@@ -197,7 +199,7 @@ public class DetailsTabPanel {
 	private void setupFunctionPanels() {		
 
 		panel.insert(securityWidget, securityTabWidget, 0);
-		panel.insert(scriptPanel, scriptTabWidget, 0);
+		panel.insert(functionsScriptPanel, scriptTabWidget, 0);
 
 		removeExtraPanels(2);
 }
