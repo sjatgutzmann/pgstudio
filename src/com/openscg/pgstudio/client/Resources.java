@@ -244,4 +244,7 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/warning.png")
 	ImageResource warning();
+	
+	@Source("images/edit.png")
+	ImageResource edit();
 }
