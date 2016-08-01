@@ -142,5 +142,16 @@ public interface PgStudioServiceAsync {
 	void doLogout(String connectionToken, String source, AsyncCallback<Void> asyncCallback) throws IllegalArgumentException;
 
 	void invalidateSession(AsyncCallback<Void> callback);
+	
+	void incrementValue(String connectionToken, int schema, String sequenceName, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+	
+	void alterSequence(String connectionToken, int schema, String sequenceName, String increment, String minValue, String maxValue, String start, int cache, boolean cycle, AsyncCallback<String> callback) 
+			throws IllegalArgumentException;
+	
+	void changeSequenceValue(String connectionToken, int schema, String sequenceName, String value, AsyncCallback<String> asyncCallback);
+
+	void restartSequence(String connectionToken, int schema, String sequenceName, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void resetSequence(String connectionToken, int schema, String sequenceName, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
 
 }

@@ -18,9 +18,10 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudioService;
 import com.openscg.pgstudio.client.PgStudioServiceAsync;
 import com.openscg.pgstudio.client.messages.StatsJsObject;
+import com.openscg.pgstudio.client.models.DatabaseObjectInfo;
 import com.openscg.pgstudio.client.models.StatsInfo;
 
-public class StatsListDataProvider extends AsyncDataProvider<StatsInfo> {
+public class StatsListDataProvider extends AsyncDataProvider<StatsInfo> implements ModelListProvider {
 	private List<StatsInfo> statsList = new ArrayList<StatsInfo>();
 
 	private int item = -1;
@@ -90,5 +91,21 @@ public class StatsListDataProvider extends AsyncDataProvider<StatsInfo> {
 	/*-{
 		return eval(json);
 	}-*/;
+	
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+		setItem(item, type);
+	}
+
+	@Override
+	public void setSchema(DatabaseObjectInfo schema) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public List<StatsInfo> getStatsList() {
+		return statsList;
+	}
 
 }

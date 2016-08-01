@@ -1006,5 +1006,98 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 			throw new PostgreSQLException(e.getMessage());
 		}
 	}
+	
+	@Override
+	public String incrementValue(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException {
+
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		Connection conn = connMgr.getConnection(connectionToken,clientIP, userAgent);
+		
+		Sequences sequences = new Sequences(conn);
+		try {
+			return sequences.incrementValue(schema, sequenceName);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String alterSequence(String connectionToken, int schema, String sequenceName, String increment, String minValue,
+			String maxValue, String start, int cache, boolean cycle) throws DatabaseConnectionException, PostgreSQLException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Sequences sequences = new Sequences(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return sequences.alter(schema, sequenceName,
+					increment, minValue, maxValue, start, cache, cycle);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	
+	}
+	
+	@Override
+	public String changeSequenceValue(String connectionToken, int schema, String sequenceName, String value) throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Sequences sequences = new Sequences(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return sequences.changeValue(schema, sequenceName, value);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}		
+	}
+
+	@Override
+	public String restartSequence(String connectionToken, int schema, String sequenceName)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Sequences sequences = new Sequences(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return sequences.restart(schema, sequenceName);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String resetSequence(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Sequences sequences = new Sequences(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return sequences.reset(schema, sequenceName);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	
+	}
 
 }

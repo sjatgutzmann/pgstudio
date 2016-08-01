@@ -244,4 +244,19 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/warning.png")
 	ImageResource warning();
+	
+	@Source("images/increment.png")
+	ImageResource increment();
+	
+	@Source("images/edit.png")
+	ImageResource edit();
+	
+	@Source("images/update.png")
+	ImageResource update();
+	
+	@Source("images/reset.png")
+	ImageResource reset();
+	
+	@Source("images/edit-value.png")
+	ImageResource editValue();
 }

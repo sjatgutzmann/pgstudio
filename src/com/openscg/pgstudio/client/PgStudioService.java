@@ -104,5 +104,15 @@ public interface PgStudioService extends RemoteService {
 	void doLogout(String connectionToken, String source) throws IllegalArgumentException, DatabaseConnectionException;
 
 	void invalidateSession();
+	
+	String incrementValue(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException;
+	
+	String alterSequence(String connectionToken, int schema, String sequenceName, String increment, String minValue,String maxValue, String start, int cache, boolean cycle) throws DatabaseConnectionException, PostgreSQLException;
+
+	String changeSequenceValue(String connectionToken, int schema, String sequenceName, String value) throws DatabaseConnectionException, PostgreSQLException;
+
+	String restartSequence(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException;
+
+	String resetSequence(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException;
 
 }

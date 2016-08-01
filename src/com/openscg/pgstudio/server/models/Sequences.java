@@ -105,4 +105,86 @@ public class Sequences {
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command.toString());
 	}
+	
+	public String alter(int schema, String sequenceName,
+			String increment, String minValue, String maxValue,
+			String start, int cache, boolean cycle)
+			throws DatabaseConnectionException, SQLException {
+
+		Schemas s = new Schemas(conn);
+		String schemaName = s.getName(schema);
+
+		StringBuffer query;
+
+		query = new StringBuffer("ALTER SEQUENCE " + schemaName + "."
+					+ sequenceName);
+
+		if(null != increment && !increment.isEmpty())
+			query = query.append(" INCREMENT BY " + increment);
+
+		if(null != minValue && !minValue.isEmpty())
+			query = query.append(" MINVALUE " + minValue);
+
+		if(null != maxValue && !maxValue.isEmpty())
+			query = query.append(" MAXVALUE " + maxValue);
+
+		if(null != start && !start.isEmpty())
+			query = query.append(" START WITH " + start);
+
+		query = query.append(" CACHE " + cache);
+
+		if (cycle)
+			query = query.append(" CYCLE");
+		else
+			query = query.append(" NO CYCLE");
+
+		QueryExecutor qe = new QueryExecutor(conn);
+		return qe.executeUtilityCommand(query.toString());
+	}
+	
+	public String restart(int schema, String sequenceName)
+			throws DatabaseConnectionException, SQLException {
+		Schemas s = new Schemas(conn);
+		String schemaName = s.getName(schema);
+		String seqName = schemaName+"."+sequenceName;
+		StringBuffer query;
+		query = new StringBuffer("select setval('"+seqName+"', (select start_value from "+ seqName +"), false)");
+		//query = new StringBuffer("ALTER SEQUENCE " + schemaName + "." + sequenceName + " RESTART WITH 1");
+		QueryExecutor qe = new QueryExecutor(conn);
+		return qe.executeSelectQuery(query.toString(),null);
+	
+	}
+
+	public String incrementValue(int schema, String sequenceName) 
+			throws DatabaseConnectionException, SQLException {
+		
+		Schemas s = new Schemas(conn);
+		String schemaName = s.getName(schema);
+		String seqName = schemaName+"."+sequenceName;
+		StringBuffer query;
+		
+		query = new StringBuffer("select nextval('"+seqName+"')");
+		QueryExecutor qe = new QueryExecutor(conn);
+		System.out.println("increment sequence value query :: "+query);
+		return qe.executeSelectQuery(query.toString(),null);
+	}
+	
+	public String changeValue(int schema, String sequenceName, String value) throws SQLException {
+		Schemas s = new Schemas(conn);
+		String schemaName = s.getName(schema);
+		String seqName = schemaName+"."+sequenceName;
+		StringBuffer query = new StringBuffer("SELECT setval(");
+		query.append("'").append(seqName).append("',").append(value).append(")");
+		QueryExecutor qe = new QueryExecutor(conn);
+		return qe.executeSelectQuery(query.toString(), null);
+	}
+	
+	public String reset(int schema, String sequenceName) throws DatabaseConnectionException, SQLException {
+		Schemas s = new Schemas(conn);
+		String schemaName = s.getName(schema);
+		String seqName = schemaName+"."+sequenceName;
+		StringBuffer query = new StringBuffer("select setval('"+seqName+"', (select min_value from "+ seqName +"), true)");
+		QueryExecutor qe = new QueryExecutor(conn);
+		return qe.executeSelectQuery(query.toString(), null);
+	}
 }
