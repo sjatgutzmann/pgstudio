@@ -32,6 +32,7 @@ public class DetailsTabPanel {
 	private RulePanel rulePanel;
 	private ItemDataPanel dataPanel;
 	private StatsPanel statsPanel;
+	private SequenceStatsPanel sequenceStatsPanel;
 	private ScriptPanel scriptPanel;
 	private FunctionsScriptPanel functionsScriptPanel;
 	private SecurityPanel secPanel;
@@ -44,6 +45,7 @@ public class DetailsTabPanel {
 	private Widget ruleTabWidget = new HTML(TextFormat.getHeaderString("Rules", PgStudio.Images.rules()));
 	private Widget dataTabWidget = new HTML(TextFormat.getHeaderString("Data", PgStudio.Images.data()));
 	private Widget statsTabWidget = new HTML(TextFormat.getHeaderString("Stats", PgStudio.Images.stats()));
+	private Widget sequencesStatsTabWidget = new HTML(TextFormat.getHeaderString("Stats", PgStudio.Images.stats()));
 	private Widget scriptTabWidget = new HTML(TextFormat.getHeaderString("Script", PgStudio.Images.script()));
 	private Widget securityTabWidget = new HTML(TextFormat.getHeaderString("Security", PgStudio.Images.security()));
 	private Widget policyTabWidget = new HTML(TextFormat.getHeaderString("Policies", PgStudio.Images.policy()));
@@ -65,6 +67,7 @@ public class DetailsTabPanel {
 		rulePanel = new RulePanel();
 		dataPanel = new ItemDataPanel();
 		statsPanel = new StatsPanel();
+		sequenceStatsPanel = new SequenceStatsPanel();
 		scriptPanel = new ScriptPanel();
 		functionsScriptPanel = new FunctionsScriptPanel();
 		secPanel = new SecurityPanel();
@@ -135,6 +138,7 @@ public class DetailsTabPanel {
 		panel.add(ruleWidget, ruleTabWidget);
 		panel.add(dataPanel, dataTabWidget);
 		panel.add(statsPanel, statsTabWidget);
+		panel.add(sequenceStatsPanel,sequencesStatsTabWidget);
 		panel.add(scriptPanel, scriptTabWidget);
 		panel.add(securityWidget, securityTabWidget);
 		panel.add(polPanel, policyTabWidget);
@@ -208,8 +212,7 @@ public class DetailsTabPanel {
 
 		panel.insert(securityWidget, securityTabWidget, 0);
 		panel.insert(scriptPanel, scriptTabWidget, 0);
-		panel.insert(statsPanel, statsTabWidget, 0);
-
+		panel.insert(sequenceStatsPanel, sequencesStatsTabWidget, 0);
 		removeExtraPanels(3);
 	}
 
