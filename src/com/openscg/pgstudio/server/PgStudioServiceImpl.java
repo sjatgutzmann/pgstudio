@@ -791,9 +791,7 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 	}
 	
 	@Override
-	public String createFunction(String connectionToken, int schema,
-			String functionName, String returns, String language,
-			ArrayList<String> paramList, String definition)
+	public String createFunction(String connectionToken, AlterFunctionRequest funcRequest)
 			throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -807,11 +805,13 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 				userAgent));
 
 		try {
-			return funcs.create(schema, functionName, returns, language, paramList, definition);
+			return funcs.create(funcRequest);
 		} catch (SQLException e) {
 			throw new PostgreSQLException(e.getMessage());
 		}
 	}
+	
+	
 	
 	@Override
 	public String createType(String connectionToken, String schema,
@@ -1122,6 +1122,36 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 			throw new PostgreSQLException(e.getMessage());
 		}
 	
+	}
+	
+	@Override
+	public String getLanguageFullList(String connectionToken, DATABASE_OBJECT_TYPE type)
+			throws IllegalArgumentException, DatabaseConnectionException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		
+		Database db;
+		db = new Database(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		return db.getLanguageFullList();
+	}
+	
+	@Override
+	public String getFunctionFullList(String connectionToken, int schema, ITEM_TYPE type)
+			throws IllegalArgumentException, DatabaseConnectionException {
+
+		ConnectionManager connMgr = new ConnectionManager();		
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Functions funcs = new Functions(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		return  funcs.getFullList(schema);
+					
 	}
 
 }

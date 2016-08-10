@@ -80,7 +80,7 @@ public interface PgStudioService extends RemoteService {
 	
 	String createSequence(String connectionToken, int schema, String sequenceName, boolean temporary, int increment, int minValue, int maxValue, int start, int cache, boolean cycle) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String createFunction(String connectionToken, int schema, String functionName, String returns, String language, ArrayList<String> paramList, String definition) throws DatabaseConnectionException, PostgreSQLException;
+	String createFunction(String connectionToken, AlterFunctionRequest funcRequest) throws DatabaseConnectionException, PostgreSQLException;
 	
 	String createType(String connectionToken, String schema, String typeName, TYPE_FORM form, String baseType, String definition, ArrayList<String> attributeList) throws DatabaseConnectionException;
 
@@ -117,5 +117,10 @@ public interface PgStudioService extends RemoteService {
 	String restartSequence(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException;
 
 	String resetSequence(String connectionToken, int schema, String sequenceName) throws DatabaseConnectionException, PostgreSQLException;
+	
+	String getLanguageFullList(String connectionToken, DATABASE_OBJECT_TYPE type) throws IllegalArgumentException, DatabaseConnectionException;
+
+	String getFunctionFullList(String connectionToken, int schema, ITEM_TYPE type) throws IllegalArgumentException, DatabaseConnectionException;
+
 
 }

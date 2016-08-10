@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.dom.client.TextAreaElement;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -45,10 +47,11 @@ import com.openscg.pgstudio.client.handlers.UtilityCommandAsyncCallback;
 import com.openscg.pgstudio.client.messages.DataTypesJsObject;
 import com.openscg.pgstudio.client.messages.ListJsObject;
 import com.openscg.pgstudio.client.models.DataTypeInfo;
-import com.openscg.pgstudio.client.models.FunctionInfo;
 import com.openscg.pgstudio.client.models.DatabaseObjectInfo;
+import com.openscg.pgstudio.client.models.FunctionInfo;
 import com.openscg.pgstudio.client.providers.FunctionListDataProvider;
 import com.openscg.pgstudio.client.providers.ModelListProvider;
+import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 
 public class AddFunctionPopUp implements StudioModelPopUp {
 	
@@ -67,6 +70,9 @@ public class AddFunctionPopUp implements StudioModelPopUp {
     private DatabaseObjectInfo schema = null;
     
 	private TextBox functionName = new TextBox();	
+	private TextBox linkSymbol = new TextBox();
+	
+	private TextBox objectFile = new TextBox();
 
 	private FlexTable params;
 
@@ -78,6 +84,16 @@ public class AddFunctionPopUp implements StudioModelPopUp {
 	private CodeMirror cm;
 
     private AddParameterPopUp pop;
+    
+    CaptionPanel definitionPanel = null;
+	HorizontalPanel linkPanel = null;
+	HorizontalPanel objFilePanel = null;
+	
+	private boolean isRestricted;
+
+	public void setRestricted(boolean isRestricted) {
+		this.isRestricted = isRestricted;
+	}
 
 	@Override
 	public DialogBox getDialogBox() throws PopUpException {
@@ -197,8 +213,34 @@ public class AddFunctionPopUp implements StudioModelPopUp {
 		language.setWidth("100px");
 
 		languages = new ArrayList<DatabaseObjectInfo>();
+		
+		if(!isRestricted){
+			studioService.getLanguageFullList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.LANGUAGE,
+					new AsyncCallback<String>() {
+						public void onFailure(Throwable caught) {
+							language.clear();
+							languages.clear();
+							// Show the RPC error message to the user
+							Window.alert(caught.getMessage());
+						}
 
-		studioService.getList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.LANGUAGE,
+						public void onSuccess(String result) {
+							language.clear();
+
+							JsArray<ListJsObject> langs = DatabaseObjectInfo.json2Messages(result);
+
+							for (int i = 0; i < langs.length(); i++) {
+								DatabaseObjectInfo info = DatabaseObjectInfo.msgToInfo(langs.get(i));
+								language.addItem(info.getName());
+								languages.add(info);
+							}
+
+							language.setSelectedIndex(0);
+						}
+					});
+		}
+		else {
+			studioService.getList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.LANGUAGE,
 				new AsyncCallback<String>() {
 					public void onFailure(Throwable caught) {
 						language.clear();
@@ -221,7 +263,8 @@ public class AddFunctionPopUp implements StudioModelPopUp {
 						language.setSelectedIndex(0);
 					}
 				});
-
+		}
+		
 		Label lblLanguage = new Label();
 		lblLanguage.setStyleName("StudioPopup-Msg");
 		lblLanguage.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);	 
@@ -239,14 +282,73 @@ public class AddFunctionPopUp implements StudioModelPopUp {
 		detailsPanel.add(returnsPanel);
 		detailsPanel.add(languagePanel);
 		
-		CaptionPanel definitionPanel = new CaptionPanel("Definition");
+		definitionPanel = new CaptionPanel("Definition");
 		definitionPanel.setStyleName("StudioCaption");
 		definitionPanel.add(getSQLPanel());
+		definitionPanel.setVisible(false);
+		
+		Label lblLink = new Label();
+		lblLink.setStyleName("StudioPopup-Msg");
+		lblLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);	 
+		lblLink.setText("Link Symbol");
+
+		linkSymbol = new TextBox();
+		linkSymbol.setWidth("155px");
+		
+		linkPanel = new HorizontalPanel();
+		linkPanel.setSpacing(10);
+		linkPanel.add(lblLink);
+		linkPanel.add(linkSymbol);
+		linkPanel.setVisible(true);
+		linkPanel.setCellVerticalAlignment(lblName, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		Label lblObjFile = new Label();
+		lblObjFile.setStyleName("StudioPopup-Msg");
+		lblObjFile.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);	 
+		lblObjFile.setText("Object File");
+
+		objectFile = new TextBox();
+		objectFile.setWidth("155px");
+		
+		objFilePanel = new HorizontalPanel();
+		objFilePanel.setSpacing(10);
+		objFilePanel.add(lblObjFile);
+		objFilePanel.add(objectFile);
+		objFilePanel.setVisible(true);
+		objFilePanel.setCellVerticalAlignment(lblName, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		if(isRestricted){
+			definitionPanel.setVisible(true);
+			linkPanel.setVisible(false);
+			objFilePanel.setVisible(false);
+		}
+
+		language.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event)	{
+				String languageSel = languages.get(language.getSelectedIndex()).getName();
+				
+				if(!"internal".equals(languageSel) && !"C".equalsIgnoreCase(languageSel)){
+					definitionPanel.setVisible(true);
+					linkPanel.setVisible(false);
+					objFilePanel.setVisible(false);
+				}else if("internal".equals(languageSel)){
+					definitionPanel.setVisible(false);
+					linkPanel.setVisible(true);
+					objFilePanel.setVisible(false);
+				}else {
+					definitionPanel.setVisible(false);
+					linkPanel.setVisible(true);
+					objFilePanel.setVisible(true);
+				}
+			}
+		});
 		
 		panel.add(info);
 		panel.add(getParameterPanel());
 		panel.add(detailsPanel);
 		panel.add(definitionPanel);
+		panel.add(linkPanel);
+		panel.add(objFilePanel);
 		
 		Widget buttonBar = getButtonPanel(); 
 		panel.add(buttonBar);
@@ -301,11 +403,23 @@ public class AddFunctionPopUp implements StudioModelPopUp {
 					ac.setAutoRefresh(true);
 					ac.setShowResultOutput(false);
 					
-					studioService.createFunction(PgStudio.getToken(), schema.getId(),
-							functionName.getText(),
-							returnType.getValue(returnType.getSelectedIndex()),
-							language.getValue(language.getSelectedIndex()), 
-							paramList, cm.getContent(), ac);
+					
+					AlterFunctionRequest request = new AlterFunctionRequest();
+					request.setNewFunctionName(functionName.getText());
+					String langValue = language.getValue(language.getSelectedIndex());
+					if(!"internal".equals(langValue) && !"C".equalsIgnoreCase(langValue))
+						request.setNewFunctionBody(cm.getContent());
+					else
+						request.setNewFunctionBody(linkSymbol.getText());
+					if("C".equalsIgnoreCase(langValue)){
+						request.setObjectFilePath(objectFile.getText());
+					}
+					request.setParamsList(paramList.toArray(new String[paramList.size()]));
+					request.setLanguage(langValue);
+					request.setReturns(returnType.getValue(returnType.getSelectedIndex()));
+					request.setSchema(schema.getName());
+					
+					studioService.createFunction(PgStudio.getToken(), request, ac);
 				} else {
 					Window.alert("Name is mandatory to create a function");
 				}

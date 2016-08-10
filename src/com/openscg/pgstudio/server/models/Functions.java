@@ -20,102 +20,102 @@ import com.openscg.pgstudio.shared.Constants;
 import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 
 public class Functions {
-	
+
 	private final Connection conn;
-	
+
 	private final static String FUNC_LIST = 
-		"SELECT proname, p.oid,  pg_get_function_identity_arguments(p.oid) as ident" +
-		"  FROM pg_proc p " +
-		" WHERE p.pronamespace = ? " +
-		" ORDER BY proname ";
+			"SELECT proname, p.oid,  pg_get_function_identity_arguments(p.oid) as ident" +
+					"  FROM pg_proc p " +
+					" WHERE p.pronamespace = ? " +
+					" ORDER BY proname ";
 
 	private final static String RANGE_DIFF_FUNC =
 			"SELECT proname " +
-			"  FROM pg_proc " +
-			" WHERE prorettype = (SELECT oid FROM pg_type WHERE typname = 'float8') " +
-			"   AND array_length(string_to_array(proargtypes::text, ' '), 1) = 2 " +
-			"   AND (string_to_array(proargtypes::text, ' '))[1] = (SELECT oid FROM pg_type WHERE typname = ?)::text " +
-			"   AND (string_to_array(proargtypes::text, ' '))[2] = (SELECT oid FROM pg_type WHERE typname = ?)::text " +
-			" ORDER BY proname ";
-	
+					"  FROM pg_proc " +
+					" WHERE prorettype = (SELECT oid FROM pg_type WHERE typname = 'float8') " +
+					"   AND array_length(string_to_array(proargtypes::text, ' '), 1) = 2 " +
+					"   AND (string_to_array(proargtypes::text, ' '))[1] = (SELECT oid FROM pg_type WHERE typname = ?)::text " +
+					"   AND (string_to_array(proargtypes::text, ' '))[2] = (SELECT oid FROM pg_type WHERE typname = ?)::text " +
+					" ORDER BY proname ";
+
 	private final static String TRIGGER_FUNC_LIST = 
 			"SELECT proname, p.oid " +
-			"  FROM pg_proc p " +
-			" WHERE p.pronamespace = ? " +
-			"   AND prorettype = (SELECT oid FROM pg_type WHERE typname = 'trigger') " +
-			" ORDER BY proname ";
-	
+					"  FROM pg_proc p " +
+					" WHERE p.pronamespace = ? " +
+					"   AND prorettype = (SELECT oid FROM pg_type WHERE typname = 'trigger') " +
+					" ORDER BY proname ";
+
 	public Functions(Connection conn) {
 		this.conn = conn;
 	}
-	
+
 	public String getList(int schema) {
 		JSONArray result = new JSONArray();
-		
+
 		try {
 			PreparedStatement stmt = conn.prepareStatement(FUNC_LIST);
 			stmt.setInt(1, schema);
 			ResultSet rs = stmt.executeQuery();
-			
+
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
 				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
 				jsonMessage.put("name", rs.getString("proname"));
 				jsonMessage.put("ident", rs.getString("ident"));				
-				
+
 				result.add(jsonMessage);
 			}
-			
+
 		} catch (SQLException e) {
 			return "";
 		}
-		
+
 		return result.toString();
 	}
 
 	public String getTriggerFunctionList(int schema) {
 		JSONArray result = new JSONArray();
-		
+
 		try {
 			PreparedStatement stmt = conn.prepareStatement(TRIGGER_FUNC_LIST);
 			stmt.setInt(1, schema);
 			ResultSet rs = stmt.executeQuery();
-			
+
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
 				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
 				jsonMessage.put("name", rs.getString("proname"));
-				
+
 				result.add(jsonMessage);
 			}
-			
+
 		} catch (SQLException e) {
 			return "";
 		}
-		
+
 		return result.toString();
 	}
 
 	public String getRangeDiffList(String schema, String subType) {
 		JSONArray result = new JSONArray();
-		
+
 		try {
 			PreparedStatement stmt = conn.prepareStatement(RANGE_DIFF_FUNC);
 			stmt.setString(1, subType);
 			stmt.setString(2, subType);
 			ResultSet rs = stmt.executeQuery();
-			
+
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
 				jsonMessage.put("name", rs.getString("proname"));
-				
+
 				result.add(jsonMessage);
 			}
-			
+
 		} catch (SQLException e) {
 			return "";
 		}
-		
+
 		return result.toString();
 	}
 
@@ -132,47 +132,12 @@ public class Functions {
 		return qe.executeUtilityCommand(command.toString());
 	}
 
-	public String create(int schema,
-			String functionName, String returns, String language,
-			ArrayList<String> paramList, String definition) throws SQLException {
-
-		StringBuffer prefix;
-		StringBuffer parameter;
-		StringBuffer suffix;
-		String query;
-
-		Schemas s = new Schemas(conn);
-		String schemaName = s.getName(schema);
-
-		prefix = new StringBuffer("CREATE FUNCTION " +schemaName + "." + functionName);
-
-		parameter = new StringBuffer("");
-		if (paramList.size() > 0) {
-			/*
-			 * The ArrayList paramList contains the details of each parameter as
-			 * it would appear in the final CREATE FUNCTION query
-			 */
-			for (int i = 0; i < paramList.size(); i++) {
-				if (i != 0)
-					parameter.append(" , ");
-				parameter.append(paramList.get(i));
-			}
-		}
-		parameter = new StringBuffer(" ( " + parameter + " ) ");
-
-		prefix.append(parameter);
-		prefix.append(" RETURNS " + returns);
-		prefix.append(" AS $$\n");
-
-		suffix = new StringBuffer("\n$$ ");
-		suffix.append(" LANGUAGE " + language);
-
-		query = (prefix.toString() + definition + suffix.toString());
-
+	public String create(AlterFunctionRequest request) throws SQLException {
+		String query = constructFunctionScript(request);
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(query);
 	}
-	
+
 	public String alter(AlterFunctionRequest request) throws Exception {
 		System.out.println("Invoking sql constructor");
 		List<String> sqlList = constructAlterSQL(request);
@@ -182,13 +147,13 @@ public class Functions {
 		for (String sql : sqlList) {
 			System.out.println("Executing : " + sql);
 			response = qe.executeUtilityCommand(sql); // If any of the sql fails, then the
-											// function stops
+			// function stops
 			System.out.println("Execution complete ");
 		}
 		System.out.println("Final response : " + response);
 		return response;
 	}
-	
+
 	public List<String> constructAlterSQL(AlterFunctionRequest request) {
 		System.out.println("Constructing SQLS");
 		List<String> sqlList = new ArrayList<String>();
@@ -217,7 +182,7 @@ public class Functions {
 		}
 		return sqlList;
 	}
-	
+
 	private String constructRenameScript(AlterFunctionRequest request) {
 		StringBuffer sql = new StringBuffer("ALTER FUNCTION ");
 		sql = sql.append(request.getSchema()).append(".\"").append(request.getFunctionName()).append("\"");
@@ -232,9 +197,9 @@ public class Functions {
 			}
 			sql.append(")");
 		}
-		
+
 		sql.append(" RENAME TO ")
-				.append("\"").append(request.getNewFunctionName()).append("\"");
+		.append("\"").append(request.getNewFunctionName()).append("\"");
 
 		return sql.toString();
 	}
@@ -242,15 +207,15 @@ public class Functions {
 	private String constructFunctionScript(AlterFunctionRequest request) {
 		String body = null;
 		body = constructSQL(request.getSchema(),
-					 request.getNewFunctionName(), 
-					 Arrays.asList(request.getParamsList()), 
-					 request.getNewFunctionBody(), 
-					 request.getReturns(), 
-					 request.getLanguage(),
-					 request.getObjectFilePath());
+				request.getNewFunctionName(), 
+				Arrays.asList(request.getParamsList()), 
+				request.getNewFunctionBody(), 
+				request.getReturns(), 
+				request.getLanguage(),
+				request.getObjectFilePath());
 		return body;
 	}
-	
+
 	private String constructSQL(String schemaName, String functionName, List<String> paramList, String definition, String returns, String language, String objFilePath) {
 		StringBuffer prefix;
 		StringBuffer parameter;
@@ -274,7 +239,7 @@ public class Functions {
 
 		prefix.append(parameter);
 		prefix.append(Constants.RETURNS + returns);
-		
+
 		suffix = new StringBuffer("\n");
 		if(!"internal".equals(language) && !"C".equalsIgnoreCase(language)) {
 			prefix.append(" AS $$\n");
@@ -287,12 +252,37 @@ public class Functions {
 
 		if("C".equalsIgnoreCase(language))
 			prefix.append("'"+objFilePath+"',");
-		
+
 		suffix.append(" LANGUAGE " + language);
-		
+
 		query = (prefix.toString() + definition + suffix.toString());
-		
+
 		System.out.println("function query :: "+query);
 		return query;
 	}
+	
+	public String getFullList(int schema) {
+		JSONArray result = new JSONArray();
+		
+		try {
+			PreparedStatement stmt = conn.prepareStatement(FUNC_LIST);
+			stmt.setInt(1, schema);
+			ResultSet rs = stmt.executeQuery();
+			
+			while (rs.next()) {
+				JSONObject jsonMessage = new JSONObject();
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
+				jsonMessage.put("name", rs.getString("proname"));
+				jsonMessage.put("ident", rs.getString("ident"));				
+				
+				result.add(jsonMessage);
+			}
+			
+		} catch (SQLException e) {
+			return "";
+		}
+		
+		return result.toString();
+	}
+
 }

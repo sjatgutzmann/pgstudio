@@ -45,6 +45,10 @@ public class Database {
 
 	private final static String LANGUAGE_LIST = "SELECT lanname, oid "
 			+ "  FROM pg_language "
+			+ " ORDER BY lanname ";
+	
+	private final static String LANGUAGE_LIST_NO_C_INTERNAL = "SELECT lanname, oid "
+			+ "  FROM pg_language "
 			+ " WHERE lanname NOT IN ('internal', 'c') " + " ORDER BY lanname ";
 
 	private final static String ROLE_LIST = "SELECT rolname, oid "
@@ -98,6 +102,27 @@ public class Database {
 	}
 
 	public String getLanguageList() {
+		JSONArray result = new JSONArray();
+
+		try {
+			PreparedStatement stmt = conn.prepareStatement(LANGUAGE_LIST_NO_C_INTERNAL);
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				JSONObject jsonMessage = new JSONObject();
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
+				jsonMessage.put("name", rs.getString("lanname"));
+
+				result.add(jsonMessage);
+			}
+		} catch (SQLException e) {
+			return "";
+		}
+
+		return result.toString();
+	}
+	
+	public String getLanguageFullList() {
 		JSONArray result = new JSONArray();
 
 		try {
@@ -340,5 +365,6 @@ public class Database {
 
 		throw new SQLException("Invalid Resultset");
 	}
-
+	
+	
 }

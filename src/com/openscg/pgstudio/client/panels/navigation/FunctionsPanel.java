@@ -22,12 +22,12 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.CellPreviewEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.openscg.pgstudio.client.PgStudio;
 import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.Resources;
-import com.openscg.pgstudio.client.PgStudio;
 import com.openscg.pgstudio.client.models.DatabaseObjectInfo;
 import com.openscg.pgstudio.client.models.FunctionInfo;
 import com.openscg.pgstudio.client.panels.popups.AddFunctionPopUp;
@@ -53,36 +53,45 @@ public class FunctionsPanel extends Composite implements MenuPanel {
         
 	private final PgStudio main;
 	
+	private VerticalPanel panel;
+	
+	private boolean isFirst = true;
+	
+	private boolean isRestricted = true;
+	
 	public void setSchema(DatabaseObjectInfo schema) {
 		this.schema = schema;
-		dataProvider.setSchema(schema);
+		//dataProvider.setSchema(schema);
 	}
 	
 	public FunctionsPanel(PgStudio main) {
 		this.main = main;
 		
-		VerticalPanel panel = new VerticalPanel();
+		panel = new VerticalPanel();
 		panel.setWidth("95%");
 
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
 		panel.add(getButtonBar());
-		panel.add(getFunctionList());		
 		
-		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<FunctionInfo>() {
-			@Override
-			public void onCellPreview(CellPreviewEvent<FunctionInfo> event) {
-				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
-					if (dataGrid.getRowCount() == 1) {
-						FunctionInfo i = dataProvider.getList().get(0);
-
-						if (dataGrid.getSelectionModel().isSelected(i)) {
-							selectFirst();
-						}
-					}
-	            }
-			}
-		});
+		dataGrid = new DataGrid<FunctionInfo>(PgStudio.MAX_PANEL_ITEMS, FunctionInfo.KEY_PROVIDER);
+		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+//		panel.add(getFunctionList());		
+//		
+//		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<FunctionInfo>() {
+//			@Override
+//			public void onCellPreview(CellPreviewEvent<FunctionInfo> event) {
+//				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+//					if (dataGrid.getRowCount() == 1) {
+//						FunctionInfo i = dataProvider.getList().get(0);
+//
+//						if (dataGrid.getSelectionModel().isSelected(i)) {
+//							selectFirst();
+//						}
+//					}
+//	            }
+//			}
+//		});
 
 		initWidget(panel);
 	}
@@ -149,6 +158,7 @@ public class FunctionsPanel extends Composite implements MenuPanel {
 				pop.setSelectionModel(selectionModel);
 				pop.setDataProvider(dataProvider);
 				pop.setSchema(schema);
+				pop.setRestricted(isRestricted);
 				try {
 					pop.getDialogBox();
 				} catch (PopUpException caught) {
@@ -162,8 +172,8 @@ public class FunctionsPanel extends Composite implements MenuPanel {
 	}
 
 	private Widget getFunctionList() {
-		dataGrid = new DataGrid<FunctionInfo>(PgStudio.MAX_PANEL_ITEMS, FunctionInfo.KEY_PROVIDER);
-		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+//		dataGrid = new DataGrid<FunctionInfo>(PgStudio.MAX_PANEL_ITEMS, FunctionInfo.KEY_PROVIDER);
+//		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
 
 	
 		Column<FunctionInfo, ImageResource> icon = addColumn(new ImageResourceCell(), "", new GetValue<ImageResource>() {
@@ -204,7 +214,28 @@ public class FunctionsPanel extends Composite implements MenuPanel {
 	}
 
 	public void refresh() {
-		dataProvider.setSchema(schema);	
+		dataProvider.setSchema(schema);
+		dataProvider.setRestricted(isRestricted);
+		if(isFirst){
+			isFirst = false;
+			panel.add(getFunctionList());		
+			
+			dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<FunctionInfo>() {
+				@Override
+				public void onCellPreview(CellPreviewEvent<FunctionInfo> event) {
+					if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+						if (dataGrid.getRowCount() == 1) {
+							FunctionInfo i = dataProvider.getList().get(0);
+	
+							if (dataGrid.getSelectionModel().isSelected(i)) {
+								selectFirst();
+							}
+						}
+		            }
+				}
+			});
+		}
+		selectFirst();
 	}	
 	
 	@Override
