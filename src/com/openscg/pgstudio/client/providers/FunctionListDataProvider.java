@@ -25,6 +25,12 @@ public class FunctionListDataProvider extends AsyncDataProvider<FunctionInfo>
 	private List<FunctionInfo> funcList = new ArrayList<FunctionInfo>();
 
 	private DatabaseObjectInfo schema = null;
+	
+	private boolean isRestricted;
+
+	public void setRestricted(boolean isRestricted) {
+		this.isRestricted = isRestricted;
+	}
 
 	private final PgStudioServiceAsync studioService = GWT
 			.create(PgStudioService.class);
@@ -56,7 +62,8 @@ public class FunctionListDataProvider extends AsyncDataProvider<FunctionInfo>
 
 	private void getData() {
 		if (schema != null) {
-			studioService.getList(PgStudio.getToken(), schema.getId(),
+			if(!isRestricted){
+				studioService.getFunctionFullList(PgStudio.getToken(), schema.getId(),
 					ITEM_TYPE.FUNCTION, new AsyncCallback<String>() {
 						public void onFailure(Throwable caught) {
 							funcList.clear();
@@ -83,6 +90,35 @@ public class FunctionListDataProvider extends AsyncDataProvider<FunctionInfo>
 
 						}
 					});
+			}else {
+				studioService.getList(PgStudio.getToken(), schema.getId(),
+					ITEM_TYPE.FUNCTION, new AsyncCallback<String>() {
+						public void onFailure(Throwable caught) {
+							funcList.clear();
+							// Show the RPC error message to the user
+							Window.alert(caught.getMessage());
+						}
+
+						public void onSuccess(String result) {
+							funcList = new ArrayList<FunctionInfo>();
+
+							JsArray<FunctionsJsObject> funcs = json2Messages(result);
+
+							if (funcs != null) {
+								funcList.clear();
+
+								for (int i = 0; i < funcs.length(); i++) {
+									FunctionsJsObject func = funcs.get(i);
+									funcList.add(msgToInfo(func, schema.getId()));
+								}
+							}
+
+							updateRowCount(funcList.size(), true);
+							updateRowData(0, funcList);
+
+						}
+					});
+			}
 		}
 	}
 

@@ -107,7 +107,7 @@ public interface PgStudioServiceAsync {
 	void createSequence(String connectionToken, int schema, String sequenceName, boolean temporary, int increment, int minValue, int maxValue, int start, int cache, boolean cycle, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void createFunction(String connectionToken, int schema, String functionName, String returns, String language, ArrayList<String> paramList, String definition, AsyncCallback<String> callback)
+	void createFunction(String connectionToken, AlterFunctionRequest funcRequest, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 	
 	void createType(String connectionToken, String schema, String typeName, TYPE_FORM form, String baseType, String definition, ArrayList<String> attributeList, AsyncCallback<String> callback)
@@ -156,5 +156,10 @@ public interface PgStudioServiceAsync {
 	void restartSequence(String connectionToken, int schema, String sequenceName, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
 
 	void resetSequence(String connectionToken, int schema, String sequenceName, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void getLanguageFullList(String connectionToken, DATABASE_OBJECT_TYPE type, AsyncCallback<String> callback) throws IllegalArgumentException;
+	
+	void getFunctionFullList(String connectionToken, int schema, ITEM_TYPE type, AsyncCallback<String> callback) throws IllegalArgumentException;
+
 
 }
