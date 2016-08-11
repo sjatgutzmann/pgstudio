@@ -88,7 +88,8 @@ public class PgStudio implements EntryPoint {
 	}
 
 	public static enum ITEM_TYPE implements IsSerializable {
-		TABLE, VIEW, FOREIGN_TABLE, FUNCTION, SEQUENCE, TYPE, MATERIALIZED_VIEW
+
+		TABLE, VIEW, FOREIGN_TABLE, FUNCTION, SEQUENCE, TYPE, MATERIALIZED_VIEW, FULL_TEXT_SEARCH, DICTIONARY, PARSER
 	}
 
 	public static enum ITEM_OBJECT_TYPE implements IsSerializable {

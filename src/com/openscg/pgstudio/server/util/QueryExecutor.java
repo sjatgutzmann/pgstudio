@@ -7,7 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.util.ArrayList;
+import java.sql.Statement;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -141,6 +142,63 @@ public class QueryExecutor {
 		} catch (SQLException e) {
 			status = "ERROR";
 			info = e.getMessage();
+		} finally {
+			if (stmt != null)
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					// TODO: Log this error
+				}			
+		}
+
+		JSONArray result = new JSONArray();
+		JSONObject jsonMessage = new JSONObject();
+		jsonMessage.put("status", status);
+		jsonMessage.put("message", info);
+		result.add(jsonMessage);
+
+		return result.toString();
+	}
+	
+	public String executeBatchUtilityCommand(List<String> commandList, String defaultReturnMessage) {
+
+		String status = "";
+		String info = "";
+		Statement stmt = null;
+		int[] queryResult = null;
+		try {
+			stmt = conn.createStatement();
+			for(String command: commandList) {
+				stmt.addBatch(command);
+			}
+			System.out.println("executeBatchUtilityCommand.....");
+			queryResult = stmt.executeBatch();
+			System.out.println("executeBatchUtilityCommand.....queryResult::"+queryResult.length);
+			if (queryResult.length != 0) {
+				status = "SUCCESS";
+				if (defaultReturnMessage != null) {
+					info = defaultReturnMessage;
+				} else {
+					info = "Successfully completed.";
+				}
+			}
+			else
+				status = "ERROR";
+
+			SQLWarning warning = stmt.getWarnings();
+			
+			while (warning != null) {
+				info = info + warning.getMessage() + "\n";
+				warning = warning.getNextWarning();
+				System.out.print("SQLWarning is not null...."+info);
+			}
+			
+
+		} catch (SQLException e) {
+			status = "ERROR";
+			info = e.getMessage();
+			System.out.println("error:::"+info);
+			e.printStackTrace();
 		} finally {
 			if (stmt != null)
 				try {

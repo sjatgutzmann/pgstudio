@@ -19,6 +19,7 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.server.models.Columns;
 import com.openscg.pgstudio.server.models.Constraints;
 import com.openscg.pgstudio.server.models.Database;
+import com.openscg.pgstudio.server.models.FTSConfigurations;
 import com.openscg.pgstudio.server.models.ForeignTables;
 import com.openscg.pgstudio.server.models.Functions;
 import com.openscg.pgstudio.server.models.Indexes;
@@ -37,6 +38,7 @@ import com.openscg.pgstudio.server.models.Tables;
 import com.openscg.pgstudio.server.models.Triggers;
 import com.openscg.pgstudio.server.models.Types;
 import com.openscg.pgstudio.server.models.Views;
+import com.openscg.pgstudio.server.models.fulltextsearch.Dictionaries;
 import com.openscg.pgstudio.server.util.ConnectionInfo;
 import com.openscg.pgstudio.server.util.ConnectionManager;
 import com.openscg.pgstudio.server.util.QueryExecutor;
@@ -1153,5 +1155,300 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 		return  funcs.getFullList(schema);
 					
 	}
+	
+	@Override
+	public String fetchDictionaryTemplates(String connectionToken)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Dictionaries dict = new Dictionaries(connMgr.getConnection(connectionToken, clientIP, userAgent));
+
+		try {
+		    return dict.getTemplates();
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String addDictionary(String connectionToken, int schema, String dictName, String template, String option,
+			String comment) throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Dictionaries dict = new Dictionaries(connMgr.getConnection(connectionToken, clientIP, userAgent));
+
+		try {
+			Schemas s = new Schemas(connMgr.getConnection(connectionToken, clientIP, userAgent));
+			String schemaName = s.getName(schema);
+		    return dict.create(schemaName, dictName, template, option, comment);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String createFTSConfiguration(String connectionToken, String schemaName, String configurationName, String templateName, String parserName, String comments)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return ftsConfigurations.createConfig(schemaName, configurationName, templateName, parserName, comments);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String getFTSTemplatesList(String connectionToken) throws DatabaseConnectionException, PostgreSQLException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		try {
+			return ftsConfigurations.getTemplatesList();
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+		
+		//return parsersListStr;
+	}
+	
+	@Override
+	public String getFTSParsersList(String connectionToken) throws DatabaseConnectionException, PostgreSQLException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		try {
+			return ftsConfigurations.getParsersList();
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+		
+		//return parsersListStr;
+	}
+	
+	@Override
+	public String alterFTSConfiguration(String connectionToken, String schemaName, String configurationName, String comments)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		try {
+			return ftsConfigurations.alterConfig(schemaName, configurationName, comments);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String dropFTSConfiguration(String connectionToken, String schemaName, String configurationName, boolean cascade)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return ftsConfigurations.dropConfig(schemaName, configurationName, cascade);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String getFTSConfigurations(String connectionToken, String schemaName)
+			throws DatabaseConnectionException, PostgreSQLException {
+		System.out.println("getFTSConfigurations is called....");
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		try {
+			return ftsConfigurations.getFTSConfigurations(schemaName);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String fetchDictionaryDetails(String connectionToken, int schema, long id)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Dictionaries dict = new Dictionaries(connMgr.getConnection(connectionToken, clientIP, userAgent));
+
+		try {
+			return dict.get(schema, id);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String alterDictionary(String connectionToken, int schema, String dictName, String newDictName,
+			String options, String comments) throws DatabaseConnectionException, PostgreSQLException {
+		System.out.println("Received request");
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		Dictionaries dict = new Dictionaries(connMgr.getConnection(connectionToken, clientIP, userAgent));
+
+		try {
+			return dict.alter(dictName, newDictName, options, comments);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String createFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType, String dictionary)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return ftsConfigurations.createMapping(schemaName, configurationName, tokenType, dictionary);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String getFTSTokensList(String connectionToken) throws DatabaseConnectionException, PostgreSQLException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		try {
+			return ftsConfigurations.getTokensList();
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+		
+		//return parsersListStr;
+	}
+	
+	@Override
+	public String getFTSDictionariesList(String connectionToken) throws DatabaseConnectionException, PostgreSQLException {
+		
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		try {
+			return ftsConfigurations.getDictionariesList();
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+		
+		//return parsersListStr;
+	}
+	
+	@Override
+	public String alterFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType, String oldDict, String newDict)
+			throws DatabaseConnectionException, PostgreSQLException {
+		System.out.println("alterFTSConfiguration.....start");
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		System.out.println("alterFTSConfiguration.....start11111");
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		System.out.println("alterFTSConfiguration.....start22222");
+		try {
+			return ftsConfigurations.alterMapping(schemaName, configurationName, tokenType, oldDict, newDict);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String dropFTSMapping(String connectionToken, String schemaName, String configurationName, String token)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+
+		try {
+			return ftsConfigurations.dropMapping(schemaName, configurationName, token);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String getFTSConfigurationDetails(String connectionToken, String schemaName, String configName)
+			throws DatabaseConnectionException, PostgreSQLException {
+		System.out.println("getFTSConfigurations is called....");
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+
+		FTSConfigurations ftsConfigurations = new FTSConfigurations(connMgr.getConnection(connectionToken,clientIP, userAgent));
+		try {
+			return ftsConfigurations.getFTSConfigurationDetails(schemaName, configName);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+
 
 }

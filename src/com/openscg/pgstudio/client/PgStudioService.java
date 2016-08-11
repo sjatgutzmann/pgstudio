@@ -122,5 +122,36 @@ public interface PgStudioService extends RemoteService {
 
 	String getFunctionFullList(String connectionToken, int schema, ITEM_TYPE type) throws IllegalArgumentException, DatabaseConnectionException;
 
+	String fetchDictionaryTemplates(String connectionToken) throws DatabaseConnectionException, PostgreSQLException;
+
+	String addDictionary(String connectionToken, int schema, String dictName, String template, String option, String comments) throws DatabaseConnectionException, PostgreSQLException;
+
+	String createFTSConfiguration(String connectionToken, String schemaName, String configurationName, String templateName, String parserName, String comments) throws DatabaseConnectionException, PostgreSQLException;
+
+	String getFTSTemplatesList(String connectionToken) throws Exception;
+	
+	String getFTSParsersList(String connectionToken) throws Exception;
+	
+	String alterFTSConfiguration(String connectionToken, String schemaName, String configurationName, String comments) throws DatabaseConnectionException, PostgreSQLException;
+
+	String dropFTSConfiguration(String connectionToken, String schemaName, String configurationName, boolean cascade) throws DatabaseConnectionException, PostgreSQLException;
+	
+	String getFTSConfigurations(String connectionToken, String schemaName) throws DatabaseConnectionException, PostgreSQLException;
+
+	String fetchDictionaryDetails(String connectionToken, int schema, long id) throws DatabaseConnectionException, PostgreSQLException;
+
+	String alterDictionary(String connectionToken, int schema, String dictName, String newDictName, String options, String comments) throws DatabaseConnectionException, PostgreSQLException;
+
+	String createFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType, String dictionary) throws DatabaseConnectionException, PostgreSQLException;
+
+	String getFTSTokensList(String connectionToken) throws Exception;
+	
+	String getFTSDictionariesList(String connectionToken) throws Exception;
+
+	String alterFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType, String oldDict, String newDict) throws DatabaseConnectionException, PostgreSQLException;
+
+	String dropFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType) throws DatabaseConnectionException, PostgreSQLException;
+
+	String getFTSConfigurationDetails(String connectionToken, String schemaName, String configName) throws DatabaseConnectionException, PostgreSQLException;
 
 }
