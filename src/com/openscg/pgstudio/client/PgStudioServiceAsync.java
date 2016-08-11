@@ -161,5 +161,36 @@ public interface PgStudioServiceAsync {
 	
 	void getFunctionFullList(String connectionToken, int schema, ITEM_TYPE type, AsyncCallback<String> callback) throws IllegalArgumentException;
 
+	void fetchDictionaryTemplates(String connectionToken, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+	
+	void addDictionary(String connectionToken, int schema, String dictName, String template, String option, String comment, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void createFTSConfiguration(String connectionToken, String schemaName, String configurationName, String templateName, String parserName, String comments, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void getFTSTemplatesList(String connectionToken, AsyncCallback<String> callback) throws Exception;
+	
+	void getFTSParsersList(String connectionToken, AsyncCallback<String> callback) throws Exception;
+	
+	void alterFTSConfiguration(String connectionToken, String schemaName, String configurationName, String comments, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void dropFTSConfiguration(String connectionToken, String schemaName, String configurationName, boolean cascade, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void getFTSConfigurations(String connectionToken, String schemaName, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void fetchDictionaryDetails(String connectionToke, int schema, long id, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void alterDictionary(String connectionToken, int schema, String dictName, String newDictName, String options, String comments, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void createFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType, String dictionary, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void getFTSTokensList(String connectionToken, AsyncCallback<String> callback) throws Exception;
+
+	void getFTSDictionariesList(String connectionToken, AsyncCallback<String> callback) throws Exception;
+
+	void alterFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType, String oldDict, String newDict, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void dropFTSMapping(String connectionToken, String schemaName, String configurationName, String token, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void getFTSConfigurationDetails(String connectionToken, String schemaName, String configName, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
 
 }

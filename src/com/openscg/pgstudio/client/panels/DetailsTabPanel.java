@@ -37,7 +37,10 @@ public class DetailsTabPanel {
 	private FunctionsScriptPanel functionsScriptPanel;
 	private SecurityPanel secPanel;
 	private PolicyPanel polPanel;
-	
+	private FTSConfigurationDetailsPanel ftsConfigurationDetailsPanel;
+	private DictionariesDataPanel dictionariesPanel;
+	private ParsersDataPanel parsersPanel;
+
 	private Widget columnTabWidget = new HTML(TextFormat.getHeaderString("Columns", PgStudio.Images.column()));
 	private Widget indexTabWidget = new HTML(TextFormat.getHeaderString("Indexes", PgStudio.Images.index()));
 	private Widget constTabWidget = new HTML(TextFormat.getHeaderString("Constraints", PgStudio.Images.constraint()));
@@ -50,6 +53,9 @@ public class DetailsTabPanel {
 	private Widget securityTabWidget = new HTML(TextFormat.getHeaderString("Security", PgStudio.Images.security()));
 	private Widget policyTabWidget = new HTML(TextFormat.getHeaderString("Policies", PgStudio.Images.policy()));
 
+private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString("Configurations", PgStudio.Images.ftsconf()));
+	private Widget dictionariesWidget = new HTML(TextFormat.getHeaderString("Info", PgStudio.Images.dictionary()));
+	private Widget parsersWidget = new HTML(TextFormat.getHeaderString("Data", PgStudio.Images.data()));
 	private Widget indexWidget;
 	private Widget constWidget;
 	private Widget triggerWidget;
@@ -72,6 +78,9 @@ public class DetailsTabPanel {
 		functionsScriptPanel = new FunctionsScriptPanel();
 		secPanel = new SecurityPanel();
 		polPanel = new PolicyPanel();
+		ftsConfigurationDetailsPanel = new FTSConfigurationDetailsPanel(this.main);
+		dictionariesPanel = new DictionariesDataPanel();
+		parsersPanel = new ParsersDataPanel();
 	}
 
 	public void setSelectedItem(ModelInfo selected) {		
@@ -81,25 +90,34 @@ public class DetailsTabPanel {
 			this.type = selectedItem.getItemType();
 			
 			switch(type) {
-				case TABLE :
-					setupTablePanels();
-					break;
-				case MATERIALIZED_VIEW:
-				case VIEW :
-					setupViewPanels();
-					break;
-				case FOREIGN_TABLE :
-					setupForeignTablePanels();
-					break;
-				case FUNCTION :
-					setupFunctionPanels();
-					break;
-				case SEQUENCE :
-					setupSequencePanels();
-					break;
-				case TYPE :
-					setupTypePanels();
-					break;
+			case TABLE :
+				setupTablePanels();
+				break;
+			case MATERIALIZED_VIEW:
+			case VIEW :
+				setupViewPanels();
+				break;
+			case FOREIGN_TABLE :
+				setupForeignTablePanels();
+				break;
+			case FUNCTION :
+				setupFunctionPanels();
+				break;
+			case SEQUENCE :
+				setupSequencePanels();
+				break;
+			case TYPE :
+				setupTypePanels();
+				break;
+			case FULL_TEXT_SEARCH: 
+				setupFTSPanels();
+				break;
+			case DICTIONARY:
+				setupDictionariesPanel();
+				break;
+			case PARSER:
+				setupParsersPanel();
+				break;
 			default:
 				break;
 
@@ -109,11 +127,11 @@ public class DetailsTabPanel {
 		if (panel.getTabBar().getSelectedTab() < 0) {
 			panel.selectTab(0);
 		}
-		
+
 		DetailsPanel p = (DetailsPanel) panel.getWidget(panel.getTabBar().getSelectedTab());
 		p.setItem(selectedItem);	
-		
-		
+
+
 		DOM.setStyleAttribute(RootPanel.get().getElement(), "cursor", "default");
 
 	}
@@ -142,6 +160,9 @@ public class DetailsTabPanel {
 		panel.add(scriptPanel, scriptTabWidget);
 		panel.add(securityWidget, securityTabWidget);
 		panel.add(polPanel, policyTabWidget);
+		panel.add(ftsConfigurationDetailsPanel,ftsConfigurationsTabWidget);
+		panel.add(dictionariesPanel, dictionariesWidget);
+		panel.add(parsersPanel, parsersWidget); 
 
 		panel.addSelectionHandler(new SelectionHandler<Integer>() {
 			@Override
@@ -160,11 +181,11 @@ public class DetailsTabPanel {
 	}
 	
 	private void setupTablePanels() {
-		int panels = 9;
-		
+		int panels = 10;
+
 		if (main.getDatabaseVersion() >= 90500) {
 			panel.insert(policyWidget, policyTabWidget, 0);
-			panels = 10;
+			panels = 11;
 		}
 		panel.insert(securityWidget, securityTabWidget, 0);
 		panel.insert(scriptPanel, scriptTabWidget, 0);
@@ -223,19 +244,47 @@ public class DetailsTabPanel {
 		
 		removeExtraPanels(2);
 	}
+	
+	private void setupFTSPanels() {		
+		panel.insert(parsersWidget, parsersWidget, 0);
+		panel.insert(dictionariesWidget, dictionariesWidget, 0);
+		panel.insert(ftsConfigurationDetailsPanel, ftsConfigurationsTabWidget, 0);		
+
+		removeExtraPanels(3);
+	}
+	
+	private void setupDictionariesPanel() {
+		panel.insert(dictionariesPanel, dictionariesWidget, 0);
+		
+		removeExtraPanels(1);
+	}
+	
+	private void setupParsersPanel() {
+		panel.insert(parsersPanel, parsersWidget, 0);
+		
+		removeExtraPanels(1);
+	}
+
 
 	private void removeExtraPanels(int numPanelsToKeep) {
 		for (int i = panel.getWidgetCount(); i > numPanelsToKeep; i--) {
 			panel.remove(i-1);
 		}
 	}
+	
+	
+
 
 	public void refreshCurrent()	{
 		DetailsPanel p = (DetailsPanel) panel.getWidget(selectedTab);
 		p.setItem(selectedItem);
 	}
-	
+
 	public void clearTabs() {
 		columnPanel.clearColumnData();
+	}
+	
+	public void onSchemaChange(){
+		panel.selectTab(0);
 	}
 }

@@ -40,7 +40,7 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/unique-key.gif")
 	ImageResource constraintUniqueKey();
-	
+
 	@Source("images/add.png")
 	ImageResource add();
 
@@ -133,7 +133,7 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/mat-view.gif")
 	ImageResource materializedView();
-	
+
 	@Source("images/monitor.gif")
 	ImageResource monitor();
 
@@ -244,19 +244,30 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/warning.png")
 	ImageResource warning();
-	
+
 	@Source("images/edit.png")
 	ImageResource edit();
-	
+
 	@Source("images/increment.png")
 	ImageResource increment();
-	
+
 	@Source("images/update.png")
 	ImageResource update();
-	
+
 	@Source("images/reset.png")
 	ImageResource reset();
-	
+
 	@Source("images/edit-value.png")
 	ImageResource editValue();
-}
+	
+	@Source("images/fts.png")
+	ImageResource fts();
+
+	@Source("images/ftscfg.png")
+	ImageResource ftsconf();
+
+	@Source("images/dictionary.png")
+	ImageResource dictionary();
+
+	@Source("images/parser.png")
+	ImageResource parser();}
