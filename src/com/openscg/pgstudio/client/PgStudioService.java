@@ -5,6 +5,7 @@ package com.openscg.pgstudio.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -153,5 +154,9 @@ public interface PgStudioService extends RemoteService {
 	String dropFTSMapping(String connectionToken, String schemaName, String configurationName, String tokenType) throws DatabaseConnectionException, PostgreSQLException;
 
 	String getFTSConfigurationDetails(String connectionToken, String schemaName, String configName) throws DatabaseConnectionException, PostgreSQLException;
+
+	String importData(String connectionToken, List<String> columnList, List<ArrayList<String>> dataRows, int schema, String tableId, String tableName)  throws DatabaseConnectionException, PostgreSQLException;
+
+	String dropItemData(String connectionToken, int schema, String tableName) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
 
 }
