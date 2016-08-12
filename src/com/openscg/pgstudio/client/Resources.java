@@ -41,9 +41,6 @@ public interface Resources extends ClientBundle {
 	@Source("images/unique-key.gif")
 	ImageResource constraintUniqueKey();
 
-	@Source("images/add.png")
-	ImageResource add();
-
 	@Source("images/create.gif")
 	ImageResource create();
 
@@ -133,7 +130,7 @@ public interface Resources extends ClientBundle {
 
 	@Source("images/mat-view.gif")
 	ImageResource materializedView();
-
+	
 	@Source("images/monitor.gif")
 	ImageResource monitor();
 
@@ -245,24 +242,30 @@ public interface Resources extends ClientBundle {
 	@Source("images/warning.png")
 	ImageResource warning();
 
-	@Source("images/edit.png")
-	ImageResource edit();
-
-	@Source("images/increment.png")
-	ImageResource increment();
-
+	@Source("images/download.png")
+	ImageResource download();
+	
 	@Source("images/update.png")
 	ImageResource update();
 
+	@Source("images/edit.png")
+	ImageResource edit();
+	
+	@Source("images/add.png")
+	ImageResource add();
+	
 	@Source("images/reset.png")
 	ImageResource reset();
-
+	
+	@Source("images/increment.png")
+	ImageResource increment();
+	
 	@Source("images/edit-value.png")
 	ImageResource editValue();
 	
 	@Source("images/fts.png")
 	ImageResource fts();
-
+	
 	@Source("images/ftscfg.png")
 	ImageResource ftsconf();
 
@@ -270,4 +273,9 @@ public interface Resources extends ClientBundle {
 	ImageResource dictionary();
 
 	@Source("images/parser.png")
-	ImageResource parser();}
+	ImageResource parser();
+	
+	@Source("images/upload.png")
+	ImageResource upload();
+	
+}

@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,6 +39,7 @@ import com.openscg.pgstudio.server.models.Tables;
 import com.openscg.pgstudio.server.models.Triggers;
 import com.openscg.pgstudio.server.models.Types;
 import com.openscg.pgstudio.server.models.Views;
+import com.openscg.pgstudio.server.models.dataimport.InsertData;
 import com.openscg.pgstudio.server.models.fulltextsearch.Dictionaries;
 import com.openscg.pgstudio.server.util.ConnectionInfo;
 import com.openscg.pgstudio.server.util.ConnectionManager;
@@ -1450,5 +1452,42 @@ public class PgStudioServiceImpl extends RemoteServiceServlet implements
 		}
 	}
 
+	@Override
+	public String importData(String connectionToken, List<String> columnList, List<ArrayList<String>> dataRows, int schema,
+			String tableId, String tableName) throws DatabaseConnectionException, PostgreSQLException {
+
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		Connection conn = connMgr.getConnection(connectionToken,clientIP, userAgent);
+		
+		InsertData importData = new InsertData(conn);
+		
+		Schemas s = new Schemas(conn);
+		
+		try {
+			String schemaName = s.getName(schema);
+			return importData.insert(columnList, dataRows, schemaName, tableId, tableName);
+		} catch (Exception e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public String dropItemData(String connectionToken, int schema, String tableName)
+			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		
+		ItemData itemData = new ItemData(connMgr.getConnection(connectionToken, clientIP, userAgent));
+		
+		return itemData.dropItemData(schema, tableName);
+
+	}
 
 }

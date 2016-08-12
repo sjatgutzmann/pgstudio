@@ -2,6 +2,8 @@
     <info organisation="com.openscg.pgstudio" module="pgStudio"/>
     <dependencies>
         <dependency org="org.apache.commons" name="commons-lang3" rev="3.4"/>
+        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.3.1"/>
+        <dependency org="com.opencsv" name="opencsv" rev="3.7"/>
         <dependency org="commons-codec" name="commons-codec" rev="1.10"/>
         <dependency org="org.postgresql" name="postgresql" rev="9.4-1205-jdbc42"/>
         <dependency org="javax.validation" name="validation-api" rev="1.1.0.Final"/>
@@ -16,6 +18,7 @@
           <artifact name="gcodemirror" url="https://gcodemirror.googlecode.com/files/gcodemirror-0.9.jar" />
         </dependency>
         <dependency org="org.vectomatic" name="lib-gwt-file" rev="0.3.4"/>
+        <dependency org="org.apache.poi" name="poi" rev="3.12"/>
     </dependencies>
 </ivy-module>
 

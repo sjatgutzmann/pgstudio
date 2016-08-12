@@ -5,6 +5,7 @@ package com.openscg.pgstudio.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.openscg.pgstudio.client.PgStudio.DATABASE_OBJECT_TYPE;
@@ -192,5 +193,9 @@ public interface PgStudioServiceAsync {
 	void dropFTSMapping(String connectionToken, String schemaName, String configurationName, String token, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
 
 	void getFTSConfigurationDetails(String connectionToken, String schemaName, String configName, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void importData(String connectionToken, List<String> columnList, List<ArrayList<String>> dataRows, int schema, String tableId, String tableName, AsyncCallback<String> callback)   throws DatabaseConnectionException, PostgreSQLException;
+
+	void dropItemData(String connectionToken, int schema, String tableName,AsyncCallback<String> callback) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
 
 }
