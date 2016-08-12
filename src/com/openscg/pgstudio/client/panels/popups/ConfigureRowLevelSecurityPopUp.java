@@ -46,7 +46,7 @@ public class ConfigureRowLevelSecurityPopUp implements StudioModelPopUp {
 
 	private boolean hasRowSecurity = false;
 	private boolean forceRowSecurity = false;
-	private int itemId = 0;
+	private long itemId = 0;
 
 	@SuppressWarnings("unused")
 	private DatabaseObjectInfo schema = null;

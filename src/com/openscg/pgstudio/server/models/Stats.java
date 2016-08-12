@@ -54,11 +54,11 @@ public class Stats {
 		this.conn = conn;
 	}
 
-	public String getList(int item) throws SQLException {
+	public String getList(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(ITEM_KIND);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 		ResultSet rs = stmt.executeQuery();
 
 		if (rs.next()) {
@@ -69,7 +69,7 @@ public class Stats {
 			if (kind.equals("r")) {
 				PreparedStatement stmtStats = conn
 						.prepareStatement(TABLE_STATS);
-				stmtStats.setInt(1, item);
+				stmtStats.setLong(1, item);
 				rsStats = stmtStats.executeQuery();
 				
 				 processResultSetToJSONArray( rsStats, result ) ;
@@ -92,7 +92,7 @@ public class Stats {
 			} else if (kind.equals("i")) {
 				PreparedStatement stmtStats = conn
 						.prepareStatement(INDEX_STATS);
-				stmtStats.setInt(1, item);
+				stmtStats.setLong(1, item);
 				rsStats = stmtStats.executeQuery();
 				processResultSetToJSONArray( rsStats, result ) ;
 			}

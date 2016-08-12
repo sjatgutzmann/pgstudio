@@ -14,7 +14,7 @@ public class TriggerInfo implements ModelInfo, Comparable<TriggerInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
@@ -23,7 +23,7 @@ public class TriggerInfo implements ModelInfo, Comparable<TriggerInfo> {
     private String definition;
     
     
-    public TriggerInfo(int schema, int id, String name) {
+    public TriggerInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -45,13 +45,13 @@ public class TriggerInfo implements ModelInfo, Comparable<TriggerInfo> {
     /**
      * @return the unique ID of the contact
      */
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

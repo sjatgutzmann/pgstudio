@@ -5,15 +5,11 @@ package com.openscg.pgstudio.client.panels.popups;
 
 import java.util.ArrayList;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyPressEvent;
-import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -29,47 +25,23 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.SingleSelectionModel;
 import com.openscg.pgstudio.client.PgStudio;
 import com.openscg.pgstudio.client.PgStudio.DATABASE_OBJECT_TYPE;
-import com.openscg.pgstudio.client.PgStudioService;
-import com.openscg.pgstudio.client.PgStudioServiceAsync;
 import com.openscg.pgstudio.client.handlers.UtilityCommandAsyncCallback;
 import com.openscg.pgstudio.client.messages.DataTypesJsObject;
 import com.openscg.pgstudio.client.models.ColumnInfo;
 import com.openscg.pgstudio.client.models.DataTypeInfo;
-import com.openscg.pgstudio.client.models.ModelInfo;
-import com.openscg.pgstudio.client.providers.ColumnListDataProvider;
-import com.openscg.pgstudio.client.providers.ItemListProvider;
+import com.openscg.pgstudio.shared.DatabaseConnectionException;
+import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterColumnRequest;
 
-public class AddColumnPopUp implements StudioItemPopUp {
+public class AlterColumnPopUp extends AddColumnPopUp implements StudioItemPopUp {
+
+	private ColumnInfo columnInfo;
 	
-	protected final PgStudioServiceAsync studioService = GWT.create(PgStudioService.class);
-	protected boolean hasParent;
-
-	final DialogBox dialogBox = new DialogBox();
-
-	protected SingleSelectionModel<ColumnInfo> selectionModel = null;
-	protected ColumnListDataProvider dataProvider = null;
-    
-	protected ArrayList<DataTypeInfo> dataTypes = null;
-
-	protected ModelInfo item = null;
-    
-	protected TextBox columnName;
-
-	protected TextBox length;
-	protected TextBox defaultValue ;
-	protected TextArea comments;
-	protected ListBox dataType;
-	protected CheckBox notNull;
-
-	public AddColumnPopUp() {
-		this.hasParent = false;
-	}
-
-	public AddColumnPopUp(boolean hasParent) {
-		this.hasParent = hasParent;
+	public AlterColumnPopUp(ColumnInfo columnInfo, boolean hasParent) {
+		this.columnInfo = columnInfo;
+		this.hasParent = hasParent;		
 	}
 
 	@Override
@@ -86,94 +58,17 @@ public class AddColumnPopUp implements StudioItemPopUp {
 		}
 		
 		dialogBox.setWidget(getPanel());
+			setColumnName(columnInfo.getFullName());			
+			setNotNull(columnInfo.isNullable());  
+			setComments(columnInfo.getComment());
+			setDefaultValue(columnInfo.getDefault());
 		populateDataType();
 		dialogBox.setGlassEnabled(true);
 		dialogBox.center();
-
 		return dialogBox;
 	}
 
-	
 	@Override
-	public void setSelectionModel(SingleSelectionModel model) {
-		this.selectionModel = model;
-	}
-
-	@Override
-	public void setDataProvider(ItemListProvider provider) {
-		this.dataProvider = (ColumnListDataProvider) provider;
-		
-	}
-
-	public void setItem(ModelInfo item) {
-		this.item = item;
-	}
-
-	public String getColumnName() {
-		return columnName.getText();
-	}
-	
-	public void setColumnName(String columnName) {
-		this.columnName.setText(columnName);
-	}
-	
-	public String getDataType() {	
-		StringBuffer dt = new StringBuffer(dataType.getValue(dataType.getSelectedIndex()));
-		
-		if (length.getText().length() > 0) {
-			if (!(dataType.getValue(dataType.getSelectedIndex())
-					.contains("[]")))
-				dt.append("(" + length.getText() + ")");
-			else
-				dt.insert((dt.length() - 2), "("
-						+ length.getText() + ")");
-		}
-
-		return dt.toString();
-	}
-	
-	public ListBox getDataTypeListBox() {
-		return dataType;
-	}
-	
-	public String getComment() {
-		return comments.getValue();
-	}
-	
-	public void setComments(String comments) {
-		this.comments.setText(comments);
-	}
-	
-	public String getExtendedDefition() {
-		StringBuffer def = new StringBuffer();
-		
-		if (notNull.getValue()) {
-			def.append(" NOT NULL");
-		}
-
-		if(!defaultValue.getText().equalsIgnoreCase(""))
-			def.append(" DEFAULT " + defaultValue.getText());
-		
-		return def.toString();
-		
-	}
-	
-	public void setExtendedDefition(String def) {
-		defaultValue.setText(def);
-	}
-	
-	public void setDefaultValue(String value) {
-		defaultValue.setValue(value);
-	}
-	
-	public CheckBox getNotNull() {
-		return notNull;
-	}
-	
-	public void setNotNull(boolean notNull) {
-		this.notNull.setValue(notNull);
-	}
-	
 	protected VerticalPanel getPanel(){
 		VerticalPanel panel = new VerticalPanel();
 		panel.setStyleName("StudioPopup");
@@ -184,7 +79,7 @@ public class AddColumnPopUp implements StudioItemPopUp {
 		Label lbl = new Label();
 		lbl.setStyleName("StudioPopup-Msg-Strong");
 		lbl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);	 
-		lbl.setText("Add Column");
+		lbl.setText("Alter Column");
 
 		Label lblName = new Label();
 		lblName.setStyleName("StudioPopup-Msg");
@@ -211,13 +106,14 @@ public class AddColumnPopUp implements StudioItemPopUp {
 
 		dataType.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event)	{
+				
 				if (dataTypes.get(dataType.getSelectedIndex()).isHasLength()) 
 					length.setEnabled(true);
 				else
 					length.setEnabled(false);
 			}
 		});
-		
+
 		Label lblLength = new Label();
 		lblLength.setStyleName("StudioPopup-Msg");
 		lblLength.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);	 
@@ -236,7 +132,6 @@ public class AddColumnPopUp implements StudioItemPopUp {
 		dtPanel.add(dataType);
 		dtPanel.add(lengthPanel);
 		dtPanel.setCellVerticalAlignment(dataType, HasVerticalAlignment.ALIGN_MIDDLE);
-
 
 
 		CaptionPanel dtCaptionPanel = new CaptionPanel("Data Type");
@@ -303,33 +198,37 @@ public class AddColumnPopUp implements StudioItemPopUp {
 		bar.setSpacing(10);
 		bar.setWidth("350px");
 		
-		Button addButton = new Button("Add");
+		Button alterButton = new Button("Alter");
 		Button cancelButton = new Button("Cancel");
 		
-		bar.add(addButton);
+		bar.add(alterButton);
 		bar.add(cancelButton);
 		
-		bar.setCellHorizontalAlignment(addButton, HasHorizontalAlignment.ALIGN_RIGHT);
+		bar.setCellHorizontalAlignment(alterButton, HasHorizontalAlignment.ALIGN_RIGHT);
 		bar.setCellHorizontalAlignment(cancelButton, HasHorizontalAlignment.ALIGN_LEFT);
 
-		addButton.addClickHandler(new ClickHandler() {
+		alterButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if (!hasParent) {
+				if (hasParent) {
 					if (columnName.getText() != null
-							&& !columnName.getText().equals("")
-							&& dataType.getValue(dataType.getSelectedIndex()) != null
-							&& !dataType.getValue(dataType.getSelectedIndex())
+							|| !columnName.getText().equals("")
+							|| dataType.getValue(dataType.getSelectedIndex()) != null
+							|| !dataType.getValue(dataType.getSelectedIndex())
 									.equals("")) {
 
 						UtilityCommandAsyncCallback ac = new UtilityCommandAsyncCallback(dialogBox, dataProvider);
 						ac.setAutoRefresh(true);
-						ac.setShowResultOutput(false);
+						ac.setShowResultOutput(true);
 						
-						studioService.createColumn(PgStudio.getToken(), 
-								item.getId(), getColumnName(), getDataType(),
-								comments.getText(), notNull.getValue(),
-								defaultValue.getText(), ac);
+						AlterColumnRequest command = buildAlterCommand();
+						try {				
+							// Execute service							
+							studioService.alterColumn(PgStudio.getToken(), item.getId(), command, ac);													
+						} catch (DatabaseConnectionException | PostgreSQLException e) {
+							Window.alert(e.getMessage());
+						}
+					
 					} else {
 						Window.alert("Name and Datatype are mandatory to create a column");
 					}
@@ -351,86 +250,106 @@ public class AddColumnPopUp implements StudioItemPopUp {
 		
 		return bar.asWidget();
 	}
-
-	protected KeyPressHandler getLengthKeyPressHandler() {
-		KeyPressHandler kph = new KeyPressHandler() {
-			@Override
-			public void onKeyPress(KeyPressEvent event) {
-				char keyCode = event.getCharCode();
-
-				if ((!Character.isDigit(keyCode))
-						&& (keyCode != (char) KeyCodes.KEY_TAB)
-						&& (keyCode != (char) KeyCodes.KEY_BACKSPACE)
-						&& (keyCode != (char) KeyCodes.KEY_DELETE)
-						&& (keyCode != (char) KeyCodes.KEY_ENTER)
-						&& (keyCode != (char) KeyCodes.KEY_HOME)
-						&& (keyCode != (char) KeyCodes.KEY_END)
-						&& (keyCode != (char) KeyCodes.KEY_LEFT)
-						&& (keyCode != (char) KeyCodes.KEY_UP)
-						&& (keyCode != (char) KeyCodes.KEY_RIGHT)
-						&& (keyCode != (char) KeyCodes.KEY_DOWN)) {
-					// TextBox.cancelKey() suppresses the current keyboard
-					// event.		
-					((TextBox)event.getSource()).cancelKey();
-				}
-
+	
+	@Override
+	protected void populateDataType() {
+		studioService.getList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.DATA_TYPE, new AsyncCallback<String>() {
+			public void onFailure(Throwable caught) {
+				dataType.clear();
+				dataTypes.clear();
+				// Show the RPC error message to the user
+				Window.alert(caught.getMessage());
 			}
-		};
 
-		return kph;
+			public void onSuccess(String result) {
+				dataType.clear();
+				JsArray<DataTypesJsObject> types = DataTypeInfo.json2Messages(result);
+
+				for (int i = 0; i < types.length(); i++) {
+					DataTypeInfo info = msgToDataTypeInfo(types.get(i));
+					dataType.addItem(info.getName());
+					dataTypes.add(info);
+					
+					String columnDataType = extractDataTypeName(columnInfo.getDataType());
+					if(columnDataType.equals(info.getName())) {
+						dataType.setSelectedIndex(i);						
+						if (info.isHasLength()) {
+	            			length.setEnabled(true);
+	            			columnInfo.setLength(extractLength(columnInfo.getDataType()));
+	            			length.setValue(columnInfo.getLength());	            			
+						}
+	            		else {	            			
+	            			length.setEnabled(false);
+	            		}
+					}					
+				}
+			}
+		});
+
 	}
-
-	protected void refresh() {
-		if (!hasParent)
-			dataProvider.setItem(item.getSchema(), item.getId(), item.getItemType());
+		
+	private String extractDataTypeName(String dataType) {
+		if (dataType != null && !dataType.isEmpty() && dataType.contains("(")) {
+			return dataType.substring(0, dataType.indexOf("("));			
+		}
+		return dataType;
 	}
 	
-	protected DataTypeInfo msgToDataTypeInfo(DataTypesJsObject msg) {
-
-		DataTypeInfo type = new DataTypeInfo(0, Integer.parseInt(msg.getId()), msg.getTypeName());
-
-		type.setUsageCount(Integer.parseInt(msg.getUsageCount()));
-
-		if (msg.getHasLength().equalsIgnoreCase("true")) {
-			type.setHasLength(true);
-		} else {
-			type.setHasLength(false);
+	private String extractLength(String dataType) {
+		if(dataType != null && !dataType.isEmpty())
+		{
+			return dataType.substring(dataType.indexOf("(") + 1, dataType.indexOf(")"));
 		}
-		return type;
+		return null;
 	}
 
-	protected void populateDataType() {
+	private AlterColumnRequest buildAlterCommand() {
+		AlterColumnRequest command = new AlterColumnRequest();
+		command.setColumnName(columnInfo.getFullName());
 		
-		studioService.getList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.DATA_TYPE, new AsyncCallback<String>() {
-            public void onFailure(Throwable caught) {
-            	dataType.clear();
-            	dataTypes.clear();
-                // Show the RPC error message to the user
-                Window.alert(caught.getMessage());
-            }
-
-            public void onSuccess(String result) {
-        
-            	dataType.clear();            	
-    			JsArray<DataTypesJsObject> types = DataTypeInfo.json2Messages(result);
-    	
-    			int max = 0;
-                for (int i = 0; i < types.length(); i++) {
-                	DataTypeInfo info = msgToDataTypeInfo(types.get(i));                	
-                	dataType.addItem(info.getName());    
-                	dataTypes.add(info);
-                	
-                	if (info.getUsageCount() >= max) {
-                		max = info.getUsageCount();
-                		dataType.setSelectedIndex(i);
-                		if (info.isHasLength())
-                			length.setEnabled(true);
-                		else 
-                			length.setEnabled(false);
-                	}
-                }
-            }
-          });
-
+		if(columnInfo.getComment() != null && comments.getValue() != null && !columnInfo.getComment().equalsIgnoreCase(comments.getValue())) {
+			command.setComments(comments.getValue());
+		}
+		String selectedDataType = dataType.getItemText(dataType.getSelectedIndex());
+		
+		if(!columnInfo.getDataType().equals(selectedDataType)) {
+			command.setDataType(selectedDataType);
+		}
+		
+		String oldLength = columnInfo.getLength();
+		String newLength = length.getValue();
+		
+		// Both old and new values available
+		if(oldLength != null && newLength != null && !oldLength.equals(newLength)) {
+			command.setDataType(selectedDataType);
+			command.setLength(length.getValue());
+		}
+		// Only new value available
+		else if(newLength != null && !newLength.equals(oldLength)) {
+			command.setDataType(selectedDataType);
+			command.setLength(newLength);
+		}
+				
+		// Both old and new values available
+		if(columnInfo.getDefault() != null && defaultValue.getValue() != null && !columnInfo.getDefault().equals(defaultValue.getValue())) {
+			command.setDefaultValue(defaultValue.getValue());
+		}
+		// Only new value available
+		else if(defaultValue.getValue() != null && !defaultValue.getValue().equals(columnInfo.getDefault())) {
+			command.setDefaultValue(defaultValue.getValue());
+		}
+		
+		
+		if(columnName.getValue() != null && !columnInfo.getFullName().equalsIgnoreCase(columnName.getValue())) {
+			command.setNewColumnName(columnName.getValue());			
+		}
+		
+		boolean nullable = columnInfo.isNullable();
+		if(nullable != notNull.getValue() ) {		
+			// Setting the reverse value as we need "is not null" data, and not "is null"
+			command.setNullable(!notNull.getValue()); 
+		}
+		return command;
 	}
+
 }

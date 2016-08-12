@@ -7,7 +7,7 @@ public class DictionaryInfo implements ModelInfo, Comparable<DictionaryInfo> {
 
 	private final int schema;
 	private final String schemaName;
-	private final int id;
+	private final long id;
     private final String name;
     private String comments;
     private String options;
@@ -17,7 +17,7 @@ public class DictionaryInfo implements ModelInfo, Comparable<DictionaryInfo> {
           return dictionary == null ? null : dictionary.getId();
         }
       };
-    public DictionaryInfo(int schema,String schemaName, int id, String name, String comments, String options) {
+    public DictionaryInfo(int schema,String schemaName, long id, String name, String comments, String options) {
     	this.schema = schema;
     	this.schemaName = schemaName;
     	this.name = name;
@@ -37,7 +37,7 @@ public class DictionaryInfo implements ModelInfo, Comparable<DictionaryInfo> {
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 

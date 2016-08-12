@@ -54,36 +54,42 @@ public class TypesPanel extends Composite implements MenuPanel {
         
 	private final PgStudio main;
 	
+	private VerticalPanel panel;
+	
+	private boolean isFirst = true;
+	
 	public void setSchema(DatabaseObjectInfo schema) {
 		this.schema = schema;
-		dataProvider.setSchema(schema);
+		//dataProvider.setSchema(schema);
 	}
 	
 	public TypesPanel(PgStudio main) {
 		this.main = main;
 		
-		VerticalPanel panel = new VerticalPanel();
+		panel = new VerticalPanel();
 		panel.setWidth("95%");
 
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
 		panel.add(getButtonBar());
-		panel.add(getTypeList());		
-		
-		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TypeInfo>() {
-			@Override
-			public void onCellPreview(CellPreviewEvent<TypeInfo> event) {
-				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
-					if (dataGrid.getRowCount() == 1) {
-						TypeInfo i = dataProvider.getList().get(0);
-
-						if (dataGrid.getSelectionModel().isSelected(i)) {
-							selectFirst();
-						}
-					}
-	            }
-			}
-		});
+		dataGrid = new DataGrid<TypeInfo>(PgStudio.MAX_PANEL_ITEMS, TypeInfo.KEY_PROVIDER);
+		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+//		panel.add(getTypeList());		
+//		
+//		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TypeInfo>() {
+//			@Override
+//			public void onCellPreview(CellPreviewEvent<TypeInfo> event) {
+//				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+//					if (dataGrid.getRowCount() == 1) {
+//						TypeInfo i = dataProvider.getList().get(0);
+//
+//						if (dataGrid.getSelectionModel().isSelected(i)) {
+//							selectFirst();
+//						}
+//					}
+//	            }
+//			}
+//		});
 
 		initWidget(panel);
 	}
@@ -162,8 +168,8 @@ public class TypesPanel extends Composite implements MenuPanel {
 	}
 
 	private Widget getTypeList() {
-		dataGrid = new DataGrid<TypeInfo>(PgStudio.MAX_PANEL_ITEMS, TypeInfo.KEY_PROVIDER);
-		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+//		dataGrid = new DataGrid<TypeInfo>(PgStudio.MAX_PANEL_ITEMS, TypeInfo.KEY_PROVIDER);
+//		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
 
 	
 		Column<TypeInfo, ImageResource> icon = addColumn(new ImageResourceCell(), "", new GetValue<ImageResource>() {
@@ -212,7 +218,29 @@ public class TypesPanel extends Composite implements MenuPanel {
 	}
 
 	public void refresh() {
-		dataProvider.setSchema(schema);	
+		dataProvider.setSchema(schema);
+		
+		if(isFirst){
+			isFirst = false;
+			panel.add(getTypeList());		
+			
+			dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TypeInfo>() {
+				@Override
+				public void onCellPreview(CellPreviewEvent<TypeInfo> event) {
+					if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+						if (dataGrid.getRowCount() == 1) {
+							TypeInfo i = dataProvider.getList().get(0);
+
+							if (dataGrid.getSelectionModel().isSelected(i)) {
+								selectFirst();
+							}
+						}
+		            }
+				}
+			});
+		}
+		
+		selectFirst();
 	}
 	
 	@Override

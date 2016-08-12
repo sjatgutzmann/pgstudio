@@ -41,12 +41,14 @@ import com.openscg.pgstudio.server.models.Types;
 import com.openscg.pgstudio.server.models.Views;
 import com.openscg.pgstudio.server.models.dataimport.InsertData;
 import com.openscg.pgstudio.server.models.fulltextsearch.Dictionaries;
+import com.openscg.pgstudio.server.models.fulltextsearch.Parsers;
 import com.openscg.pgstudio.server.util.ConnectionInfo;
 import com.openscg.pgstudio.server.util.ConnectionManager;
 import com.openscg.pgstudio.server.util.QueryExecutor;
 import com.openscg.pgstudio.server.util.QuotingLogic;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterColumnRequest;
 import com.openscg.pgstudio.shared.dto.AlterDomainRequest;
 import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 import com.openscg.pgstudio.shared.dto.DomainDetails;
@@ -194,6 +196,12 @@ PgStudioService {
 		case TYPE:
 			Types types = new Types(connMgr.getConnection(connectionToken,clientIP, userAgent));
 			return  types.getList(schema);
+		case DICTIONARY:
+			Dictionaries dictionaries = new Dictionaries(connMgr.getConnection(connectionToken, clientIP, userAgent));
+			return dictionaries.getList(schema);
+		case PARSER:
+			Parsers parsers = new Parsers(connMgr.getConnection(connectionToken, clientIP, userAgent));
+			return parsers.getList(schema);
 		default:
 			return "";
 		}			
@@ -240,8 +248,8 @@ PgStudioService {
 
 	@Override
 	public String getItemObjectList(String connectionToken,
-			int item, ITEM_TYPE type, ITEM_OBJECT_TYPE object)
-					throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException {
+			long item, ITEM_TYPE type, ITEM_OBJECT_TYPE object)
+			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException {
 
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -288,8 +296,8 @@ PgStudioService {
 
 	@Override
 	public String getItemMetaData(String connectionToken, 
-			int item, ITEM_TYPE type)
-					throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException 
+			long item, ITEM_TYPE type)
+			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException 
 	{
 
 		ConnectionManager connMgr = new ConnectionManager();
@@ -308,7 +316,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String getItemData(String connectionToken, int item, ITEM_TYPE type, int count)
+	public String getItemData(String connectionToken, long item, ITEM_TYPE type, int count)
 			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException 
 	{
 
@@ -364,7 +372,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String dropItem(String connectionToken, int item, ITEM_TYPE type, boolean cascade) 
+	public String dropItem(String connectionToken, long item, ITEM_TYPE type, boolean cascade) 
 			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -373,41 +381,44 @@ PgStudioService {
 		String userAgent = request.getHeader("User-Agent");
 
 		try {
-			switch (type) {
-			case FOREIGN_TABLE:
-				ForeignTables fTables = new ForeignTables(connMgr.getConnection(connectionToken,clientIP, userAgent));
-				return fTables.drop(item, cascade);
-			case TABLE:
-				Tables tables = new Tables(connMgr.getConnection(connectionToken,clientIP, userAgent));		
-				return tables.drop(item, cascade);
-			case VIEW:
-			case MATERIALIZED_VIEW:
-				boolean isMaterialized = false;
-
-				if (type == ITEM_TYPE.MATERIALIZED_VIEW)
-					isMaterialized = true;
-
-				Views views= new Views(connMgr.getConnection(connectionToken,clientIP, userAgent));			
-				return views.dropView(item, cascade, isMaterialized);
-			case FUNCTION:
-				Functions functions = new Functions(connMgr.getConnection(connectionToken, clientIP, userAgent));
-				return functions.dropFunction(item, cascade);
-			case SEQUENCE:
-				Sequences sequences = new Sequences(connMgr.getConnection(connectionToken, clientIP, userAgent));
-				return sequences.drop(item, cascade);
-			case TYPE:
-				Types types = new Types(connMgr.getConnection(connectionToken, clientIP, userAgent));
-				return types.dropType(item, cascade);
-			default:
-				return "";
-			}
+		switch (type) {
+		case FOREIGN_TABLE:
+			ForeignTables fTables = new ForeignTables(connMgr.getConnection(connectionToken,clientIP, userAgent));
+			return fTables.drop(item, cascade);
+		case TABLE:
+			Tables tables = new Tables(connMgr.getConnection(connectionToken,clientIP, userAgent));		
+			return tables.drop(item, cascade);
+		case VIEW:
+		case MATERIALIZED_VIEW:
+			boolean isMaterialized = false;
+			
+			if (type == ITEM_TYPE.MATERIALIZED_VIEW)
+				isMaterialized = true;
+			
+			Views views= new Views(connMgr.getConnection(connectionToken,clientIP, userAgent));			
+			return views.dropView(item, cascade, isMaterialized);
+		case FUNCTION:
+			Functions functions = new Functions(connMgr.getConnection(connectionToken, clientIP, userAgent));
+			return functions.dropFunction(item, cascade);
+		case SEQUENCE:
+			 Sequences sequences = new Sequences(connMgr.getConnection(connectionToken, clientIP, userAgent));
+			return sequences.drop(item, cascade);
+		case TYPE:
+			Types types = new Types(connMgr.getConnection(connectionToken, clientIP, userAgent));
+			return types.dropType(item, cascade);
+		case DICTIONARY:
+			Dictionaries dict = new Dictionaries(connMgr.getConnection(connectionToken, clientIP, userAgent));
+			return dict.drop(item);
+		default:
+			return "";
+		}
 		} catch (SQLException e) {
 			throw new PostgreSQLException(e.getMessage());			
 		}
 	}
 
 	@Override
-	public String dropItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType)
+	public String dropItemObject(String connectionToken, long item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType)
 			throws DatabaseConnectionException, PostgreSQLException {
 
 		ConnectionManager connMgr = new ConnectionManager();
@@ -446,7 +457,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String renameItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType,
+	public String renameItemObject(String connectionToken, long item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType,
 			String newObjectName) throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();
@@ -485,7 +496,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex) 
+	public String analyze(String connectionToken, long item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex) 
 			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -505,7 +516,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String renameItem(String connectionToken, int item, ITEM_TYPE type, String newName) 
+	public String renameItem(String connectionToken, long item, ITEM_TYPE type, String newName) 
 			throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -534,7 +545,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String truncate(String connectionToken, int item, ITEM_TYPE type) throws DatabaseConnectionException, PostgreSQLException {
+	public String truncate(String connectionToken, long item, ITEM_TYPE type) throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
 
@@ -607,7 +618,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String createColumn(String connectionToken, int item, 
+	public String createColumn(String connectionToken, long item, 
 			String columnName, String datatype, String comment, boolean not_null, String defaultval) throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -627,7 +638,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String createIndex(String connectionToken, int item, 
+	public String createIndex(String connectionToken, long item, 
 			String indexName, INDEX_TYPE indexType, 
 			boolean isUnique, boolean isConcurrently, ArrayList<String> columnList) throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
@@ -647,9 +658,9 @@ PgStudioService {
 
 	@Override
 	public String createSequence(String connectionToken, int schema,
-			String sequenceName, boolean temporary, int increment,
-			int minValue, int maxValue, int start, int cache, boolean cycle)
-					throws DatabaseConnectionException, PostgreSQLException {
+			String sequenceName, boolean temporary, String increment,
+			String minValue, String maxValue, String start, int cache, boolean cycle)
+			throws DatabaseConnectionException, PostgreSQLException {
 
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -729,7 +740,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String createUniqueConstraint(String connectionToken, int item, 
+	public String createUniqueConstraint(String connectionToken, long item, 
 			String constraintName, boolean isPrimaryKey,
 			ArrayList<String> columnList) throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
@@ -752,7 +763,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String createCheckConstraint(String connectionToken, int item, String constraintName, String definition)
+	public String createCheckConstraint(String connectionToken, long item, String constraintName, String definition)
 			throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();  
@@ -774,7 +785,7 @@ PgStudioService {
 
 	@Override
 	public String createForeignKeyConstraint(String connectionToken,
-			int item, String constraintName,
+			long item, String constraintName,
 			ArrayList<String> columnList, String referenceTable,
 			ArrayList<String> referenceList) throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
@@ -858,7 +869,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String createRule(String connectionToken, int item, ITEM_TYPE type,
+	public String createRule(String connectionToken, long item, ITEM_TYPE type,
 			String ruleName, String event, String ruleType, String definition)
 					throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
@@ -881,7 +892,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String createTrigger(String connectionToken, int item, ITEM_TYPE type,
+	public String createTrigger(String connectionToken, long item, ITEM_TYPE type,
 			String triggerName,
 			String event, String triggerType, String forEach,
 			String function) throws DatabaseConnectionException, PostgreSQLException {
@@ -903,7 +914,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String revoke(String connectionToken, int item, ITEM_TYPE type,
+	public String revoke(String connectionToken, long item, ITEM_TYPE type,
 			String privilege, String grantee, boolean cascade)
 					throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
@@ -922,7 +933,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String grant(String connectionToken, int item, ITEM_TYPE type,
+	public String grant(String connectionToken, long item, ITEM_TYPE type,
 			ArrayList<String> privileges, String grantee)
 					throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
@@ -975,7 +986,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String configureRowSecurity(String connectionToken, int item, boolean rowSecurity, boolean forceRowSecurity)
+	public String configureRowSecurity(String connectionToken, long item, boolean rowSecurity, boolean forceRowSecurity)
 			throws DatabaseConnectionException, PostgreSQLException {
 
 		ConnectionManager connMgr = new ConnectionManager();
@@ -995,7 +1006,7 @@ PgStudioService {
 	}
 
 	@Override
-	public String createPolicy(String connectionToken, int item, String policyName, String cmd, String role, String using, String withCheck)
+	public String createPolicy(String connectionToken, long item, String policyName, String cmd, String role, String using, String withCheck)
 			throws DatabaseConnectionException, PostgreSQLException {
 		ConnectionManager connMgr = new ConnectionManager();
 		HttpServletRequest request = this.getThreadLocalRequest();
@@ -1590,4 +1601,43 @@ PgStudioService {
 			throw new PostgreSQLException(e.getMessage());
 		}
 	}
+
+	@Override
+	public String createItemData(String connectionToken, int schema, String tableName, ArrayList<String>colNames, ArrayList<String> values) throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		
+		ItemData itemData = new ItemData(connMgr.getConnection(connectionToken, clientIP, userAgent));
+		
+		try {
+			return itemData.createData(schema, tableName, colNames, values);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+
+	
+	@Override
+	public String alterColumn(String connectionToken, long item, AlterColumnRequest alterCommand)
+			throws DatabaseConnectionException, PostgreSQLException {
+		ConnectionManager connMgr = new ConnectionManager();
+		HttpServletRequest request = this.getThreadLocalRequest();  
+
+		String clientIP = ConnectionInfo.remoteAddr(request);
+		String userAgent = request.getHeader("User-Agent");
+		
+		Columns columns;
+		
+		columns = new Columns(connMgr.getConnection(connectionToken, clientIP, userAgent));
+		
+		try {
+			return columns.alter(item, alterCommand);
+		} catch (SQLException e) {
+			throw new PostgreSQLException(e.getMessage());
+		}
+	}
+	
 }

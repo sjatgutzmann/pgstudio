@@ -14,7 +14,7 @@ public class PolicyInfo implements ModelInfo, Comparable<PolicyInfo> {
 		}
 	};
 
-	private final int id;
+	private final long id;
 	private final int schema;
 
 	private String name;
@@ -23,7 +23,7 @@ public class PolicyInfo implements ModelInfo, Comparable<PolicyInfo> {
 	private String using;
 	private String withCheck;
 
-	public PolicyInfo(int schema, int id, String name) {
+	public PolicyInfo(int schema, long id, String name) {
 		this.schema = schema;
 		this.id = id;
 		this.name = name;
@@ -48,13 +48,13 @@ public class PolicyInfo implements ModelInfo, Comparable<PolicyInfo> {
 		return false;
 	}
 
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
 	@Override
 	public int hashCode() {
-		return id;
+		return (int) id;
 	}
 
 	public String getName() {

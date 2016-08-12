@@ -16,6 +16,7 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudio.TYPE_FORM;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterColumnRequest;
 import com.openscg.pgstudio.shared.dto.AlterDomainRequest;
 import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 import com.openscg.pgstudio.shared.dto.DomainDetails;
@@ -35,31 +36,31 @@ public interface PgStudioService extends RemoteService {
 	
 	String getTriggerFunctionList(String connectionToken, int schema)  throws IllegalArgumentException, DatabaseConnectionException;
 	
-	String getItemObjectList(String connectionToken, int item, ITEM_TYPE type, ITEM_OBJECT_TYPE object) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
+	String getItemObjectList(String connectionToken, long item, ITEM_TYPE type, ITEM_OBJECT_TYPE object) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
 
-	String getItemMetaData(String connectionToken, int item, ITEM_TYPE type) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
+	String getItemMetaData(String connectionToken, long item, ITEM_TYPE type) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
 
-	String getItemData(String connectionToken, int item, ITEM_TYPE type, int count) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
+	String getItemData(String connectionToken, long item, ITEM_TYPE type, int count) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
 
 	String getQueryMetaData(String connectionToken, String query) throws IllegalArgumentException, DatabaseConnectionException;
 
 	String executeQuery(String connectionToken, String query, String queryType) throws IllegalArgumentException, DatabaseConnectionException;
 	
-	String dropItem(String connectionToken, int item, ITEM_TYPE type, boolean cascade) throws DatabaseConnectionException, PostgreSQLException;
+	String dropItem(String connectionToken, long item, ITEM_TYPE type, boolean cascade) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex) throws DatabaseConnectionException, PostgreSQLException;
+	String analyze(String connectionToken, long item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String renameItem(String connectionToken, int item, ITEM_TYPE type, String newName) throws DatabaseConnectionException, PostgreSQLException;
+	String renameItem(String connectionToken, long item, ITEM_TYPE type, String newName) throws DatabaseConnectionException, PostgreSQLException;
 
-	String truncate(String connectionToken, int item, ITEM_TYPE type) throws DatabaseConnectionException, PostgreSQLException;
+	String truncate(String connectionToken, long item, ITEM_TYPE type) throws DatabaseConnectionException, PostgreSQLException;
 
-	String createColumn(String connectionToken, int item, String columnName, String datatype, String comment, boolean not_null, String defaultval) throws DatabaseConnectionException, PostgreSQLException;
+	String createColumn(String connectionToken, long item, String columnName, String datatype, String comment, boolean not_null, String defaultval) throws DatabaseConnectionException, PostgreSQLException;
 
-	String createIndex(String connectionToken, int item, String indexName, INDEX_TYPE indexType, boolean isUnique, boolean isConcurrently, ArrayList<String> columnList) throws DatabaseConnectionException, PostgreSQLException;
+	String createIndex(String connectionToken, long item, String indexName, INDEX_TYPE indexType, boolean isUnique, boolean isConcurrently, ArrayList<String> columnList) throws DatabaseConnectionException, PostgreSQLException;
 
-	String dropItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType) throws DatabaseConnectionException, PostgreSQLException;
+	String dropItemObject(String connectionToken, long item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType) throws DatabaseConnectionException, PostgreSQLException;
 
-	String renameItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType, String newObjectName) throws DatabaseConnectionException, PostgreSQLException;
+	String renameItemObject(String connectionToken, long item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType, String newObjectName) throws DatabaseConnectionException, PostgreSQLException;
 
 	String renameSchema(String connectionToken, String oldSchema, String schema) throws DatabaseConnectionException;
 	
@@ -75,13 +76,13 @@ public interface PgStudioService extends RemoteService {
 
 	String createTableLike(String connectionToken, int schema, String tableName, String source, boolean defaults, boolean constraints, boolean indexes)  throws DatabaseConnectionException, PostgreSQLException;
 
-	String createUniqueConstraint(String connectionToken, int item, String constraintName, boolean isPrimaryKey, ArrayList<String> columnList) throws DatabaseConnectionException, PostgreSQLException;
+	String createUniqueConstraint(String connectionToken, long item, String constraintName, boolean isPrimaryKey, ArrayList<String> columnList) throws DatabaseConnectionException, PostgreSQLException;
 
-	String createCheckConstraint(String connectionToken, int item, String constraintName, String definition) throws DatabaseConnectionException, PostgreSQLException;
+	String createCheckConstraint(String connectionToken, long item, String constraintName, String definition) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String createForeignKeyConstraint(String connectionToken, int item, String constraintName, ArrayList<String> columnList, String referenceTable, ArrayList<String> referenceList) throws DatabaseConnectionException, PostgreSQLException;
+	String createForeignKeyConstraint(String connectionToken, long item, String constraintName, ArrayList<String> columnList, String referenceTable, ArrayList<String> referenceList) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String createSequence(String connectionToken, int schema, String sequenceName, boolean temporary, int increment, int minValue, int maxValue, int start, int cache, boolean cycle) throws DatabaseConnectionException, PostgreSQLException;
+	String createSequence(String connectionToken, int schema, String sequenceName, boolean temporary, String increment, String minValue, String maxValue, String start, int cache, boolean cycle) throws DatabaseConnectionException, PostgreSQLException;
 	
 	String createFunction(String connectionToken, AlterFunctionRequest funcRequest) throws DatabaseConnectionException, PostgreSQLException;
 	
@@ -91,19 +92,19 @@ public interface PgStudioService extends RemoteService {
 	
 	String refreshMaterializedView(String connectionToken, String schema, String viewName) throws DatabaseConnectionException;
 
-	String createRule(String connectionToken, int item, ITEM_TYPE type, String ruleName, String event, String ruleType, String definition) throws DatabaseConnectionException, PostgreSQLException;
+	String createRule(String connectionToken, long item, ITEM_TYPE type, String ruleName, String event, String ruleType, String definition) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String createTrigger(String connectionToken, int item, ITEM_TYPE type, String triggerName, String event, String triggerType, String forEach, String function) throws DatabaseConnectionException, PostgreSQLException;
+	String createTrigger(String connectionToken, long item, ITEM_TYPE type, String triggerName, String event, String triggerType, String forEach, String function) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String revoke(String connectionToken, int item, ITEM_TYPE type, String privilege, String grantee, boolean cascade) throws DatabaseConnectionException, PostgreSQLException;
+	String revoke(String connectionToken, long item, ITEM_TYPE type, String privilege, String grantee, boolean cascade) throws DatabaseConnectionException, PostgreSQLException;
 	
-	String grant(String connectionToken, int item, ITEM_TYPE type, ArrayList<String> privileges, String grantee) throws DatabaseConnectionException, PostgreSQLException;
+	String grant(String connectionToken, long item, ITEM_TYPE type, ArrayList<String> privileges, String grantee) throws DatabaseConnectionException, PostgreSQLException;
 
 	String getActivity(String connectionToken) throws IllegalArgumentException, DatabaseConnectionException;
 
-	String configureRowSecurity(String connectionToken, int item, boolean hasRowSecurity, boolean forceRowSecurity) throws DatabaseConnectionException, PostgreSQLException;
+	String configureRowSecurity(String connectionToken, long item, boolean hasRowSecurity, boolean forceRowSecurity) throws DatabaseConnectionException, PostgreSQLException;
 
-	public String createPolicy(String connectionToken, int item, String policyName, String cmd, String role, String using, String withCheck) throws DatabaseConnectionException, PostgreSQLException;
+	public String createPolicy(String connectionToken, long item, String policyName, String cmd, String role, String using, String withCheck) throws DatabaseConnectionException, PostgreSQLException;
 	
 	void doLogout(String connectionToken, String source) throws IllegalArgumentException, DatabaseConnectionException;
 
@@ -171,4 +172,7 @@ public interface PgStudioService extends RemoteService {
 
 	String alterDomain(String connectionToken, int schema, AlterDomainRequest request) throws DatabaseConnectionException, PostgreSQLException;
 
+	public String createItemData(String connectionToken, int schema, String tableName, ArrayList<String>colNames, ArrayList<String> values) throws DatabaseConnectionException, PostgreSQLException;
+
+	String alterColumn(String connectionToken, long item, AlterColumnRequest alterColumnRequest) throws DatabaseConnectionException, PostgreSQLException;
 }

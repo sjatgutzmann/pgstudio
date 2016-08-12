@@ -29,6 +29,14 @@ public class Functions {
 					" WHERE p.pronamespace = ? " +
 					" ORDER BY proname ";
 
+	private final static String FUNC_RESTRICTED_LIST = 
+			"SELECT p.proname, p.oid, pg_get_function_identity_arguments(p.oid) as ident"
+			+ " FROM pg_proc p, pg_language l "
+			+ " WHERE p.prolang = l.oid "
+			+ " and l.lanname not in ('c','internal') "
+			+ " and p.pronamespace = ? "
+			+ " ORDER BY p.proname";
+	
 	private final static String RANGE_DIFF_FUNC =
 			"SELECT proname " +
 					"  FROM pg_proc " +
@@ -53,25 +61,26 @@ public class Functions {
 		JSONArray result = new JSONArray();
 
 		try {
-			PreparedStatement stmt = conn.prepareStatement(FUNC_LIST);
+			PreparedStatement stmt = conn.prepareStatement(FUNC_RESTRICTED_LIST);
 			stmt.setInt(1, schema);
 			ResultSet rs = stmt.executeQuery();
-
+			
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("proname"));
 				jsonMessage.put("ident", rs.getString("ident"));				
-
+				
 				result.add(jsonMessage);
 			}
-
+			
 		} catch (SQLException e) {
 			return "";
 		}
-
+		
 		return result.toString();
 	}
+	
 
 	public String getTriggerFunctionList(int schema) {
 		JSONArray result = new JSONArray();
@@ -83,7 +92,7 @@ public class Functions {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("proname"));
 
 				result.add(jsonMessage);
@@ -119,7 +128,7 @@ public class Functions {
 		return result.toString();
 	}
 
-	public String dropFunction(int item, boolean cascade) throws SQLException{
+	public String dropFunction(long item, boolean cascade) throws SQLException{
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.FUNCTION);
 
@@ -132,11 +141,58 @@ public class Functions {
 		return qe.executeUtilityCommand(command.toString());
 	}
 
-	public String create(AlterFunctionRequest request) throws SQLException {
+	public String create(AlterFunctionRequest request)  throws SQLException {
+	
+//	public String create(int schema, String functionName, String returns, String language, ArrayList<String> paramList,
+//			String definition) throws SQLException {
+
+//		Schemas s = new Schemas(conn);
+//		String schemaName = s.getName(schema);
+
+		/*StringBuffer prefix;
+		StringBuffer parameter;
+		StringBuffer suffix;
+		String query;
+
+		
+		prefix = new StringBuffer(Constants.CREATE_FUNCTION + schemaName + "." + functionName);
+
+		parameter = new StringBuffer("");
+		if (paramList.size() > 0) {
+			
+			 * The ArrayList paramList contains the details of each parameter as
+			 * it would appear in the final CREATE FUNCTION query
+			 
+			for (int i = 0; i < paramList.size(); i++) {
+				if (i != 0)
+					parameter.append(" , ");
+				parameter.append(paramList.get(i));
+			}
+		}
+		parameter = new StringBuffer(" ( " + parameter + " ) ");
+
+		prefix.append(parameter);
+		prefix.append(Constants.RETURNS + returns);
+		prefix.append(" AS $$\n");
+
+		suffix = new StringBuffer("\n$$ ");
+		suffix.append(" LANGUAGE " + language);
+
+		query = (prefix.toString() + definition + suffix.toString());*/
+		//String query = constructSQL(schemaName, functionName, paramList, definition, returns, language);
 		String query = constructFunctionScript(request);
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(query);
 	}
+
+	/*
+	 * public String alter(String functionQuery) throws SQLException {
+	 * functionQuery = functionQuery.replace("CREATE", "CREATE OR REPLACE");
+	 * QueryExecutor qe = new QueryExecutor(conn); return
+	 * qe.executeUtilityCommand(functionQuery);
+	 * 
+	 * }
+	 */
 
 	public String alter(AlterFunctionRequest request) throws Exception {
 		System.out.println("Invoking sql constructor");
@@ -147,7 +203,7 @@ public class Functions {
 		for (String sql : sqlList) {
 			System.out.println("Executing : " + sql);
 			response = qe.executeUtilityCommand(sql); // If any of the sql fails, then the
-			// function stops
+											// function stops
 			System.out.println("Execution complete ");
 		}
 		System.out.println("Final response : " + response);

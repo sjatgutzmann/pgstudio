@@ -18,7 +18,7 @@ public class PrivilegeInfo implements Comparable<PrivilegeInfo> {
 
     private static int nextId = 0;
 
-    private final int id;
+    private final long id;
     
 	private String grantee;
     private String grantor;
@@ -57,13 +57,13 @@ public class PrivilegeInfo implements Comparable<PrivilegeInfo> {
     /**
      * @return the unique ID of the contact
      */
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getGrantee() {

@@ -31,11 +31,11 @@ public class Policies {
 		this.conn = conn;
 	}
 
-	public String getList(int item) throws SQLException {
+	public String getList(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(TABLE_POLICY);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -54,7 +54,7 @@ public class Policies {
 		return result.toString();
 	}
 
-	public String drop(int item, String policyName) throws SQLException {
+	public String drop(long item, String policyName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -64,7 +64,7 @@ public class Policies {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String rename(int item, String oldName, String newName) throws SQLException {
+	public String rename(long item, String oldName, String newName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -74,7 +74,7 @@ public class Policies {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String create(int item, String policyName, String cmd, String role, String using, String withCheck) throws SQLException {
+	public String create(long item, String policyName, String cmd, String role, String using, String withCheck) throws SQLException {
 
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
@@ -101,7 +101,7 @@ public class Policies {
 		return result;
 	}
 
-	public String configureRowSecurity(int item, boolean rowSecurity, boolean forceRowSecurity) throws SQLException {
+	public String configureRowSecurity(long item, boolean rowSecurity, boolean forceRowSecurity) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 

@@ -105,7 +105,7 @@ public class Columns {
 		this.pgFlavor = ver.getPgFlavor();
 	}
 
-	public String getList(int item) {
+	public String getList(long item) {
 		JSONArray result = new JSONArray();
 
 		try {
@@ -119,7 +119,7 @@ public class Columns {
 				stmt = conn.prepareStatement(COLUMN_LIST);
 			}
 
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
@@ -152,7 +152,7 @@ public class Columns {
 		return result.toString();
 	}
 
-	public String drop(int item, String objectName) throws SQLException {
+	public String drop(long item, String objectName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -163,7 +163,7 @@ public class Columns {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String rename(int item, String oldName, String newName)
+	public String rename(long item, String oldName, String newName)
 			throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
@@ -175,7 +175,7 @@ public class Columns {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String create(int item, String columnName, String datatype,
+	public String create(long item, String columnName, String datatype,
 			String comment, boolean not_null, String defaultval)
 			throws SQLException {
 

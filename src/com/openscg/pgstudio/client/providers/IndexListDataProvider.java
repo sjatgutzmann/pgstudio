@@ -25,14 +25,14 @@ public class IndexListDataProvider extends AsyncDataProvider<IndexInfo>
 	private List<IndexInfo> indexList = new ArrayList<IndexInfo>();
 
 	private int schema = -1;
-	private int item = -1;
+	private long item = -1;
 
 	private final PgStudioServiceAsync studioService = GWT
 			.create(PgStudioService.class);
 
 
 	@Override
-	public void setItem(int schema, int item, ITEM_TYPE type) {
+	public void setItem(int schema, long item, ITEM_TYPE type) {
 		this.item = item;
 		this.schema = schema;
 

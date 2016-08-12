@@ -345,6 +345,7 @@ public class TablesPanel extends Composite implements MenuPanel {
 
 	public void refresh() {
 		dataProvider.setSchema(schema);
+		selectFirst();
 	}
 
 	@Override

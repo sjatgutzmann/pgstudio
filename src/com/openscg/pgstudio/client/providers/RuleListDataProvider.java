@@ -24,14 +24,14 @@ public class RuleListDataProvider extends AsyncDataProvider<RuleInfo> implements
 		ItemListProvider {
 	private List<RuleInfo> ruleList = new ArrayList<RuleInfo>();
 
-	private int item = -1;
+	private long item = -1;
 	private int schema = -1;
 	private ITEM_TYPE type;
 
 	private final PgStudioServiceAsync studioService = GWT
 			.create(PgStudioService.class);
 
-	public void setItem(int schema, int item, ITEM_TYPE type) {
+	public void setItem(int schema, long item, ITEM_TYPE type) {
 		this.schema = schema;
 		this.item = item;
 		this.type = type;

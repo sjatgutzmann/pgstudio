@@ -7,7 +7,7 @@ public class ParserInfo implements ModelInfo {
 
 	private final int schema;
 	private final String schemaName;
-	private final int id;
+	private final long id;
     private final String name;
     private String comments;
    
@@ -16,7 +16,7 @@ public class ParserInfo implements ModelInfo {
           return parser == null ? null : parser.getId();
         }
       };
-    public ParserInfo(int schema,String schemaName, int id, String name, String comments) {
+    public ParserInfo(int schema,String schemaName, long id, String name, String comments) {
     	this.schema = schema;
     	this.schemaName = schemaName;
     	this.name = name;
@@ -35,7 +35,7 @@ public class ParserInfo implements ModelInfo {
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 

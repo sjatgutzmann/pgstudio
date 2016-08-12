@@ -22,6 +22,8 @@ public void doPost(HttpServletRequest req, HttpServletResponse res)
     String dbURL = req.getParameter("dbURL");
     int dbPort = Integer.parseInt(req.getParameter("dbPort"));
     String dbName = req.getParameter("dbName");
+    if(dbName==null)
+	dbName="";
     String username = req.getParameter("username");
     String passwd = req.getParameter("password");
 

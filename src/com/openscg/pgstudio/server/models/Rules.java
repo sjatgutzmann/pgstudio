@@ -31,16 +31,16 @@ public class Rules {
 		this.conn = conn;
 	}
 	
-	public String getList(int item) throws SQLException {
+	public String getList(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 		
 			PreparedStatement stmt = conn.prepareStatement(RULE_LIST);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			ResultSet rs = stmt.executeQuery();
 			
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("rulename"));
 				
 				String type = "";
@@ -69,7 +69,7 @@ public class Rules {
 		return result.toString();
 	}
 
-	public String drop(int item, String ruleName) throws SQLException {
+	public String drop(long item, String ruleName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -79,7 +79,7 @@ public class Rules {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String createRule(int item, ITEM_TYPE type, String ruleName,
+	public String createRule(long item, ITEM_TYPE type, String ruleName,
 			String event, String ruleType, String definition)
 			throws SQLException {
 

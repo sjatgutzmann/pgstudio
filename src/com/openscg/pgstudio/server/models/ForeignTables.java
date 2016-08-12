@@ -49,7 +49,7 @@ public class ForeignTables {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("tablename"));
 				jsonMessage.put("table_type", rs.getString("fdwname"));
 				jsonMessage.put("comment", rs.getString("description"));
@@ -62,7 +62,7 @@ public class ForeignTables {
 		return result.toString();
 	}
 	
-	public String drop(int item, boolean cascade) throws SQLException{
+	public String drop(long item, boolean cascade) throws SQLException{
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -82,7 +82,7 @@ public class ForeignTables {
 		return qe.executeUtilityCommand(command);
 	}
 	
-	public String rename(int item, ITEM_TYPE type, String newName) throws SQLException{
+	public String rename(long item, ITEM_TYPE type, String newName) throws SQLException{
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 

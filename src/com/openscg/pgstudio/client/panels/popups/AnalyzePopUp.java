@@ -115,15 +115,14 @@ public class AnalyzePopUp implements StudioModelPopUp {
 
 			RadioButton rb3 = new RadioButton("AnalyzeGroup", "Vacuum Full");
 			rb3.addClickHandler(getVacuumFullButtonClickHandler());
-			
-			RadioButton rb4 = new RadioButton("AnalyzeGroup", "Reindex");
-			rb4.addClickHandler(getReindexButtonClickHandler());
-			
+
 			info.add(rb2);
 			info.add(rb3);
-			info.add(rb4);
 		}
-
+		RadioButton rb4 = new RadioButton("AnalyzeGroup", "Reindex");
+		rb4.addClickHandler(getReindexButtonClickHandler());
+		info.add(rb4);
+		
 		rb1.setValue(true);
 
 		panel.add(info);
@@ -183,15 +182,6 @@ public class AnalyzePopUp implements StudioModelPopUp {
 
 		return bar.asWidget();
 	}
-	
-	private ClickHandler getReindexButtonClickHandler() {
-		return new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				reindex = true;
-			}
-		};
-	}
 
 	private ClickHandler getAnalyzeButtonClickHandler() {
 		return new ClickHandler() {
@@ -219,6 +209,15 @@ public class AnalyzePopUp implements StudioModelPopUp {
 			public void onClick(ClickEvent event) {
 				vacuum = true;
 				vacuumFull = true;
+			}
+		};
+	}
+	
+	private ClickHandler getReindexButtonClickHandler() {
+		return new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				reindex = true;
 			}
 		};
 	}

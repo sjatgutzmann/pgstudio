@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -71,10 +72,10 @@ public class QueryExecutor {
 		String status = "";
 		String info = "";
 		PreparedStatement stmt = null;
-
+		int queryResult=0;
 		try {
 			stmt = conn.prepareStatement(command);
-			int queryResult = stmt.executeUpdate();
+			queryResult = stmt.executeUpdate();
 			if (queryResult == 0) {
 				status = "SUCCESS";
 				if (defaultReturnMessage != null) {

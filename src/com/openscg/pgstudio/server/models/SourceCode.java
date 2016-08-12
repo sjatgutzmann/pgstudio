@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
+import com.openscg.pgstudio.shared.Constants;
 
 public class SourceCode {
 	
@@ -61,7 +62,8 @@ public class SourceCode {
 	private final static String FUNC_SOURCE = 
 		"SELECT p.prosrc, l.lanname," +
 		"       pg_catalog.pg_get_function_result(p.oid) as result_type," +
-		"       pg_catalog.pg_get_function_arguments(p.oid) as arguments" +
+		"       pg_catalog.pg_get_function_arguments(p.oid) as arguments," +
+		"		p.probin"+
 		"  FROM pg_proc p, pg_language l" +
 		" WHERE p.prolang = l.oid" +
 		"   AND p.oid = ? ";
@@ -78,7 +80,7 @@ public class SourceCode {
 			"   AND t.oid = ? ";
 	
 	private final static String SEQUENCE_SOURCE =
-		"SELECT last_value, min_value, max_value, cache_value, " +
+		"SELECT start_value, min_value, max_value, cache_value, " +
 		"       is_cycled, increment_by, is_called " +
 		"  FROM ";
 	
@@ -112,7 +114,7 @@ public class SourceCode {
 		this.conn = conn;
 	}
 	
-	public String getSourceCode(int item, ITEM_TYPE type) throws SQLException {
+	public String getSourceCode(long item, ITEM_TYPE type) throws SQLException {
 		switch (type) {
 		case FOREIGN_TABLE:
 			return getForeignTableCode(item);
@@ -133,14 +135,14 @@ public class SourceCode {
 		return "";
 	}
 
-	private String getCompositeCode(int item) throws SQLException {
+	private String getCompositeCode(long item) throws SQLException {
 		String result = "";
 		
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
 			PreparedStatement stmt = conn.prepareStatement(COMPOSITE_SOURCE);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			
 			ResultSet rs = stmt.executeQuery();
 			
@@ -160,14 +162,14 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getDomainCode(int item) throws SQLException {
+	private String getDomainCode(long item) throws SQLException {
 		String result = "";
 		
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TYPE);
 
 			PreparedStatement stmt = conn.prepareStatement(DOMAIN_SOURCE);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			
 			ResultSet rs = stmt.executeQuery();
 			
@@ -186,14 +188,14 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getEnumCode(int item) throws SQLException {
+	private String getEnumCode(long item) throws SQLException {
 		String result = "";
 		
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TYPE);
 
 			PreparedStatement stmt = conn.prepareStatement(ENUM_SOURCE);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			
 			ResultSet rs = stmt.executeQuery();
 			
@@ -213,7 +215,7 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getForeignTableCode(int item) throws SQLException {
+	private String getForeignTableCode(long item) throws SQLException {
 		String result = "";
 		PreparedStatement stmt = null;
 		
@@ -223,7 +225,7 @@ public class SourceCode {
 
 			stmt = conn.prepareStatement(COLUMN_SOURCE);
 			stmt.setString(1, "f");
-			stmt.setInt(2, item);
+			stmt.setLong(2, item);
 
 			ResultSet rs = stmt.executeQuery();
 
@@ -264,7 +266,7 @@ public class SourceCode {
 
 			stmt.close();
 			stmt = conn.prepareStatement(GET_FOREIGN_SERVER);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 
 			rs = stmt.executeQuery();
 
@@ -274,7 +276,7 @@ public class SourceCode {
 			
 			stmt.close();
 			stmt = conn.prepareStatement(GET_OPTIONS);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 
 			rs = stmt.executeQuery();
 
@@ -298,14 +300,14 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getFunctionCode(int item) throws SQLException {
+	private String getFunctionCode(long item) throws SQLException {
 		String result = "";
 		
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.FUNCTION);
 
 			PreparedStatement stmt = conn.prepareStatement(FUNC_SOURCE);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			
 			ResultSet rs = stmt.executeQuery();
 			
@@ -313,25 +315,28 @@ public class SourceCode {
 				String src = rs.getString(1);
 				String lang = rs.getString(2);
 				String ret = rs.getString(3);
+				String objFile = rs.getString(5);
 				
-				result = "CREATE FUNCTION " + name;
-				result = result + " RETURNS " + ret;
-				result = result + " AS $$ ";
+				result = Constants.CREATE_FUNCTION + name;
+				result = result + Constants.RETURNS + ret;
+				result = result + Constants.AS_$$;
+				if(null != objFile && objFile.trim().length() > 0)
+					result = result + objFile +",";
 				result = result + src;
-				result = result + "$$ LANGUAGE " + lang + ";";
+				result = result + Constants.LANGUAGE_$$ + lang + ";";
 			}
 		
 		return result;
 	}
 
-	private String getRangeCode(int item) throws SQLException {
+	private String getRangeCode(long item) throws SQLException {
 		String result = "";
 		
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TYPE);
 
 			PreparedStatement stmt = conn.prepareStatement(RANGE_SOURCE);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			
 			ResultSet rs = stmt.executeQuery();
 			
@@ -358,7 +363,7 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getSequenceCode(int item) throws SQLException {
+	private String getSequenceCode(long item) throws SQLException {
 		String result = "";
 		
 		Database db = new Database(conn);
@@ -389,7 +394,7 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getTableCode(int item) throws SQLException {
+	private String getTableCode(long item) throws SQLException {
 		String result = "";
 
 		Database db = new Database(conn);
@@ -397,7 +402,7 @@ public class SourceCode {
 
 		PreparedStatement stmt = conn.prepareStatement(COLUMN_SOURCE);
 		stmt.setString(1, "r");
-		stmt.setInt(2, item);
+		stmt.setLong(2, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -439,12 +444,12 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getTypeCode(int item) throws SQLException {
+	private String getTypeCode(long item) throws SQLException {
 		String result = "";
 		
 			PreparedStatement stmt = conn.prepareStatement(TYPE_KIND);
-			stmt.setInt(1, item);
-			stmt.setInt(2, item);
+			stmt.setLong(1, item);
+			stmt.setLong(2, item);
 			
 			ResultSet rs = stmt.executeQuery();
 			
@@ -467,14 +472,14 @@ public class SourceCode {
 		return result;
 	}
 
-	private String getViewCode(int item) throws SQLException {
+	private String getViewCode(long item) throws SQLException {
 		String result = "";
 		
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.VIEW);
 
 			PreparedStatement stmt = conn.prepareStatement(VIEW_SOURCE);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			
 			ResultSet rs = stmt.executeQuery();
 			
