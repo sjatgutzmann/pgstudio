@@ -16,7 +16,9 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudio.TYPE_FORM;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterDomainRequest;
 import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
+import com.openscg.pgstudio.shared.dto.DomainDetails;
 
 /**
  * The client side stub for the RPC service.
@@ -158,5 +160,15 @@ public interface PgStudioService extends RemoteService {
 	String importData(String connectionToken, List<String> columnList, List<ArrayList<String>> dataRows, int schema, String tableId, String tableName)  throws DatabaseConnectionException, PostgreSQLException;
 
 	String dropItemData(String connectionToken, int schema, String tableName) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
+
+	void connectToDatabase(String connectionToken, String database) throws DatabaseConnectionException, PostgreSQLException;
+
+	DomainDetails fetchDomainDetails(String connectionToken, long item)  throws DatabaseConnectionException, PostgreSQLException;
+
+	String addCheck(String connectionToken, int schema, String domainName, String checkName, String expression) throws DatabaseConnectionException, PostgreSQLException;
+
+	String dropCheck(String connectionToken, int schema, String domainName, String checkName) throws DatabaseConnectionException, PostgreSQLException;
+
+	String alterDomain(String connectionToken, int schema, AlterDomainRequest request) throws DatabaseConnectionException, PostgreSQLException;
 
 }

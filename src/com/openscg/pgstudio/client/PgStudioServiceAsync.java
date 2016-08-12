@@ -15,7 +15,9 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudio.TYPE_FORM;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterDomainRequest;
 import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
+import com.openscg.pgstudio.shared.dto.DomainDetails;
 
 /**
  * The async counterpart of <code>PgStudioService</code>.
@@ -197,5 +199,15 @@ public interface PgStudioServiceAsync {
 	void importData(String connectionToken, List<String> columnList, List<ArrayList<String>> dataRows, int schema, String tableId, String tableName, AsyncCallback<String> callback)   throws DatabaseConnectionException, PostgreSQLException;
 
 	void dropItemData(String connectionToken, int schema, String tableName,AsyncCallback<String> callback) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
+
+	void connectToDatabase(String connectionToken, String databaseName , AsyncCallback<Void> asyncCallback) throws IllegalArgumentException;
+
+	void fetchDomainDetails(String connectionToken, long item, AsyncCallback<DomainDetails> asyncCallback)  throws DatabaseConnectionException, PostgreSQLException;
+
+	void addCheck(String connectionToken, int schema, String domainName, String checkName, String expression, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void dropCheck(String connectionToken, int schema, String domainName, String checkName, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+
+	void alterDomain(String connectionToken, int schema, AlterDomainRequest request, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
 
 }
