@@ -158,7 +158,7 @@ public interface Resources extends ClientBundle {
 	@Source("images/range.gif")
 	ImageResource range();
 
-	@Source("images/refresh.gif")
+	@Source("images/refresh.png")
 	ImageResource refresh();
 
 	@Source("images/view-refresh.png")

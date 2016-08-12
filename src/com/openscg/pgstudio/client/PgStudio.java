@@ -265,7 +265,7 @@ public class PgStudio implements EntryPoint {
 		bar.add(rename);
 		bar.add(drop);
 		bar.add(create);
-		bar.add(spacer2);
+		//bar.add(spacer2);
 		bar.add(disconnect);
 
 		return bar.asWidget();

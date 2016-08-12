@@ -141,4 +141,34 @@ public class ConnectionManager {
 	public int getDatabaseVersion() {
 		return databaseVersion;
 	}
+	
+	public void connectedToDatabase(String token, String databaseName, String clientIP, String userAgent) throws DatabaseConnectionException{
+		
+		ConnectionInfo info = connTable.get(token);
+		
+		if(info!=null){
+			
+			try {
+				
+				/*close the current db connection and open a new connection*/
+				info.closeDBConnection();
+				
+				Connection conn = createConnection(info.getDatabaseURL(), info.getDatabasePort(), databaseName, info.getUser(), info.getPassword());
+				info.setConnection(conn);
+				
+				connTable.put(token, info);
+				
+				
+			} catch (DatabaseConnectionException e) {
+				e.printStackTrace();
+				throw new DatabaseConnectionException(e.getMessage());
+			} catch (SQLException e) {
+				
+				e.printStackTrace();
+			}
+ 
+			
+		}
+		
+	}
 }

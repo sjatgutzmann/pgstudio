@@ -3,6 +3,8 @@
  */
 package com.openscg.pgstudio.client.panels;
 
+import java.util.ArrayList;
+
 import org.vectomatic.file.Blob;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
@@ -22,6 +24,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
@@ -38,17 +41,21 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-
 import com.mastergaurav.codemirror.client.CodeMirror;
 import com.mastergaurav.codemirror.client.CodeMirrorConfig;
 import com.openscg.pgstudio.client.PgStudio;
+import com.openscg.pgstudio.client.PgStudio.DATABASE_OBJECT_TYPE;
 import com.openscg.pgstudio.client.PgStudioService;
 import com.openscg.pgstudio.client.PgStudioServiceAsync;
+import com.openscg.pgstudio.client.messages.ListJsObject;
 import com.openscg.pgstudio.client.messages.QueryErrorJsObject;
 import com.openscg.pgstudio.client.messages.QueryMetaDataJsObject;
 import com.openscg.pgstudio.client.messages.QueryMetaDataResultJsObject;
+import com.openscg.pgstudio.client.models.DatabaseObjectInfo;
 import com.openscg.pgstudio.client.utils.PgRestDataSource;
 import com.openscg.pgstudio.client.utils.TextFormat;
+import com.openscg.pgstudio.client.widgets.ExportDataEventHandler;
+import com.openscg.pgstudio.client.widgets.ExportWidget;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.FetchMode;
 import com.smartgwt.client.types.ListGridFieldType;
@@ -60,6 +67,8 @@ public class SQLWorksheet extends Composite  {
 
 	private final PgStudioServiceAsync studioService = GWT.create(PgStudioService.class);
 
+	private static int WIDTH = 1000;
+	private static String WITDH_SCREEN = WIDTH + "px";
 	final String columnsArray[] = {"Level","Node Type", "Relation Name", "Replicated", "Alias",
 									"Join Type", "Merge Cond", "Sort Key",  "Parent Relationship",
 									"Node List",  "Startup Cost", "Total Cost", "Plan Rows", "Plan Width"};
@@ -90,12 +99,18 @@ public class SQLWorksheet extends Composite  {
 	private String INVALID_FILE_STR = "Invalid file type";
 	private String PROBLEM_READING_FILE_STR = "Problem reading file";
 	
+	final ListBox queryHistoryList = new ListBox();
+	private String QUERY_HISTORY_STR = "Previous queries";
+	private int selectQueryIndex;
+	
+	final ListBox databases = new ListBox();
+	private ArrayList<DatabaseObjectInfo> databaseList = null;
+	
 	public SQLWorksheet() {
 		
 		VerticalPanel mainPanel = new VerticalPanel();
 		mainPanel.setWidth("95%");
 		mainPanel.setHeight("95%");
-
 		mainPanel.add(getHeaderPanel());
 		mainPanel.add(getSQLPanel());
 		mainPanel.add(getOutputTablePanel());
@@ -129,8 +144,11 @@ public class SQLWorksheet extends Composite  {
 		
 		Widget buttons = getButtonBar();
 		Widget limits = getLimitBar();
-		
+		Widget queryHistory = getHistoryBar(); 
+		Widget databaseList  = getDatabaseWidget();
 		panel.add(buttons);
+		panel.add(queryHistory);
+		panel.add(databaseList);
 		panel.add(limits);
 		
 		panel.setCellHorizontalAlignment(buttons, HasHorizontalAlignment.ALIGN_LEFT);
@@ -147,7 +165,7 @@ public class SQLWorksheet extends Composite  {
 		PushButton stop = getTerminateButton();
 		PushButton run = getRunButton();
 		PushButton explain = getExplainButton();
-		
+		ExportWidget exportWidget = getExportWidget();
 		try {
 			if (FileUtils.supportsFileAPI()) {
 				bar.add(save);
@@ -164,8 +182,197 @@ public class SQLWorksheet extends Composite  {
 		bar.add(stop);
 		bar.add(run);
 		bar.add(explain);
+		bar.add(exportWidget);
+		return bar.asWidget();
+	}
+	
+	private Widget getHistoryBar() {
+		HorizontalPanel bar = new HorizontalPanel();
+
+		Label lbl = new Label();
+		lbl.setText(QUERY_HISTORY_STR);
+		lbl.setStyleName("studio-Label-Small");
+
+		
+		queryHistoryList.setStyleName("bigListBox");
+		queryHistoryList.getElement().getStyle().setWidth(100, Unit.PCT);
+		
+		
+		Storage queryStore = Storage.getLocalStorageIfSupported();
+		if (queryStore != null){
+		  for (int i = 0; i < queryStore.getLength(); i++){
+		    String key = queryStore.key(i);
+		    queryHistoryList.addItem( queryStore.getItem(key), key);
+		    
+		  }
+		}
+		
+		//limitBox.setSelectedIndex(0);
+		
+		queryHistoryList.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent arg0) {
+				String selectedQuery  = queryHistoryList.getItemText(queryHistoryList.getSelectedIndex());
+				//Window.alert("selectedQuery:::"+selectedQuery);
+				cm.setContent(selectedQuery);
+				selectQueryIndex = queryHistoryList.getSelectedIndex();
+				
+			}
+		});
+		
+		queryHistoryList.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent arg0) {
+				String selectedQuery  = queryHistoryList.getItemText(queryHistoryList.getSelectedIndex());
+				//Window.alert("selectedQuery:::"+selectedQuery);
+				cm.setContent(selectedQuery);
+				selectQueryIndex = queryHistoryList.getSelectedIndex();
+				
+			}
+		});
+		
+		bar.add(lbl);
+		bar.add(queryHistoryList);
+		bar.add(getQueryRemoveButton());
+		//bar.setCellVerticalAlignment(lbl, HasVerticalAlignment.ALIGN_MIDDLE);
+		//bar.setCellVerticalAlignment(queryHistoryList, HasVerticalAlignment.ALIGN_MIDDLE);
 		
 		return bar.asWidget();
+	}
+	
+	/**
+	 * This method handles switching between the database for logged in Database Server.
+	 * @return
+	 */
+	private Widget getDatabaseWidget() {
+		HorizontalPanel panel = new HorizontalPanel();
+		panel.setSpacing(5);
+		
+		Label lbl = new Label();
+		lbl.setText("Database");
+		lbl.setStyleName("studio-Label");
+		
+		databases.setVisibleItemCount(1);
+		databases.setWidth("115px");
+		databases.setStyleName("roundList");
+
+		
+		databases.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				
+				connectedToSelectedDatabase();
+				
+			}
+		});
+		
+		panel.add(lbl);
+		//panel.add(filler);
+		panel.add(databases);
+
+		databaseList = new ArrayList<DatabaseObjectInfo>();
+
+		studioService.getList(PgStudio.getToken(), DATABASE_OBJECT_TYPE.DATABASE, new AsyncCallback<String>() {
+            public void onFailure(Throwable caught) {
+            	databases.clear();
+                // Show the RPC error message to the user
+                Window.alert(caught.getMessage());
+            }
+
+            public void onSuccess(String result) {
+            	databases.clear();
+            	//databases.addItem("Select Database","0000");
+
+				JsArray<ListJsObject> objects = DatabaseObjectInfo.json2Messages(result);
+				
+				for (int i = 0; i < objects.length(); i++) {
+					DatabaseObjectInfo info = DatabaseObjectInfo.msgToInfo(objects.get(i));
+					databases.addItem(info.getName(), Integer.toString(info.getId()));
+					databaseList.add(info);
+				}
+				
+				if(databaseList.size()>0)
+				connectedToSelectedDatabase();
+				
+				/*Load schemas for first selected database*/
+				//updateSchemaList();
+            }
+          });
+
+		return panel.asWidget();
+	}
+	
+	private void connectedToSelectedDatabase(){
+		
+		String name = databases.getItemText(databases.getSelectedIndex());
+		
+		studioService.connectToDatabase(PgStudio.getToken(), name, new AsyncCallback<Void>() {
+            public void onFailure(Throwable caught) {
+                // Show the RPC error message to the user
+                Window.alert(caught.getMessage());
+            }
+
+            public void onSuccess(Void arg0) {
+            	
+            }
+
+			});
+	}
+	
+	private PushButton getQueryRemoveButton() {
+		PushButton button = new PushButton(new Image(PgStudio.Images.drop()));
+		button.setTitle("Remove Query");
+
+		button.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				//Window.alert("Remove query from local storage::"+selectQueryIndex);
+				deleteQueryFromLocalStorage(queryHistoryList.getValue(selectQueryIndex));
+				queryHistoryList.removeItem(selectQueryIndex);
+			}
+		});
+
+		return button;
+	}
+	
+	
+	private void storeQuery(String query ){
+	    
+	    Storage queryStore  = Storage.getLocalStorageIfSupported();
+	     boolean queryPresentInStore = false;
+		if (queryStore != null){
+		  
+			/*before storing check if this query already exists*/
+			
+			for(int i=0;i<queryStore.getLength();i++){
+				
+				String key = queryStore.key(i);
+				
+				if(queryStore.getItem(key).equals(query)){
+					
+					queryPresentInStore=true;
+					break;
+				}
+				
+			}	
+			
+			if(!queryPresentInStore)
+		    queryStore.setItem("Query"+System.currentTimeMillis(), query);
+		 
+		}
+		
+	}
+	
+	private void deleteQueryFromLocalStorage(String key ){
+	    
+	    Storage queryStore  = Storage.getLocalStorageIfSupported();
+	     
+		if (queryStore != null){
+		  
+		    queryStore.removeItem(key);
+		 
+		}
+		
 	}
 		
 	private Widget getLimitBar() {
@@ -227,6 +434,8 @@ public class SQLWorksheet extends Composite  {
 					}
 					
 					final String query = preQuery;
+					
+					storeQuery(query);
 					
 					if(query.toUpperCase().startsWith("EXPLAIN")){
 						tabPanel.selectTab(2);
@@ -394,10 +603,45 @@ public class SQLWorksheet extends Composite  {
 		return handler;
 	}
 	
+	private ExportWidget getExportWidget() {
+		ExportDataEventHandler handler = initHandler();
+		ExportWidget exportWidget = new ExportWidget(handler);
+		return exportWidget;
+	}
+	
+	private ExportDataEventHandler initHandler() {
+		return new ExportDataEventHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				String text;
+				if (cm.getSelectedText().equals("")) {
+					text = cm.getContent();
+				} else {
+					text = cm.getSelectedText();
+				}
+				String preQuery = text;
+				
+				if (preQuery != null && !preQuery.isEmpty()) {
+					// If it is a select, let's chop everything after including the first ";"
+					if (preQuery.trim().toLowerCase().startsWith("select") 
+								&& preQuery.trim().indexOf(";") > 0) {
+						preQuery = preQuery.trim().substring(0,preQuery.trim().indexOf(";"));
+					}
+					String requestParams = "connectionToken=" + PgStudio.getToken() + "&fileType="
+							+ getFileType() + "&query=" + preQuery;
+					String url = GWT.getModuleBaseURL() + "/downloadFile?" + requestParams;
+					Window.open(url, "_blank", null);
+				}				
+				
+			}
+		};			
+	}
+	
 	private Widget getSQLPanel() {
 		codePanel = new SimplePanel();
 				
-		codeArea.setWidth("1200px");
+		codeArea.setWidth(WITDH_SCREEN);
 		codeArea.setHeight("150px");
 
 		codeArea.setReadOnly(false);
@@ -416,7 +660,7 @@ public class SQLWorksheet extends Composite  {
 		config.setParserFile(parserFile);
 		config.setStylesheet(styleSheet);
 		
-		config.setWidth(1200, Unit.PX);
+		config.setWidth(WIDTH, Unit.PX);
 		config.setHeight(150, Unit.PX);
 		
 		return config;
@@ -426,7 +670,7 @@ public class SQLWorksheet extends Composite  {
 		tabPanel = new DecoratedTabPanel();
 		
 		tabPanel.setHeight("450px");
-		tabPanel.setWidth("1200px");
+		tabPanel.setWidth(WITDH_SCREEN);
 		tabPanel.setStyleName("studio-DecoratedTabBar");
 		
 		tabPanel.add(getResultsPanel(), resultsTabWidget);
@@ -451,7 +695,7 @@ public class SQLWorksheet extends Composite  {
 		messagePanel = new SimplePanel();
 		
 		TextArea msg = new TextArea();
-		msg.setWidth("1200px");
+		msg.setWidth(WITDH_SCREEN);
 		msg.setHeight("420px");
 		msg.setReadOnly(true);
 		
@@ -481,7 +725,7 @@ public class SQLWorksheet extends Composite  {
 		}
 
         final ListGrid listGrid = new ListGrid();
-        listGrid.setWidth(1200);
+        listGrid.setWidth(WIDTH);
         listGrid.setHeight(420);
         
         PgRestDataSource dataSource = new PgRestDataSource();
@@ -500,6 +744,7 @@ public class SQLWorksheet extends Composite  {
 	}
 	
 	private void setupMessage(String query, String queryType) {
+		
 		// Clear out area so we can try and see it "flash" so we know it ran.
 		// TODO: Would be great to show the number of affect rows		
 		((TextArea)messagePanel.getWidget()).setText("");
@@ -511,6 +756,7 @@ public class SQLWorksheet extends Composite  {
 
 			public void onSuccess(String result) {
 				((TextArea)messagePanel.getWidget()).setText(result);
+				
 			}
 		});		
 		
@@ -518,7 +764,7 @@ public class SQLWorksheet extends Composite  {
 	
 	private void setupExplain(String query){
 		final ListGrid explainGrid = new ListGrid();
-		explainGrid.setWidth(1200);
+		explainGrid.setWidth(WIDTH);
 		explainGrid.setHeight(224);
 		explainGrid.setAlternateRecordStyles(true);
 		explainGrid.setShowAllRecords(true);
@@ -718,4 +964,7 @@ public class SQLWorksheet extends Composite  {
 	  	return eval(json); 
 	}-*/;
 
+	public int getWidth() {
+		return WIDTH;
+	}
 }

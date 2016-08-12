@@ -6,6 +6,7 @@ package com.openscg.pgstudio.client.panels;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -35,6 +36,7 @@ public class DetailsTabPanel {
 	private SequenceStatsPanel sequenceStatsPanel;
 	private ScriptPanel scriptPanel;
 	private FunctionsScriptPanel functionsScriptPanel;
+	private TypeDataPanel typeDataPanel;
 	private SecurityPanel secPanel;
 	private PolicyPanel polPanel;
 	private FTSConfigurationDetailsPanel ftsConfigurationDetailsPanel;
@@ -50,10 +52,11 @@ public class DetailsTabPanel {
 	private Widget statsTabWidget = new HTML(TextFormat.getHeaderString("Stats", PgStudio.Images.stats()));
 	private Widget sequencesStatsTabWidget = new HTML(TextFormat.getHeaderString("Stats", PgStudio.Images.stats()));
 	private Widget scriptTabWidget = new HTML(TextFormat.getHeaderString("Script", PgStudio.Images.script()));
+	private Widget typeDataTabWidget = new HTML(TextFormat.getHeaderString("Data", PgStudio.Images.data()));
 	private Widget securityTabWidget = new HTML(TextFormat.getHeaderString("Security", PgStudio.Images.security()));
 	private Widget policyTabWidget = new HTML(TextFormat.getHeaderString("Policies", PgStudio.Images.policy()));
-
-private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString("Configurations", PgStudio.Images.ftsconf()));
+	private Widget importTabWidget = new HTML(TextFormat.getHeaderString("Import", PgStudio.Images.policy()));
+	private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString("Configurations", PgStudio.Images.ftsconf()));
 	private Widget dictionariesWidget = new HTML(TextFormat.getHeaderString("Info", PgStudio.Images.dictionary()));
 	private Widget parsersWidget = new HTML(TextFormat.getHeaderString("Data", PgStudio.Images.data()));
 	private Widget indexWidget;
@@ -62,10 +65,11 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 	private Widget ruleWidget;
 	private Widget securityWidget;
 	private Widget policyWidget;
+	private Widget importWidget;
 
 	public DetailsTabPanel(final PgStudio main) {
 		this.main = main;
-		
+
 		columnPanel = new ColumnPanel();
 		indexPanel = new IndexPanel(this.main);
 		constPanel = new ConstraintPanel();
@@ -75,6 +79,7 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 		statsPanel = new StatsPanel();
 		sequenceStatsPanel = new SequenceStatsPanel();
 		scriptPanel = new ScriptPanel();
+		typeDataPanel = new TypeDataPanel();
 		functionsScriptPanel = new FunctionsScriptPanel();
 		secPanel = new SecurityPanel();
 		polPanel = new PolicyPanel();
@@ -85,10 +90,9 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 
 	public void setSelectedItem(ModelInfo selected) {		
 		this.selectedItem = selected;
-		
 		if (selectedItem.getItemType() != type) {
 			this.type = selectedItem.getItemType();
-			
+
 			switch(type) {
 			case TABLE :
 				setupTablePanels();
@@ -148,7 +152,7 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 		panel.setHeight("100%");
 		panel.setWidth("100%");
 		panel.setStyleName("studio-DecoratedTabBar");
-		
+
 		panel.add(columnPanel, columnTabWidget);
 		panel.add(indexWidget, indexTabWidget);
 		panel.add(constWidget, constTabWidget);
@@ -158,6 +162,7 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 		panel.add(statsPanel, statsTabWidget);
 		panel.add(sequenceStatsPanel,sequencesStatsTabWidget);
 		panel.add(scriptPanel, scriptTabWidget);
+		panel.add(typeDataPanel, typeDataTabWidget);		
 		panel.add(securityWidget, securityTabWidget);
 		panel.add(polPanel, policyTabWidget);
 		panel.add(ftsConfigurationDetailsPanel,ftsConfigurationsTabWidget);
@@ -167,19 +172,19 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 		panel.addSelectionHandler(new SelectionHandler<Integer>() {
 			@Override
 			public void onSelection(SelectionEvent<Integer> event) {
-					selectedTab = (Integer) event.getSelectedItem();
+				selectedTab = (Integer) event.getSelectedItem();
 				/* I am sometimes HTML cast to DetailsPanel errors, so ignore this */
 				try {
 					DetailsPanel p = (DetailsPanel) panel.getWidget(selectedTab);
 					p.setItem(selectedItem);
 				} catch (Exception e) {}
 			}
-			
+
 		});
-		
-	    return panel.asWidget();
+
+		return panel.asWidget();
 	}
-	
+
 	private void setupTablePanels() {
 		int panels = 10;
 
@@ -190,6 +195,8 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 		panel.insert(securityWidget, securityTabWidget, 0);
 		panel.insert(scriptPanel, scriptTabWidget, 0);
 		panel.insert(statsPanel, statsTabWidget, 0);
+
+		//panel.insert(importPanel, importTabWidget, 0);
 		panel.insert(dataPanel, dataTabWidget, 0);
 		panel.insert(ruleWidget, ruleTabWidget, 0);
 		panel.insert(triggerWidget, triggerTabWidget, 0);
@@ -227,8 +234,8 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 		panel.insert(functionsScriptPanel, scriptTabWidget, 0);
 
 		removeExtraPanels(2);
-}
-
+	}
+	
 	private void setupSequencePanels() {		
 
 		panel.insert(securityWidget, securityTabWidget, 0);
@@ -241,8 +248,9 @@ private Widget ftsConfigurationsTabWidget = new HTML(TextFormat.getHeaderString(
 
 		panel.insert(securityWidget, securityTabWidget, 0);
 		panel.insert(scriptPanel, scriptTabWidget, 0);
+		panel.insert(typeDataPanel, typeDataTabWidget, 0);
+		removeExtraPanels(3);
 		
-		removeExtraPanels(2);
 	}
 	
 	private void setupFTSPanels() {		
