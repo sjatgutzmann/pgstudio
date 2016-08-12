@@ -3,6 +3,7 @@
  */
 package com.openscg.pgstudio.server.models;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,7 +37,7 @@ public class Sequences {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("relname"));
 
 				result.add(jsonMessage);
@@ -50,8 +51,8 @@ public class Sequences {
 	}
 
 	public String create(int schema, String sequenceName,
-			boolean temporary, int increment, int minValue, int maxValue,
-			int start, int cache, boolean cycle)
+			boolean temporary, String increment, String minValue, String maxValue,
+			String start, int cache, boolean cycle)
 			throws DatabaseConnectionException, SQLException {
 
 		Schemas s = new Schemas(conn);
@@ -66,22 +67,35 @@ public class Sequences {
 			query = new StringBuffer("CREATE SEQUENCE " + schemaName + "."
 					+ sequenceName);
 
-		if (increment != 0 && increment != 1) {
-			query = query.append(" INCREMENT BY " + increment);
+		
+		if(null != increment && !increment.isEmpty()){
+			BigInteger incrInt = new BigInteger(increment);
+			if (incrInt.intValue() != 0 && incrInt.intValue() != 1) {
+				query = query.append(" INCREMENT BY " + increment);
+			}
 		}
-
-		if (minValue != 0 && minValue != 1) {
-			query = query.append(" MINVALUE " + minValue);
+		
+		if(null != minValue && !minValue.isEmpty()){
+			BigInteger minInt = new BigInteger(minValue);
+			if (minInt.intValue() != 0 && minInt.intValue() != 1) {
+				query = query.append(" INCREMENT BY " + minValue);
+			}
 		}
-
-		if (maxValue != 0 && maxValue != 1) {
-			query = query.append(" MAXVALUE " + maxValue);
+		
+		if(null != maxValue && !maxValue.isEmpty()){
+			BigInteger maxInt = new BigInteger(maxValue);
+			if (maxInt.intValue() != 0 && maxInt.intValue() != 1) {
+				query = query.append(" INCREMENT BY " + maxValue);
+			}
 		}
-
-		if (start != 0 && start != 1) {
-			query = query.append(" START WITH " + start);
+		
+		if(null != start && !start.isEmpty()){
+			BigInteger startInt = new BigInteger(start);
+			if (startInt.intValue() != 0 && startInt.intValue() != 1) {
+				query = query.append(" INCREMENT BY " + start);
+			}
 		}
-
+		
 		if (cache != 0 && cache != 1) {
 			query = query.append(" CACHE " + cache);
 		}
@@ -89,11 +103,13 @@ public class Sequences {
 		if (cycle)
 			query = query.append(" CYCLE");
 
+		System.out.println("Create Sequence Query :: "+query.toString());
+		
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(query.toString());
 	}
 
-	public String drop(int item, boolean cascade) throws SQLException {
+	public String drop(long item, boolean cascade) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.SEQUENCE);
 

@@ -6,6 +6,8 @@ package com.openscg.pgstudio.client.panels;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -32,9 +34,14 @@ public class ScriptPanel extends Composite implements DetailsPanel {
 	
 	private boolean isConfigured;
 	private ITEM_TYPE type = null;
-
+	private ModelInfo item;
+	private ModelInfo previousItem;
+	
 	public void setItem(ModelInfo item) {
-		if (!isConfigured || item.getItemType() != type) {
+		this.previousItem = this.item;
+		this.item = item;
+		
+		if (this.previousItem == null || this.previousItem.getFullName() != item.getFullName()) {
 			Element e = codeArea.getElement();
 			TextAreaElement tae = TextAreaElement.as(e);
 			
@@ -92,7 +99,13 @@ public class ScriptPanel extends Composite implements DetailsPanel {
 	private PushButton getRefreshButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.refresh()));
 		button.setTitle("Refresh");
-		
+		button.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				refresh();				
+			}
+		});
 		return button;
 	}
 	
@@ -130,8 +143,7 @@ public class ScriptPanel extends Composite implements DetailsPanel {
 
 	@Override
 	public void refresh() {
-		// TODO Auto-generated method stub
-		
+		setItem(item);
 	}
 
 }

@@ -17,13 +17,13 @@ public class DataTypeInfo implements ModelInfo, Comparable<DataTypeInfo> {
     };
 
 
-    private final int id;
+    private final long id;
     private final String name;
     
     private boolean hasLength;
     private int usageCount;
     
-    public DataTypeInfo(int schema, int id, String name) {
+    public DataTypeInfo(int schema, long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -41,13 +41,13 @@ public class DataTypeInfo implements ModelInfo, Comparable<DataTypeInfo> {
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {
@@ -108,6 +108,11 @@ public class DataTypeInfo implements ModelInfo, Comparable<DataTypeInfo> {
 	@Override
 	public int getSchema() {
 		return 0;
+	}
+
+	@Override
+	public String toString() {
+		return "DataTypeInfo [name=" + name + "]";
 	}
 
   }

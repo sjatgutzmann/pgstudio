@@ -20,6 +20,8 @@ import com.openscg.pgstudio.server.util.DBVersionCheck;
 import com.openscg.pgstudio.server.util.QueryExecutor;
 import com.openscg.pgstudio.server.util.QuotingLogic;
 import com.openscg.pgstudio.server.util.DBVersionCheck.PG_FLAVORS;
+import com.openscg.pgstudio.shared.DatabaseConnectionException;
+import com.openscg.pgstudio.shared.PostgreSQLException;
 
 public class Tables {
 
@@ -87,7 +89,7 @@ public class Tables {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("tablename"));
 				jsonMessage.put("table_type", rs.getString("tabletype"));
 				jsonMessage.put("comment", rs.getString("description"));
@@ -112,8 +114,8 @@ public class Tables {
 		}
 		return result.toString();
 	}
-
-	public String drop(int item, boolean cascade) throws SQLException{
+	
+	public String drop(long item, boolean cascade) throws SQLException{
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -125,8 +127,8 @@ public class Tables {
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command.toString());
 	}
-
-	public String analyze(int item, ITEM_TYPE type, boolean vacuum,
+	
+	public String analyze(long item, ITEM_TYPE type, boolean vacuum,
 			boolean vacuumFull, boolean reindex) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
@@ -148,8 +150,8 @@ public class Tables {
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command.toString());
 	}
-
-	public String rename(int item, ITEM_TYPE type, String newName) throws SQLException {
+	
+	public String rename(long item, ITEM_TYPE type, String newName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -158,8 +160,8 @@ public class Tables {
 		QueryExecutor qe = new QueryExecutor(conn);
 		return qe.executeUtilityCommand(command);
 	}
-
-	public String truncate(int item, ITEM_TYPE type) throws SQLException {
+	
+	public String truncate(long item, ITEM_TYPE type) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 

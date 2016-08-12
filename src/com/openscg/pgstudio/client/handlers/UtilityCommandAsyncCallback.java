@@ -7,6 +7,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.openscg.pgstudio.client.PgStudio;
 import com.openscg.pgstudio.client.messages.CommandJsObject;
 import com.openscg.pgstudio.client.panels.popups.PopUpException;
 import com.openscg.pgstudio.client.panels.popups.ResultsPopUp;
@@ -59,7 +60,7 @@ public class UtilityCommandAsyncCallback implements AsyncCallback<String> {
 		JsArray<CommandJsObject> jArray = json2Messages(result);
 
 		CommandJsObject res = jArray.get(0);
-		if (res.getStatus() != null
+		if (res != null && res.getStatus() != null
 				&& res.getStatus()
 						.contains("ERROR")) {
 			ResultsPopUp pop = new ResultsPopUp(
@@ -79,11 +80,14 @@ public class UtilityCommandAsyncCallback implements AsyncCallback<String> {
 				}
 			}
 			
-			if (autoRefresh)
+			if (autoRefresh) {
 				dataProvider.refresh();
+				PgStudio.dtp.refreshCurrent();
+			}
 			
-			if (dialogBox != null)
+			if (dialogBox != null) {
 				dialogBox.hide(true);
+			}
 		}
 	}
 

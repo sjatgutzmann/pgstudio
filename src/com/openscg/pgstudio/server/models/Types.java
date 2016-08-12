@@ -62,7 +62,7 @@ public class Types {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 
 				jsonMessage.put("name", rs.getString("typname"));
 				jsonMessage.put("type_kind", rs.getString("typtype"));
@@ -77,7 +77,7 @@ public class Types {
 		return result.toString();
 	}
 
-	public String dropType(int item, boolean cascade) throws SQLException {
+	public String dropType(long item, boolean cascade) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TYPE);
 		

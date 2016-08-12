@@ -76,6 +76,7 @@ public class PgStudio implements EntryPoint {
 	private TextBox textBox = new TextBox();
 
 	final ListBox schemas = new ListBox();
+	final ListBox databases = new ListBox();
 	private ArrayList<DatabaseObjectInfo> schemaList = null;
 
 	DialogBox dialogBox = null;
@@ -113,6 +114,7 @@ public class PgStudio implements EntryPoint {
 	private Label detailsInfo = new Label();
 
 	private static DatabaseObjectInfo selectedSchema = null;
+	private static DatabaseObjectInfo selectedDatabase = null;
 	private static ModelInfo selectedItem = null;
 
 	private SelectionChangeHandler selectionChangeHandler; 
@@ -304,10 +306,22 @@ public class PgStudio implements EntryPoint {
 
 				sqlDialog.setWidget(sql.asWidget());
 				sqlDialog.setGlassEnabled(true);
-				sqlDialog.setPopupPosition(30, 30);
-				sqlDialog.setText("SQL Worksheet");
-				sqlDialog.show();
 
+				int left = (RootPanel.getBodyElement().getClientWidth() - sql.getWidth()) / 2; // Trying to center align with respect to the page
+				left = left < 0 ? 0 : left;
+				sqlDialog.setPopupPosition(left, 30);
+
+				sqlDialog.setText("SQL Worksheet");
+				sqlDialog.show();		    	  
+				sqlDialog.addCloseHandler(new CloseHandler<PopupPanel>() {
+
+					/*Fire the event on SQL Worksheet close event to connect back to selected database in main window.ss  */	  
+					@Override
+					public void onClose(CloseEvent<PopupPanel> arg0) {
+						connectToSeletectedDatabase();
+
+					}
+				});
 				sql.setupCodePanel();				
 
 			}			
@@ -467,6 +481,31 @@ public class PgStudio implements EntryPoint {
 		return bar.asWidget();
 	}
 
+	private void connectToSeletectedDatabase(){
+
+		//selectedItem = null;
+		//Window.alert("databases.getSelectedIndex()>>"+databases.getSelectedIndex());	
+		String name = databases.getItemText(databases.getSelectedIndex());
+		int id = Integer.parseInt(databases.getValue(databases
+				.getSelectedIndex()));
+		DatabaseObjectInfo info = new DatabaseObjectInfo(id, name);
+		//Window.alert("id, name:::"+id+","+ name);
+		studioService.connectToDatabase(PgStudio.getToken(), name, new AsyncCallback<Void>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				Window.alert(caught.getMessage());
+			}
+
+			public void onSuccess(Void arg0) {
+				//Window.alert("Successfully connected to database.. Updating schema list");
+				//RootPanel.get("connInfoDiv").set
+				updateSchemaList();
+			}
+
+		});
+
+		selectedDatabase = info;
+	}
 	private Widget getSchemaWidget() {
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setSpacing(5);
@@ -490,6 +529,7 @@ public class PgStudio implements EntryPoint {
 						.getSelectedIndex()));
 				DatabaseObjectInfo info = new DatabaseObjectInfo(id, name);
 				selectedSchema = info;
+				dtp.onSchemaChange();
 				msp.setSchema(info);
 			}
 		});
@@ -547,6 +587,7 @@ public class PgStudio implements EntryPoint {
 
 				JsArray<ListJsObject> objects = DatabaseObjectInfo.json2Messages(result);
 
+				schemaList = new ArrayList<DatabaseObjectInfo>();	
 				int selectedSchemaIndex = 0;
 				for (int i = 0; i < objects.length(); i++) {
 					DatabaseObjectInfo info = DatabaseObjectInfo.msgToInfo(objects.get(i));
@@ -590,6 +631,11 @@ public class PgStudio implements EntryPoint {
 		case TYPE:
 			prefix = "Type";
 			break;
+		case FULL_TEXT_SEARCH:
+			prefix = "Full Text Search";
+			break;
+		case DICTIONARY:
+			prefix = "Dictionary";
 		default:
 			prefix = "";
 			break;
@@ -627,5 +673,6 @@ public class PgStudio implements EntryPoint {
 
 		dtp.clearTabs();
 	}
+
 
 }

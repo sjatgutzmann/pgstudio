@@ -14,14 +14,14 @@ public class ForeignTableInfo implements ModelInfo, Comparable<ForeignTableInfo>
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
     private String type;
     private String comment;
     
-    public ForeignTableInfo(int schema, int id, String name) {
+    public ForeignTableInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -40,13 +40,13 @@ public class ForeignTableInfo implements ModelInfo, Comparable<ForeignTableInfo>
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

@@ -46,7 +46,7 @@ public class Database {
 	private final static String LANGUAGE_LIST = "SELECT lanname, oid "
 			+ "  FROM pg_language "
 			+ " ORDER BY lanname ";
-	
+
 	private final static String LANGUAGE_LIST_NO_C_INTERNAL = "SELECT lanname, oid "
 			+ "  FROM pg_language "
 			+ " WHERE lanname NOT IN ('internal', 'c') " + " ORDER BY lanname ";
@@ -55,7 +55,7 @@ public class Database {
 			+ "  FROM pg_roles " + " ORDER BY rolname ";
 
 	private final static String DATABASE_LIST = " SELECT datname, oid "
-			+ " FROM pg_database ;";
+			+ " FROM pg_database WHERE datistemplate = false ";
 
 	private final static String SERVER_LIST = "SELECT srvname, oid "
 			+ "  FROM pg_foreign_server";
@@ -73,7 +73,7 @@ public class Database {
 			+ "  FROM pg_type t, pg_namespace n "
 			+ " WHERE t.typnamespace = n.oid "
 			+ "   AND (t.oid = ? OR t.typrelid = ?) ";
-	
+
 	private final String DICTIONARY_NAME = " SELECT n.nspname as schema, d.dictname as name FROM pg_catalog.pg_ts_dict d, pg_namespace n "
 			+ " WHERE d.dictnamespace = n.oid AND d.oid=?";
 
@@ -124,7 +124,7 @@ public class Database {
 
 		return result.toString();
 	}
-	
+
 	public String getLanguageFullList() {
 		JSONArray result = new JSONArray();
 
@@ -134,7 +134,7 @@ public class Database {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("lanname"));
 
 				result.add(jsonMessage);
@@ -157,7 +157,7 @@ public class Database {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("srvname"));
 				result.add(jsonMessage);
 			}
@@ -177,7 +177,7 @@ public class Database {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("rolname"));
 
 				result.add(jsonMessage);
@@ -198,7 +198,7 @@ public class Database {
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString("datname"));
 
 				result.add(jsonMessage);
@@ -210,165 +210,6 @@ public class Database {
 		return result.toString();
 	}
 
-	public String getItemFullName(int item, ITEM_TYPE type) throws SQLException {
-		switch (type) {
-		case FOREIGN_TABLE:
-		case MATERIALIZED_VIEW:
-		case SEQUENCE:
-		case TABLE:
-		case VIEW:
-			return getFullClassName(item);
-		case FUNCTION:
-			return getFullFunctionName(item);
-		case TYPE:
-			return getFullTypeName(item);
-		}
-
-		throw new SQLException("Unknown Item Type");
-	}
-
-	private String getFullClassName(int oid) throws SQLException {
-		PreparedStatement stmt = conn.prepareStatement(CLASS_NAME);
-		stmt.setInt(1, oid);
-		ResultSet rs = stmt.executeQuery();
-
-		if (rs.next()) {
-			String schema = rs.getString("nspname");
-			String name = rs.getString("relname");
-
-			if (!StringUtils.isAlphanumeric(schema)
-					|| !StringUtils.isAllLowerCase(schema))
-				schema = "\"" + schema + "\"";
-
-			if (!StringUtils.isAlphanumeric(name)
-					|| !StringUtils.isAllLowerCase(name))
-				name = "\"" + name + "\"";
-
-			return schema + "." + name;
-		}
-
-		throw new SQLException("Invalid Resultset");
-	}
-
-	private String getFullFunctionName(int oid) throws SQLException {
-		PreparedStatement stmt = conn.prepareStatement(FUNCTION_NAME);
-		stmt.setInt(1, oid);
-		ResultSet rs = stmt.executeQuery();
-
-		if (rs.next()) {
-			String schema = rs.getString("nspname");
-			String name = rs.getString("proname");
-			String args = rs.getString("args");
-
-			if (!StringUtils.isAlphanumeric(schema)
-					|| !StringUtils.isAllLowerCase(schema))
-				schema = "\"" + schema + "\"";
-
-			if (!StringUtils.isAlphanumeric(name)
-					|| !StringUtils.isAllLowerCase(name))
-				name = "\"" + name + "\"";
-
-			return schema + "." + name + "(" + args + ")";
-		}
-
-		throw new SQLException("Invalid Resultset");
-	}
-
-	private String getFullTypeName(int oid) throws SQLException {
-		PreparedStatement stmt = conn.prepareStatement(TYPE_NAME);
-		stmt.setInt(1, oid);
-		stmt.setInt(2, oid);
-		ResultSet rs = stmt.executeQuery();
-
-		if (rs.next()) {
-			String schema = rs.getString("nspname");
-			String name = rs.getString("typname");
-
-			if (!StringUtils.isAlphanumeric(schema)
-					|| !StringUtils.isAllLowerCase(schema))
-				schema = "\"" + schema + "\"";
-
-			if (!StringUtils.isAlphanumeric(name)
-					|| !StringUtils.isAllLowerCase(name))
-				name = "\"" + name + "\"";
-
-			return schema + "." + name;
-		}
-
-		throw new SQLException("Invalid Resultset");
-	}
-
-	public String getItemSchema(int item, ITEM_TYPE type) throws SQLException {
-		switch (type) {
-		case FOREIGN_TABLE:
-		case MATERIALIZED_VIEW:
-		case SEQUENCE:
-		case TABLE:
-		case VIEW:
-			return getClassSchema(item);
-		case FUNCTION:
-			return getFunctionSchema(item);
-		case TYPE:
-			return getTypeSchema(item);
-		}
-
-		throw new SQLException("Unknown Item Type");
-	}
-
-	private String getClassSchema(int oid) throws SQLException {
-		PreparedStatement stmt = conn.prepareStatement(CLASS_NAME);
-		stmt.setInt(1, oid);
-		ResultSet rs = stmt.executeQuery();
-
-		if (rs.next()) {
-			String schema = rs.getString("nspname");
-
-			if (StringUtils.isAlphanumeric(schema)
-					&& StringUtils.isAllLowerCase(schema))
-				return schema;
-
-			return "\"" + schema + "\"";
-		}
-
-		throw new SQLException("Invalid Resultset");
-	}
-
-	private String getFunctionSchema(int oid) throws SQLException {
-		PreparedStatement stmt = conn.prepareStatement(FUNCTION_NAME);
-		stmt.setInt(1, oid);
-		ResultSet rs = stmt.executeQuery();
-
-		if (rs.next()) {
-			String schema = rs.getString("nspname");
-
-			if (!StringUtils.isAlphanumeric(schema)
-					|| !StringUtils.isAllLowerCase(schema))
-				return schema;
-
-			return "\"" + schema + "\"";
-		}
-
-		throw new SQLException("Invalid Resultset");
-	}
-
-	private String getTypeSchema(int oid) throws SQLException {
-		PreparedStatement stmt = conn.prepareStatement(TYPE_NAME);
-		stmt.setInt(1, oid);
-		ResultSet rs = stmt.executeQuery();
-
-		if (rs.next()) {
-			String schema = rs.getString("nspname");
-
-			if (!StringUtils.isAlphanumeric(schema)
-					|| !StringUtils.isAllLowerCase(schema))
-				return schema;
-
-			return "\"" + schema + "\"";
-		}
-
-		throw new SQLException("Invalid Resultset");
-	}
-	
 	public String getItemFullName(long item, ITEM_TYPE type) throws SQLException {
 		switch (type) {
 		case FOREIGN_TABLE:
@@ -387,7 +228,7 @@ public class Database {
 
 		throw new SQLException("Unknown Item Type");
 	}
-	
+
 	private String getFullClassName(long oid) throws SQLException {
 		PreparedStatement stmt = conn.prepareStatement(CLASS_NAME);
 		stmt.setLong(1, oid);
@@ -458,7 +299,98 @@ public class Database {
 
 		throw new SQLException("Invalid Resultset");
 	}
-	
+
+	public String getItemSchema(long item, ITEM_TYPE type) throws SQLException {
+		switch (type) {
+		case FOREIGN_TABLE:
+		case MATERIALIZED_VIEW:
+		case SEQUENCE:
+		case TABLE:
+		case VIEW:
+			return getClassSchema(item);
+		case FUNCTION:
+			return getFunctionSchema(item);
+		case TYPE:
+			return getTypeSchema(item);
+		case DICTIONARY:
+			return getDictionarySchema(item);
+		}
+
+		throw new SQLException("Unknown Item Type");
+	}
+
+	private String getClassSchema(long oid) throws SQLException {
+		PreparedStatement stmt = conn.prepareStatement(CLASS_NAME);
+		stmt.setLong(1, oid);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			String schema = rs.getString("nspname");
+
+			if (StringUtils.isAlphanumeric(schema)
+					&& StringUtils.isAllLowerCase(schema))
+				return schema;
+
+			return "\"" + schema + "\"";
+		}
+
+		throw new SQLException("Invalid Resultset");
+	}
+
+	private String getFunctionSchema(long oid) throws SQLException {
+		PreparedStatement stmt = conn.prepareStatement(FUNCTION_NAME);
+		stmt.setLong(1, oid);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			String schema = rs.getString("nspname");
+
+			if (!StringUtils.isAlphanumeric(schema)
+					|| !StringUtils.isAllLowerCase(schema))
+				return schema;
+
+			return "\"" + schema + "\"";
+		}
+
+		throw new SQLException("Invalid Resultset");
+	}
+
+	private String getTypeSchema(long oid) throws SQLException {
+		PreparedStatement stmt = conn.prepareStatement(TYPE_NAME);
+		stmt.setLong(1, oid);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			String schema = rs.getString("nspname");
+
+			if (!StringUtils.isAlphanumeric(schema)
+					|| !StringUtils.isAllLowerCase(schema))
+				return schema;
+
+			return "\"" + schema + "\"";
+		}
+
+		throw new SQLException("Invalid Resultset");
+	}
+
+	private String getDictionarySchema(long oid) throws SQLException {
+		PreparedStatement stmt = conn.prepareStatement(DICTIONARY_NAME);
+		stmt.setLong(1, oid);
+		ResultSet rs = stmt.executeQuery();
+
+		if (rs.next()) {
+			String schema = rs.getString("schema");
+
+			if (!StringUtils.isAlphanumeric(schema)
+					|| !StringUtils.isAllLowerCase(schema))
+				return schema;
+
+			return "\"" + schema + "\"";
+		}
+
+		throw new SQLException("Invalid Resultset");
+	}
+
 	private String getDictionaryName(long oid) throws SQLException {
 		PreparedStatement stmt = conn.prepareStatement(DICTIONARY_NAME);
 		stmt.setLong(1, oid);
@@ -481,5 +413,5 @@ public class Database {
 
 		throw new SQLException("Invalid Resultset");
 	}
-	
+
 }

@@ -24,13 +24,17 @@ import com.openscg.pgstudio.client.models.StatsInfo;
 public class StatsListDataProvider extends AsyncDataProvider<StatsInfo> implements ModelListProvider {
 	private List<StatsInfo> statsList = new ArrayList<StatsInfo>();
 
-	private int item = -1;
+	public List<StatsInfo> getStatsList() {
+		return statsList;
+	}
+
+	private long item = -1;
 	private ITEM_TYPE type;
 
 	private final PgStudioServiceAsync studioService = GWT
 			.create(PgStudioService.class);
 
-	public void setItem(int item, ITEM_TYPE type) {
+	public void setItem(long item, ITEM_TYPE type) {
 		this.item = item;
 
 		getData();
@@ -102,10 +106,6 @@ public class StatsListDataProvider extends AsyncDataProvider<StatsInfo> implemen
 	public void setSchema(DatabaseObjectInfo schema) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	public List<StatsInfo> getStatsList() {
-		return statsList;
 	}
 
 }

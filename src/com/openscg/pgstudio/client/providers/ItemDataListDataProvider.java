@@ -126,7 +126,7 @@ import com.openscg.pgstudio.client.models.ModelInfo;
 				            	}
 	        				}
 
-			            	JSONValue results = JSONParser.parseStrict(result);
+			            	JSONValue results = JSONParser.parse(result);
 			            	JSONArray rows = results.isArray().get(0).isObject().get("resultset").isArray();
 			            	
 			            	for (int i = 0; i < rows.size(); i++) {

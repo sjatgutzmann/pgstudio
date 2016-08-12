@@ -275,23 +275,23 @@ public class AddSequencePopUp implements StudioModelPopUp {
 					boolean temp = temporaryBox.getValue();
 					boolean cycle = cycleBox.getValue();
 
-					int incr = 0;
-					int min = 0;
-					int max = 0;
-					int st = 0;
+					String incr = null;
+					String min = null;
+					String max = null;
+					String st = null;
 					int ca = 0;
 
 					if (!increment.getText().trim().equals("")) 
-						incr = Integer.parseInt(increment.getText());
+						incr = increment.getText();
 
 					if (!minValue.getText().trim().equals("")) 
-						min = Integer.parseInt(minValue.getText());
+						min = minValue.getText();
 
 					if (!maxValue.getText().trim().equals("")) 
-						max = Integer.parseInt(maxValue.getText());
+						max = maxValue.getText();
 
 					if (!start.getText().trim().equals("")) 
-						st = Integer.parseInt(start.getText());
+						st = start.getText();
 
 					if (!cache.getText().trim().equals("")) 
 						ca = Integer.parseInt(cache.getText());

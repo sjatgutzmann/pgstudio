@@ -14,7 +14,7 @@ public class ColumnInfo implements ModelInfo,Comparable<ColumnInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
@@ -24,8 +24,9 @@ public class ColumnInfo implements ModelInfo,Comparable<ColumnInfo> {
     private boolean distributionKey;
     private boolean primaryKey;
     private boolean nullable;
+    private String length;
     
-    public ColumnInfo(int schema, int id, String name) {
+    public ColumnInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -48,13 +49,13 @@ public class ColumnInfo implements ModelInfo,Comparable<ColumnInfo> {
     	return schema;
     }
     
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {
@@ -118,5 +119,15 @@ public class ColumnInfo implements ModelInfo,Comparable<ColumnInfo> {
 	public ITEM_TYPE getItemType() {
 		return null;
 	}
+
+	public String getLength() {
+		return length;
+	}
+
+	public void setLength(String length) {
+		this.length = length;
+	}
+	
+	
 
   }

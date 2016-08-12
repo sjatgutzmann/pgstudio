@@ -115,7 +115,7 @@ public class Privileges {
 		this.conn = conn;
 	}
 
-	public String getPrivileges(int item, ITEM_TYPE type) throws SQLException {
+	public String getPrivileges(long item, ITEM_TYPE type) throws SQLException {
 		if (type == null)
 			return "";
 
@@ -139,11 +139,11 @@ public class Privileges {
 		return "";
 	}
 
-	private String getCompositePrivs(int item) throws SQLException {
+	private String getCompositePrivs(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(COMPOSITE_PRIVS);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -160,11 +160,11 @@ public class Privileges {
 		return result.toString();
 	}
 
-	private String getDomainPrivs(int item) throws SQLException {
+	private String getDomainPrivs(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(DOMAIN_PRIVS);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -181,11 +181,11 @@ public class Privileges {
 		return result.toString();
 	}
 
-	private String getFunctionPrivs(int item) throws SQLException {
+	private String getFunctionPrivs(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(FUNCTION_PRIVS);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -202,11 +202,11 @@ public class Privileges {
 		return result.toString();
 	}
 
-	private String getRelationPrivs(int item) throws SQLException {
+	private String getRelationPrivs(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(RELATION_PRIVS);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -223,11 +223,11 @@ public class Privileges {
 		return result.toString();
 	}
 
-	private String getSequencePrivs(int item) throws SQLException {
+	private String getSequencePrivs(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(SEQUENCE_PRIVS);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -244,11 +244,11 @@ public class Privileges {
 		return result.toString();
 	}
 
-	private String getTablePrivs(int item) throws SQLException {
+	private String getTablePrivs(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(TABLE_PRIVS);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -265,12 +265,12 @@ public class Privileges {
 		return result.toString();
 	}
 
-	private String getTypePrivs(int item) throws SQLException {
+	private String getTypePrivs(long item) throws SQLException {
 		String result = "";
 
 		PreparedStatement stmt = conn.prepareStatement(TYPE_KIND);
-		stmt.setInt(1, item);
-		stmt.setInt(2, item);
+		stmt.setLong(1, item);
+		stmt.setLong(2, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -290,11 +290,11 @@ public class Privileges {
 		return result;
 	}
 
-	private String getViewPrivs(int item) throws SQLException {
+	private String getViewPrivs(long item) throws SQLException {
 		JSONArray result = new JSONArray();
 
 		PreparedStatement stmt = conn.prepareStatement(VIEW_PRIVS);
-		stmt.setInt(1, item);
+		stmt.setLong(1, item);
 
 		ResultSet rs = stmt.executeQuery();
 
@@ -311,7 +311,7 @@ public class Privileges {
 		return result.toString();
 	}
 
-	public String revoke(int item, ITEM_TYPE type, String privilege,
+	public String revoke(long item, ITEM_TYPE type, String privilege,
 			String grantee, boolean cascade) throws SQLException {
 
 		Database db = new Database(conn);
@@ -328,7 +328,7 @@ public class Privileges {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String grant(int item, ITEM_TYPE type, ArrayList<String> privileges,
+	public String grant(long item, ITEM_TYPE type, ArrayList<String> privileges,
 			String grantee) throws SQLException {
 
 		Database db = new Database(conn);

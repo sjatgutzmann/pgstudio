@@ -25,14 +25,14 @@ public class TriggerListDataProvider extends AsyncDataProvider<TriggerInfo>
 	private List<TriggerInfo> triggerList = new ArrayList<TriggerInfo>();
 
 	private int schema = -1;
-	private int item = -1;
+	private long item = -1;
 	private ITEM_TYPE type;
 
 	private final PgStudioServiceAsync studioService = GWT
 			.create(PgStudioService.class);
 
 	@Override
-	public void setItem(int schema, int item, ITEM_TYPE type) {
+	public void setItem(int schema, long item, ITEM_TYPE type) {
 		this.item = item;
 		this.schema = schema;
 		this.type = type;

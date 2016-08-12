@@ -33,8 +33,8 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.CellPreviewEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.openscg.pgstudio.client.PgStudio;
 import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudioService;
@@ -84,35 +84,43 @@ public class ForeignTablesPanel extends Composite implements MenuPanel {
 
 	private final PgStudio main;
 	
+	private VerticalPanel panel;
+	
+	private boolean isFirst = true;
+	
 	public void setSchema(DatabaseObjectInfo schema) {
 		this.schema = schema;
-		dataProvider.setSchema(schema);
+		//dataProvider.setSchema(schema);
 	}
 	
 	public ForeignTablesPanel(PgStudio main) {
 		this.main = main;
 		
-		VerticalPanel panel = new VerticalPanel();
+		panel = new VerticalPanel();
 		panel.setWidth("95%");
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
 		panel.add(getButtonBar());
-		panel.add(getTableList());
 		
-		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<ForeignTableInfo>() {
-			@Override
-			public void onCellPreview(CellPreviewEvent<ForeignTableInfo> event) {
-				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
-					if (dataGrid.getRowCount() == 1) {
-						ForeignTableInfo i = dataProvider.getList().get(0);
-
-						if (dataGrid.getSelectionModel().isSelected(i)) {
-							selectFirst();
-						}
-					}
-	            }
-			}
-		});
+		dataGrid = new DataGrid<ForeignTableInfo>(PgStudio.MAX_PANEL_ITEMS, ForeignTableInfo.KEY_PROVIDER);
+		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+		
+//		panel.add(getTableList());
+//		
+//		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<ForeignTableInfo>() {
+//			@Override
+//			public void onCellPreview(CellPreviewEvent<ForeignTableInfo> event) {
+//				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+//					if (dataGrid.getRowCount() == 1) {
+//						ForeignTableInfo i = dataProvider.getList().get(0);
+//
+//						if (dataGrid.getSelectionModel().isSelected(i)) {
+//							selectFirst();
+//						}
+//					}
+//	            }
+//			}
+//		});
 
 		initWidget(panel);
 	}
@@ -248,8 +256,8 @@ public class ForeignTablesPanel extends Composite implements MenuPanel {
 	}
 
 	private Widget getTableList() {
-		dataGrid = new DataGrid<ForeignTableInfo>(PgStudio.MAX_PANEL_ITEMS, ForeignTableInfo.KEY_PROVIDER);
-		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+		//dataGrid = new DataGrid<ForeignTableInfo>(PgStudio.MAX_PANEL_ITEMS, ForeignTableInfo.KEY_PROVIDER);
+		//dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
 		dataGrid.setLoadingIndicator(new Image(PgStudio.Images.spinner()));
 
 		Column<ForeignTableInfo, ImageResource> icon = addColumn(new ImageResourceCell(), "", new GetValue<ImageResource>() {
@@ -297,6 +305,28 @@ public class ForeignTablesPanel extends Composite implements MenuPanel {
 
 	public void refresh() {
 		dataProvider.setSchema(schema);
+		
+		if(isFirst){
+			isFirst = false;
+			panel.add(getTableList());
+			
+			dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<ForeignTableInfo>() {
+				@Override
+				public void onCellPreview(CellPreviewEvent<ForeignTableInfo> event) {
+					if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+						if (dataGrid.getRowCount() == 1) {
+							ForeignTableInfo i = dataProvider.getList().get(0);
+	
+							if (dataGrid.getSelectionModel().isSelected(i)) {
+								selectFirst();
+							}
+						}
+		            }
+				}
+			});
+		}
+		
+		selectFirst();
 	}
 
 	@Override

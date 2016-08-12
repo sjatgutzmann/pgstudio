@@ -18,13 +18,13 @@ public class TypeInfo implements ModelInfo, Comparable<TypeInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
     private TYPE_KIND kind;
     
-    public TypeInfo(int schema, int id, String name) {
+    public TypeInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -43,13 +43,13 @@ public class TypeInfo implements ModelInfo, Comparable<TypeInfo> {
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

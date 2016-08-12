@@ -10,7 +10,7 @@ public interface ModelInfo {
 	
 	public String getName();
 	
-	public int getId();
+	public long getId();
 	
 	public ITEM_TYPE getItemType();
 	

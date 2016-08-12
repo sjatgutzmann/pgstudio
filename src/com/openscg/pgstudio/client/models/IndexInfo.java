@@ -14,7 +14,7 @@ public class IndexInfo implements ModelInfo, Comparable<IndexInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
@@ -26,7 +26,7 @@ public class IndexInfo implements ModelInfo, Comparable<IndexInfo> {
     private boolean primaryKey;
     private String definition;
     
-    public IndexInfo(int schema, int id, String name) {
+    public IndexInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -85,13 +85,13 @@ public class IndexInfo implements ModelInfo, Comparable<IndexInfo> {
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

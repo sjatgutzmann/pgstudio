@@ -28,7 +28,7 @@ public class ItemData {
 		this.conn = conn;
 	}
 	
-	public String getData(int item, ITEM_TYPE type, int count) throws SQLException {
+	public String getData(long item, ITEM_TYPE type, int count) throws SQLException {
 		if (type != ITEM_TYPE.TABLE && type != ITEM_TYPE.VIEW && type != ITEM_TYPE.FOREIGN_TABLE) {
 			return "";
 		}

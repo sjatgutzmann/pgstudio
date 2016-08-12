@@ -14,14 +14,14 @@ public class ViewInfo implements ModelInfo, Comparable<ViewInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
     private boolean materialized;
     private String comment;
     
-    public ViewInfo(int schema, int id, String name) {
+    public ViewInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -40,13 +40,13 @@ public class ViewInfo implements ModelInfo, Comparable<ViewInfo> {
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

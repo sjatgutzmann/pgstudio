@@ -18,7 +18,7 @@ public class TableInfo implements ModelInfo, Comparable<TableInfo> {
     	HASH_PARTITIONED, REPLICATED, UNKNOWN
     }
     
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
@@ -28,7 +28,7 @@ public class TableInfo implements ModelInfo, Comparable<TableInfo> {
     private boolean hasRowSecurity;
     private boolean forceRowSecurity;
     
-    public TableInfo(int schema, int id, String name) {
+    public TableInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -47,13 +47,13 @@ public class TableInfo implements ModelInfo, Comparable<TableInfo> {
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

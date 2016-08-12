@@ -14,7 +14,7 @@ public class RuleInfo implements ModelInfo,Comparable<RuleInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
@@ -24,7 +24,7 @@ public class RuleInfo implements ModelInfo,Comparable<RuleInfo> {
     private String definition;
     
     
-    public RuleInfo(int schema, int id, String name) {
+    public RuleInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -43,13 +43,13 @@ public class RuleInfo implements ModelInfo,Comparable<RuleInfo> {
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

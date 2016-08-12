@@ -28,7 +28,7 @@ public class FTSConfigurationDetailsInfo implements ModelInfo,Comparable<FTSConf
 		this.name = name;
 		this.configName = name;
 	}
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 	public int getSchema() {

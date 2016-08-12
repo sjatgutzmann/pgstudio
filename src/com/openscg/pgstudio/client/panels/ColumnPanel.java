@@ -6,18 +6,23 @@ package com.openscg.pgstudio.client.panels;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.ImageResourceCell;
+import com.google.gwt.cell.client.TextButtonCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -31,6 +36,7 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.models.ColumnInfo;
 import com.openscg.pgstudio.client.models.ModelInfo;
 import com.openscg.pgstudio.client.panels.popups.AddColumnPopUp;
+import com.openscg.pgstudio.client.panels.popups.AlterColumnPopUp;
 import com.openscg.pgstudio.client.panels.popups.DropItemObjectPopUp;
 import com.openscg.pgstudio.client.panels.popups.PopUpException;
 import com.openscg.pgstudio.client.panels.popups.RenameItemObjectPopUp;
@@ -39,39 +45,41 @@ import com.openscg.pgstudio.client.providers.ColumnListDataProvider;
 public class ColumnPanel extends Composite implements DetailsPanel {
 
 	private static interface GetValue<C> {
-		C getValue(ColumnInfo column);
-	}
+	    C getValue(ColumnInfo column);
+	  }
 
 	private DataGrid<ColumnInfo> dataGrid;
-
+    
 	private ColumnListDataProvider dataProvider = new ColumnListDataProvider();
 
-	private final SingleSelectionModel<ColumnInfo> selectionModel = 
-			new SingleSelectionModel<ColumnInfo>(ColumnInfo.KEY_PROVIDER);
-
+    private final SingleSelectionModel<ColumnInfo> selectionModel = 
+        	new SingleSelectionModel<ColumnInfo>(ColumnInfo.KEY_PROVIDER);
+	
 	PushButton create = null;
 	Label commentLbl = null;
 	TextArea itemComment = null;
 	TextArea colComment = null;
 
-	private ColumnListDataProvider columnListDataProvider = new ColumnListDataProvider();
-
-	private ModelInfo item = null;
+    private ColumnListDataProvider columnListDataProvider = new ColumnListDataProvider();
+    
+    private ModelInfo item = null;
 
 	private String TEXT_WIDTH = "300px";
-
+	
 	private String MAIN_HEIGHT = "300px";
-
+	
 	public static int ROWS_PER_PAGE = 10;
-
+	
 	public static int MAX_COLUMNS = 1600;
-
+	
+	private AlterColumnPopUp alterPopUp;
+	
 	public void setItem(ModelInfo item) {
 		if (item == null)
 			return;
-
+		
 		this.item = item;
-
+		
 		if (item.getComment() != null)
 			itemComment.setText(item.getComment());
 		else
@@ -95,34 +103,36 @@ public class ColumnPanel extends Composite implements DetailsPanel {
 				create.setVisible(false);
 			}
 		}
-
+		
 		dataProvider.setItem(item.getSchema(), item.getId(), item.getItemType());
 	}
-
+	
 	public ColumnPanel() {
-
+		
 		VerticalPanel panel = new VerticalPanel();
 
 		panel.add(getButtonBar());
 		panel.add(getMainPanel());
 		panel.add(getCommentSection());
-
+				
 		initWidget(panel);
 	}
 
 	private Widget getButtonBar() {
 		HorizontalPanel bar = new HorizontalPanel();
-
+		
 		PushButton refresh = getRefreshButton();
 		PushButton drop = getDropButton();
 		PushButton rename = getRenameButton();
+		PushButton alter = getAlterButton();
+		
 		create = getCreateButton();
 
 		bar.add(refresh);
 		bar.add(rename);		
 		bar.add(drop);
 		bar.add(create);
-
+		bar.add(alter);
 		return bar.asWidget();
 	}
 
@@ -137,7 +147,7 @@ public class ColumnPanel extends Composite implements DetailsPanel {
 		});
 		return button;
 	}
-
+	
 	private PushButton getDropButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.drop()));
 		button.setTitle("Drop Column");
@@ -210,62 +220,84 @@ public class ColumnPanel extends Composite implements DetailsPanel {
 		return button;
 	}
 
+	private PushButton getAlterButton() {
+		PushButton button = new PushButton(new Image(PgStudio.Images.edit()));		
+		button.setTitle("Alter Column");
+		button.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				if(selectionModel.getSelectedObject() != null && !"".equals(selectionModel.getSelectedObject().getName())){
+					AlterColumnPopUp pop = new AlterColumnPopUp(selectionModel.getSelectedObject(), true);
+					pop.setSelectionModel(selectionModel);
+					pop.setDataProvider(dataProvider);
+					pop.setItem(item);
+					try {
+						DialogBox box = pop.getDialogBox();		
+						box.addCloseHandler(getAddColumnPopUpCloseHandler());
+					} catch (PopUpException caught) {
+						Window.alert(caught.getMessage());
+					}
+				}
+			}			
+		});
+		return button;
+	}
 	private Widget getMainPanel() {
 		SimplePanel panel = new SimplePanel();
 		panel.setWidth("100%");
 		panel.setHeight("100%");
-
+		
 		dataGrid = new DataGrid<ColumnInfo>(MAX_COLUMNS, ColumnInfo.KEY_PROVIDER);
 		dataGrid.setHeight(MAIN_HEIGHT);
-
+		
 		Column<ColumnInfo, String> columnName = addColumn(new TextCell(), "Column Name", new GetValue<String>() {
-			public String getValue(ColumnInfo column) {
-				return column.getName();
-			}
-		}, null);
+	        public String getValue(ColumnInfo column) {
+	          return column.getName();
+	        }
+	      }, null);
 
 		Column<ColumnInfo, ImageResource> distributionKey = addColumn(new ImageResourceCell(), "DK", new GetValue<ImageResource>() {
-			public ImageResource getValue(ColumnInfo column) {
-				if (column.isDistributionKey()) {
-					return PgStudio.Images.distributionKey();
-				}
-				return null;
-			}
-		}, null);
+	        public ImageResource getValue(ColumnInfo column) {
+	        	if (column.isDistributionKey()) {
+	        		return PgStudio.Images.distributionKey();
+	        	}
+	          return null;
+	        }
+	      }, null);
 
 		Column<ColumnInfo, ImageResource> primaryKey = addColumn(new ImageResourceCell(), "PK", new GetValue<ImageResource>() {
-			public ImageResource getValue(ColumnInfo column) {
-				if (column.isPrimaryKey()) {
-					return PgStudio.Images.primaryKey();
-				}
-				return null;
-			}
-		}, null);
+	        public ImageResource getValue(ColumnInfo column) {
+	        	if (column.isPrimaryKey()) {
+	        		return PgStudio.Images.primaryKey();
+	        	}
+	          return null;
+	        }
+	      }, null);
 
 		Column<ColumnInfo, String> dataType = addColumn(new TextCell(), "Data Type", new GetValue<String>() {
-			public String getValue(ColumnInfo column) {
-				return column.getDataType();
-			}
-		}, null);
+	        public String getValue(ColumnInfo column) {
+	          return column.getDataType();
+	        }
+	      }, null);
 
 		Column<ColumnInfo, ImageResource> nullable = addColumn(new ImageResourceCell(), "Nullable", new GetValue<ImageResource>() {
-			public ImageResource getValue(ColumnInfo column) {
-				if (column.getName() == null) {
-					return null;
-				}
+	        public ImageResource getValue(ColumnInfo column) {
+	        	if (column.getName() == null) {
+	        		return null;
+	        	}
 
-				if (!column.isNullable()) {
-					return PgStudio.Images.nullable();
-				}
-				return null;
-			}
-		}, null);
+	        	if (!column.isNullable()) {
+	        		return PgStudio.Images.nullable();
+	        	}
+	          return null;
+	        }
+	      }, null);
 
 		Column<ColumnInfo, String> defaultCol = addColumn(new TextCell(), "Default", new GetValue<String>() {
-			public String getValue(ColumnInfo column) {
-				return column.getDefault();
-			}
-		}, null);
+	        public String getValue(ColumnInfo column) {
+	          return column.getDefault();
+	        }
+	      }, null); 
 
 
 		dataGrid.setColumnWidth(columnName, "170px");
@@ -283,46 +315,46 @@ public class ColumnPanel extends Composite implements DetailsPanel {
 		dataProvider.addDataDisplay(dataGrid);
 
 		panel.add(dataGrid);
-
+		
 		dataGrid.setSelectionModel(selectionModel);
 		selectionModel.addSelectionChangeHandler((new 
 				SelectionChangeEvent.Handler() {
-			@Override
-			public void onSelectionChange(SelectionChangeEvent event) {
-				ColumnInfo index = selectionModel.getSelectedObject();
-				columnListDataProvider.setItem(index.getSchema(), index.getId(), index.getItemType());
-
-				if (colComment != null)
-					colComment.setText(index.getComment());
-			}			
+					@Override
+					public void onSelectionChange(SelectionChangeEvent event) {
+						ColumnInfo index = selectionModel.getSelectedObject();
+						columnListDataProvider.setItem(index.getSchema(), index.getId(), index.getItemType());
+						
+						if (colComment != null)
+							colComment.setText(index.getComment());
+					}			
 		}));
-
+		
 		return panel.asWidget();
 	}
-
+	
 
 	private <C> Column<ColumnInfo, C> addColumn(Cell<C> cell, String headerText,
-			final GetValue<C> getter, FieldUpdater<ColumnInfo, C> fieldUpdater) {
-		Column<ColumnInfo, C> column = new Column<ColumnInfo, C>(cell) {
-			@Override
-			public C getValue(ColumnInfo object) {
-				return getter.getValue(object);
-			}
-		};
-		column.setFieldUpdater(fieldUpdater);
+		      final GetValue<C> getter, FieldUpdater<ColumnInfo, C> fieldUpdater) {
+		    Column<ColumnInfo, C> column = new Column<ColumnInfo, C>(cell) {
+		      @Override
+		      public C getValue(ColumnInfo object) {
+		        return getter.getValue(object);
+		      }
+		    };
+		    column.setFieldUpdater(fieldUpdater);
 
-		dataGrid.addColumn(column, headerText);
-		return column;
+		    dataGrid.addColumn(column, headerText);
+		    return column;
 	}
 
 	private Widget getCommentSection() {
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setWidth("100%");
 		panel.setStyleName("studio-Bottom-Panel");
-
+		
 		VerticalPanel left = new VerticalPanel();
 		left.setWidth("95%");
-
+		
 		commentLbl = new Label();		
 		commentLbl.setText("Comment");
 		commentLbl.setStyleName("studio-Label-Small");
@@ -331,7 +363,7 @@ public class ColumnPanel extends Composite implements DetailsPanel {
 		itemComment.setWidth("100%");
 		itemComment.setVisibleLines(3);
 		itemComment.setReadOnly(true);
-
+				
 		left.add(commentLbl);
 		left.add(itemComment);
 
@@ -346,23 +378,37 @@ public class ColumnPanel extends Composite implements DetailsPanel {
 		colComment.setWidth("100%");
 		colComment.setVisibleLines(3);
 		colComment.setReadOnly(true);
-
+		
 		right.add(rightLbl);
 		right.add(colComment);
-
+		
 		panel.add(left);
 		panel.add(PgStudio.filler);
 		panel.add(right);
-
+				
 		return panel.asWidget();
 	}
-
+	
 	@Override
 	public void refresh() {
 		dataProvider.setItem(item.getSchema(), item.getId(), item.getItemType());
 	}
+	
+	private CloseHandler<PopupPanel> getAddColumnPopUpCloseHandler() {
+		CloseHandler<PopupPanel> handler = new CloseHandler<PopupPanel>() {
 
+			@Override
+			public void onClose(CloseEvent<PopupPanel> event) {
+				selectionModel.clear();
+			}
+		};
+		
+		return handler;
+	}
+	
 	public void clearColumnData() {
+		
 		dataProvider.clearColumnData();
+		
 	}
 }

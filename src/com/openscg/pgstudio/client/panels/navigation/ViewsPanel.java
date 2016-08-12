@@ -62,36 +62,44 @@ public class ViewsPanel extends Composite implements MenuPanel {
         
 	private final PgStudio main;
 	
+	private VerticalPanel panel;
+	
+	private boolean isFirst = true;
+	
 	public void setSchema(DatabaseObjectInfo schema) {
 		this.schema = schema;
-		dataProvider.setSchema(schema);
+		//dataProvider.setSchema(schema);
 	}
 	
 	public ViewsPanel(final PgStudio main) {
 		this.main = main;
 		
-		VerticalPanel panel = new VerticalPanel();
+		panel = new VerticalPanel();
 		panel.setWidth("95%");
 
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
 		panel.add(getButtonBar());
-		panel.add(getViewList());		
-						
-		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<ViewInfo>() {
-			@Override
-			public void onCellPreview(CellPreviewEvent<ViewInfo> event) {
-				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
-					if (dataGrid.getRowCount() == 1) {
-						ViewInfo i = dataProvider.getList().get(0);
-
-						if (dataGrid.getSelectionModel().isSelected(i)) {
-							selectFirst();
-						}
-					}
-	            }
-			}
-		});
+		
+		dataGrid = new DataGrid<ViewInfo>(PgStudio.MAX_PANEL_ITEMS, ViewInfo.KEY_PROVIDER);
+		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+		
+//		panel.add(getViewList());		
+//						
+//		dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<ViewInfo>() {
+//			@Override
+//			public void onCellPreview(CellPreviewEvent<ViewInfo> event) {
+//				if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+//					if (dataGrid.getRowCount() == 1) {
+//						ViewInfo i = dataProvider.getList().get(0);
+//
+//						if (dataGrid.getSelectionModel().isSelected(i)) {
+//							selectFirst();
+//						}
+//					}
+//	            }
+//			}
+//		});
 		
 		initWidget(panel);
 	}
@@ -235,8 +243,8 @@ public class ViewsPanel extends Composite implements MenuPanel {
 	}
 
 	private Widget getViewList() {
-		dataGrid = new DataGrid<ViewInfo>(PgStudio.MAX_PANEL_ITEMS, ViewInfo.KEY_PROVIDER);
-		dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
+		//dataGrid = new DataGrid<ViewInfo>(PgStudio.MAX_PANEL_ITEMS, ViewInfo.KEY_PROVIDER);
+		//dataGrid.setHeight(PgStudio.LEFT_PANEL_HEIGHT);
 
 	
 		Column<ViewInfo, ImageResource> icon = addColumn(new ImageResourceCell(), "", new GetValue<ImageResource>() {
@@ -295,7 +303,30 @@ public class ViewsPanel extends Composite implements MenuPanel {
 	}
 
 	public void refresh() {
+		
 		dataProvider.setSchema(schema);
+		
+		if(isFirst){
+			isFirst = false;
+			panel.add(getViewList());		
+			
+			dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<ViewInfo>() {
+				@Override
+				public void onCellPreview(CellPreviewEvent<ViewInfo> event) {
+					if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+						if (dataGrid.getRowCount() == 1) {
+							ViewInfo i = dataProvider.getList().get(0);
+	
+							if (dataGrid.getSelectionModel().isSelected(i)) {
+								selectFirst();
+							}
+						}
+		            }
+				}
+			});
+		}
+		
+		selectFirst();
 	}
 
 	@Override

@@ -31,17 +31,17 @@ public class Triggers {
 		this.conn = conn;
 	}
 	
-	public String getList(int item) {
+	public String getList(long item) {
 		JSONArray result = new JSONArray();
 		
 		try {
 			PreparedStatement stmt = conn.prepareStatement(TRIGGER_LIST);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			ResultSet rs = stmt.executeQuery();
 			
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 				jsonMessage.put("name", rs.getString(2));
 								
 				jsonMessage.put("deferrable", Boolean.toString(rs.getBoolean(3)));
@@ -59,7 +59,7 @@ public class Triggers {
 		return result.toString();
 	}
 
-	public String drop(int item, String triggerName) throws SQLException{
+	public String drop(long item, String triggerName) throws SQLException{
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -69,7 +69,7 @@ public class Triggers {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String rename(int item, String oldName, String newName) throws SQLException{
+	public String rename(long item, String oldName, String newName) throws SQLException{
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -79,7 +79,7 @@ public class Triggers {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String createTrigger(int item, ITEM_TYPE type, String triggerName,
+	public String createTrigger(long item, ITEM_TYPE type, String triggerName,
 			String event, String triggerType, String forEach,
 			String function) throws SQLException {
 

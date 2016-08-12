@@ -32,17 +32,17 @@ public class Constraints {
 		this.conn = conn;
 	}
 
-	public String getList(int item) {
+	public String getList(long item) {
 		JSONArray result = new JSONArray();
 
 		try {
 			PreparedStatement stmt = conn.prepareStatement(CONSTRAINT_LIST);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));				
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));				
 				jsonMessage.put("name", rs.getString(1));
 				jsonMessage.put("type", rs.getString(2));
 				jsonMessage.put("deferrable",
@@ -64,7 +64,7 @@ public class Constraints {
 		return result.toString();
 	}
 
-	public String drop(int item, String constraintsName) throws SQLException {
+	public String drop(long item, String constraintsName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
 
@@ -75,7 +75,7 @@ public class Constraints {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String rename(int item, String oldName, String newName)
+	public String rename(long item, String oldName, String newName)
 			throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
@@ -87,7 +87,7 @@ public class Constraints {
 		return qe.executeUtilityCommand(command);
 	}
 
-	public String createUniqueConstraint(int item, String constraintName,
+	public String createUniqueConstraint(long item, String constraintName,
 			boolean isPrimaryKey, ArrayList<String> columnList)
 			throws SQLException {
 
@@ -119,7 +119,7 @@ public class Constraints {
 		return qe.executeUtilityCommand(command.toString());
 	}
 
-	public String createCheckConstraint(int item, String constraintName,
+	public String createCheckConstraint(long item, String constraintName,
 			String definition) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.TABLE);
@@ -138,7 +138,7 @@ public class Constraints {
 		return qe.executeUtilityCommand(command.toString());
 	}
 
-	public String createForeignKeyConstraint(int item, String constraintName,
+	public String createForeignKeyConstraint(long item, String constraintName,
 			ArrayList<String> columnList, String referenceTable,
 			ArrayList<String> referenceList) throws SQLException {
 

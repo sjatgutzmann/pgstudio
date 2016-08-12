@@ -36,17 +36,17 @@ public class Indexes {
 		this.conn = conn;
 	}
 
-	public String getList(int item) {
+	public String getList(long item) {
 		JSONArray result = new JSONArray();
 		
 		try {
 			PreparedStatement stmt = conn.prepareStatement(INDEX_LIST);
-			stmt.setInt(1, item);
+			stmt.setLong(1, item);
 			ResultSet rs = stmt.executeQuery();
 			
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));				
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));				
 				jsonMessage.put("name", rs.getString("indexname"));
 				jsonMessage.put("owner", rs.getString("indexowner"));
 				jsonMessage.put("access_method", rs.getString("amname"));
@@ -68,7 +68,7 @@ public class Indexes {
 		return result.toString();
 	}
 	
-	public String create(int item, String indexName,
+	public String create(long item, String indexName,
 			INDEX_TYPE indexType, boolean isUnique, boolean isConcurrently,
 			ArrayList<String> columnList) throws SQLException {
 
@@ -102,7 +102,7 @@ public class Indexes {
 		return qe.executeUtilityCommand(cmd.toString());
 	}
 
-	public String drop(int item, String indexName) throws SQLException {
+	public String drop(long item, String indexName) throws SQLException {
 		Database db = new Database(conn);
 		String schema = db.getItemSchema(item, ITEM_TYPE.TABLE);
 		
@@ -112,7 +112,7 @@ public class Indexes {
 		return qe.executeUtilityCommand(command);
 	}
 	
-	public String rename(int item, String oldName, String newName) throws SQLException{
+	public String rename(long item, String oldName, String newName) throws SQLException{
 		Database db = new Database(conn);
 		String schema = db.getItemSchema(item, ITEM_TYPE.TABLE);
 

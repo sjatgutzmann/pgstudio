@@ -15,6 +15,7 @@ import com.openscg.pgstudio.client.PgStudio.ITEM_TYPE;
 import com.openscg.pgstudio.client.PgStudio.TYPE_FORM;
 import com.openscg.pgstudio.shared.DatabaseConnectionException;
 import com.openscg.pgstudio.shared.PostgreSQLException;
+import com.openscg.pgstudio.shared.dto.AlterColumnRequest;
 import com.openscg.pgstudio.shared.dto.AlterDomainRequest;
 import com.openscg.pgstudio.shared.dto.AlterFunctionRequest;
 import com.openscg.pgstudio.shared.dto.DomainDetails;
@@ -39,13 +40,13 @@ public interface PgStudioServiceAsync {
 	void getTriggerFunctionList(String connectionToken, int schema, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 	
-	void getItemObjectList(String connectionToken, int item, ITEM_TYPE type, ITEM_OBJECT_TYPE object, AsyncCallback<String> callback)
+	void getItemObjectList(String connectionToken, long item, ITEM_TYPE type, ITEM_OBJECT_TYPE object, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 
-	void getItemMetaData(String connectionToken, int item, ITEM_TYPE type, AsyncCallback<String> callback)
+	void getItemMetaData(String connectionToken, long item, ITEM_TYPE type, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 
-	void getItemData(String connectionToken, int item, ITEM_TYPE type, int count, AsyncCallback<String> callback)
+	void getItemData(String connectionToken, long item, ITEM_TYPE type, int count, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 
 	void getQueryMetaData(String connectionToken, String query, AsyncCallback<String> callback)
@@ -54,25 +55,25 @@ public interface PgStudioServiceAsync {
 	void executeQuery(String connectionToken, String query, String queryType, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 
-	void dropItem(String connectionToken, int item, ITEM_TYPE type, boolean cascade, AsyncCallback<String> callback) 
+	void dropItem(String connectionToken, long item, ITEM_TYPE type, boolean cascade, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void analyze(String connectionToken, int item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex, AsyncCallback<String> callback) 
+	void analyze(String connectionToken, long item, ITEM_TYPE type, boolean vacuum, boolean vacuumFull, boolean reindex, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void renameItem(String connectionToken, int item, ITEM_TYPE type, String newName, AsyncCallback<String> callback) 
+	void renameItem(String connectionToken, long item, ITEM_TYPE type, String newName, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void truncate(String connectionToken, int item, ITEM_TYPE type, AsyncCallback<String> callback) 
+	void truncate(String connectionToken, long item, ITEM_TYPE type, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void createIndex(String connectionToken, int item, String indexName, INDEX_TYPE indexType, boolean isUnique, boolean isConcurrently, ArrayList<String> columnList, AsyncCallback<String> callback) 
+	void createIndex(String connectionToken, long item, String indexName, INDEX_TYPE indexType, boolean isUnique, boolean isConcurrently, ArrayList<String> columnList, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 
-	void dropItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType, AsyncCallback<String> callback) 
+	void dropItemObject(String connectionToken, long item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 
-	void renameItemObject(String connectionToken, int item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType, String newObjectName, AsyncCallback<String> callback) 
+	void renameItemObject(String connectionToken, long item, ITEM_TYPE type, String objectName, ITEM_OBJECT_TYPE objType, String newObjectName, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 
 	void renameSchema(String connectionToken, String oldSchema, String schema, AsyncCallback<String> callback) 
@@ -90,7 +91,7 @@ public interface PgStudioServiceAsync {
 	void createView(String connectionToken, String schema, String viewName, String definition, String comment, boolean isMaterialized, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 
-	void createColumn(String connectionToken, int item, String columnName, String datatype, String comment, boolean not_null, String defaultval, AsyncCallback<String> callback)
+	void createColumn(String connectionToken, long item, String columnName, String datatype, String comment, boolean not_null, String defaultval, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 
 	void createTable(String connectionToken, int schema, String tableName, boolean unlogged, boolean temporary, String fill, ArrayList<String> col_list,  HashMap<Integer,String> commentLog, ArrayList<String> col_index, AsyncCallback<String> callback)
@@ -98,16 +99,16 @@ public interface PgStudioServiceAsync {
 
 	void createTableLike(String connectionToken, int schema, String tableName, String source, boolean defaults, boolean constraints, boolean indexes, AsyncCallback<String> callback) throws DatabaseConnectionException, PostgreSQLException;
 
-	void createUniqueConstraint(String connectionToken, int item, String constraintName, boolean isPrimaryKey, ArrayList<String> columnList, AsyncCallback<String> callback)
+	void createUniqueConstraint(String connectionToken, long item, String constraintName, boolean isPrimaryKey, ArrayList<String> columnList, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 	
-	void createCheckConstraint(String connectionToken, int item, String constraintName, String definition, AsyncCallback<String> callback)
+	void createCheckConstraint(String connectionToken, long item, String constraintName, String definition, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 	
-	void createForeignKeyConstraint(String connectionToken, int item, String constraintName, ArrayList<String> columnList, String referenceTable, ArrayList<String> referenceList, AsyncCallback<String> callback)
+	void createForeignKeyConstraint(String connectionToken, long item, String constraintName, ArrayList<String> columnList, String referenceTable, ArrayList<String> referenceList, AsyncCallback<String> callback)
 			throws IllegalArgumentException;
 			
-	void createSequence(String connectionToken, int schema, String sequenceName, boolean temporary, int increment, int minValue, int maxValue, int start, int cache, boolean cycle, AsyncCallback<String> callback) 
+	void createSequence(String connectionToken, int schema, String sequenceName, boolean temporary, String increment, String minValue, String maxValue, String start, int cache, boolean cycle, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
 	void createFunction(String connectionToken, AlterFunctionRequest funcRequest, AsyncCallback<String> callback)
@@ -122,25 +123,25 @@ public interface PgStudioServiceAsync {
 	void refreshMaterializedView(String connectionToken, String schema, String viewName, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 
-	void createRule(String connectionToken, int item, ITEM_TYPE type, String ruleName, String event, String ruleType, String definition, AsyncCallback<String> callback) 
+	void createRule(String connectionToken, long item, ITEM_TYPE type, String ruleName, String event, String ruleType, String definition, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void createTrigger(String connectionToken, int item, ITEM_TYPE type, String triggerName, String event, String triggerType, String forEach, String function, AsyncCallback<String> callback) 
+	void createTrigger(String connectionToken, long item, ITEM_TYPE type, String triggerName, String event, String triggerType, String forEach, String function, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 	
-	void revoke(String connectionToken, int item, ITEM_TYPE type, String privilege, String grantee, boolean cascade, AsyncCallback<String> callback) 
+	void revoke(String connectionToken, long item, ITEM_TYPE type, String privilege, String grantee, boolean cascade, AsyncCallback<String> callback) 
 					throws IllegalArgumentException;
 			
-	void grant(String connectionToken, int item, ITEM_TYPE type, ArrayList<String> privileges, String grantee, AsyncCallback<String> callback) 
+	void grant(String connectionToken, long item, ITEM_TYPE type, ArrayList<String> privileges, String grantee, AsyncCallback<String> callback) 
 			throws IllegalArgumentException;
 
 	void getActivity(String connectionToken, AsyncCallback<String> callback)
 	        throws IllegalArgumentException;
 
-	void configureRowSecurity(String connectionToken, int item, boolean hasRowSecurity, boolean forceRowSecurity, AsyncCallback<String> callback)
+	void configureRowSecurity(String connectionToken, long item, boolean hasRowSecurity, boolean forceRowSecurity, AsyncCallback<String> callback)
 	        throws IllegalArgumentException;
 
-	void createPolicy(String connectionToken, int item, String policyName, String cmd, String role, String using, String withCheck, AsyncCallback<String> callback)
+	void createPolicy(String connectionToken, long item, String policyName, String cmd, String role, String using, String withCheck, AsyncCallback<String> callback)
 	        throws IllegalArgumentException;
 	
 	void doLogout(String connectionToken, String source, AsyncCallback<Void> asyncCallback) throws IllegalArgumentException;
@@ -210,4 +211,7 @@ public interface PgStudioServiceAsync {
 
 	void alterDomain(String connectionToken, int schema, AlterDomainRequest request, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
 
-}
+        void createItemData(String connectionToken, int schema, String tableName, ArrayList<String>colNames, ArrayList<String> values, AsyncCallback<String> callback) throws IllegalArgumentException, DatabaseConnectionException, PostgreSQLException;
+	
+	void alterColumn(String connectionToken, long item, AlterColumnRequest command, AsyncCallback<String> asyncCallback) throws DatabaseConnectionException, PostgreSQLException;
+	}

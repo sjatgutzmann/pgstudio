@@ -14,11 +14,11 @@ public class SequenceInfo implements ModelInfo, Comparable<SequenceInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
         
-    public SequenceInfo(int schema, int id, String name) {
+    public SequenceInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;
@@ -38,13 +38,13 @@ public class SequenceInfo implements ModelInfo, Comparable<SequenceInfo> {
     }
 
     @Override
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

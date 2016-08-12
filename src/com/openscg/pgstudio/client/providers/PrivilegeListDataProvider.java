@@ -24,14 +24,14 @@ public class PrivilegeListDataProvider extends AsyncDataProvider<PrivilegeInfo>
 		implements ItemListProvider {
 	private List<PrivilegeInfo> privList = new ArrayList<PrivilegeInfo>();
 
-	private int item = -1;
+	private long item = -1;
 	private int schema = -1;
 	private ITEM_TYPE type;
 
 	private final PgStudioServiceAsync studioService = GWT
 			.create(PgStudioService.class);
 
-	public void setItem(int schema, int item, ITEM_TYPE type) {
+	public void setItem(int schema, long item, ITEM_TYPE type) {
 		this.item = item;
 		this.schema = schema;
 		this.type = type;

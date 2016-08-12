@@ -14,7 +14,7 @@ public class ConstraintInfo implements ModelInfo, Comparable<ConstraintInfo> {
       }
     };
 
-    private final int id;
+    private final long id;
     private final int schema;
     private final String name;
     
@@ -28,7 +28,7 @@ public class ConstraintInfo implements ModelInfo, Comparable<ConstraintInfo> {
     private String updateType;
     
     
-	public ConstraintInfo(int schema, int id, String name) {
+	public ConstraintInfo(int schema, long id, String name) {
     	this.schema = schema;
         this.id = id;
         this.name = name;;
@@ -114,13 +114,13 @@ public class ConstraintInfo implements ModelInfo, Comparable<ConstraintInfo> {
       return false;
     }
 
-    public int getId() {
+    public long getId() {
       return this.id;
     }
 
     @Override
     public int hashCode() {
-      return id;
+      return (int) id;
     }
 
 	public String getName() {

@@ -20,7 +20,7 @@ public class ItemMetaData {
 		this.conn = conn;
 	}
 	
-	public String getMetaData(int item, ITEM_TYPE type) throws SQLException {
+	public String getMetaData(long item, ITEM_TYPE type) throws SQLException {
 		if (type != ITEM_TYPE.TABLE && type != ITEM_TYPE.VIEW && type != ITEM_TYPE.FOREIGN_TABLE) {
 			return "";
 		}

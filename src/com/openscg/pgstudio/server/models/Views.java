@@ -41,7 +41,7 @@ public class Views {
 			
 			while (rs.next()) {
 				JSONObject jsonMessage = new JSONObject();
-				jsonMessage.put("id", Integer.toString(rs.getInt("oid")));
+				jsonMessage.put("id", Long.toString(rs.getLong("oid")));
 
 				jsonMessage.put("name", rs.getString("relname"));
 				
@@ -63,7 +63,7 @@ public class Views {
 		return result.toString();
 	}
 	
-	public String dropView(int item, boolean cascade, boolean isMaterialized) throws SQLException {
+	public String dropView(long item, boolean cascade, boolean isMaterialized) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.VIEW);
 
@@ -83,7 +83,7 @@ public class Views {
 		return qe.executeUtilityCommand(command.toString());
 	}
 
-	public String rename(int item, ITEM_TYPE type, String newName) throws SQLException {
+	public String rename(long item, ITEM_TYPE type, String newName) throws SQLException {
 		Database db = new Database(conn);
 		String name = db.getItemFullName(item, ITEM_TYPE.VIEW);
 

@@ -5,6 +5,8 @@ package com.openscg.pgstudio.client.panels;
 
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -22,17 +24,18 @@ import com.openscg.pgstudio.client.providers.StatsListDataProvider;
 
 public class StatsPanel extends Composite implements DetailsPanel {
 
-	private static String MAIN_HEIGHT = "300px";
+	private static String MAIN_HEIGHT = "450px";
 
 	private DataGrid<StatsInfo> dataGrid;
     private StatsListDataProvider dataProvider = new StatsListDataProvider();
-
+ 	private ModelInfo item;
 
 	private static interface GetValue<C> {
 	    C getValue(StatsInfo column);
 	  }
 
 	public void setItem(ModelInfo item) {
+		this.item = item;
 		dataProvider.setItem(item.getId(), item.getItemType());		
 	}
 	
@@ -59,7 +62,13 @@ public class StatsPanel extends Composite implements DetailsPanel {
 	private PushButton getRefreshButton() {
 		PushButton button = new PushButton(new Image(PgStudio.Images.refresh()));
 		button.setTitle("Refresh");
-		
+		button.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				refresh();				
+			}
+		});
 		return button;
 	}
 	
@@ -107,8 +116,7 @@ public class StatsPanel extends Composite implements DetailsPanel {
 
 	@Override
 	public void refresh() {
-		// TODO Auto-generated method stub
-		
+		setItem(item);		
 	}
 
 }
