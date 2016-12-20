@@ -15,7 +15,7 @@
         <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1.1"/>
         <dependency org="net.sf.advanced-gwt" name="advanced-gwt" rev="2.0.9"/>
         <dependency org="com.mastergaurav.codemirror" name="gcodemirror" rev="0.9">
-          <artifact name="gcodemirror" url="https://gcodemirror.googlecode.com/files/gcodemirror-0.9.jar" />
+          <artifact name="gcodemirror" url="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/gcodemirror/gcodemirror-0.9.jar" />
         </dependency>
         <dependency org="org.vectomatic" name="lib-gwt-file" rev="0.3.4"/>
         <dependency org="org.apache.poi" name="poi" rev="3.12"/>
